@@ -42,6 +42,7 @@ deduplication, a dependency-report diff — cannot tell those two apart.
 
 | part | what for |
 | --- | --- |
+| `reader` | reads a publication from a repository: follows the redirector, keeps `api` and `runtime` apart |
 | `server` | Kotlin: the checks, and the screens as backend-driven UI |
 | `web` | Next.js: the report pages, server-rendered and shareable |
 | `packages/kompot-web` | a React renderer for [kompot](https://github.com/youndie/kompot) screens |

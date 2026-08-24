@@ -1,0 +1,326 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.youndie",
+    "module": "kompot-core",
+    "version": "0.27.0.46",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "metadataApiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.platform.type": "common"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.11.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kompot-core-metadata-0.27.0.jar",
+          "url": "kompot-core-0.27.0.46.jar",
+          "size": 9260,
+          "sha512": "89358f828dda68008657399956f678c5dee73158ff0551e31dd4ef4768357676ff3d339100bf15855e00d25b3ec245228310e2eef3c8cb7e5241aa56cc7ed8a9",
+          "sha256": "954d58e8856b7b5c3377d2753113a54d6fa0485255f8d4e1c289d990c4778d2c",
+          "sha1": "bbfa2418d987451f794b290482df6873c7bd0299",
+          "md5": "a42206fecb02dc495036c3cf056afc9a"
+        }
+      ]
+    },
+    {
+      "name": "metadataSourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.platform.type": "common"
+      },
+      "files": [
+        {
+          "name": "kompot-core-kotlin-0.27.0-sources.jar",
+          "url": "kompot-core-0.27.0.46-sources.jar",
+          "size": 7179,
+          "sha512": "593b463f24417473c85297ec925ec3c4667c08e243b132e702c8682f7b687cd84cdf705b97638565866bd4f3f00950df0b57ca732f8fe30a7d62ab8887ae8710",
+          "sha256": "fb3846f0f684caf5751a091f41d4bae6d2f1712290dae6a97a465aa94946b222",
+          "sha1": "c98dcb8c83248b1efe254920ce59d27f56a1ac24",
+          "md5": "75f366b0fc66fb9c85bc0b4c55ff23c8"
+        }
+      ]
+    },
+    {
+      "name": "iosArm64ApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "ios_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iosarm64/0.27.0.46/kompot-core-iosarm64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iosarm64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosArm64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "ios_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iosarm64/0.27.0.46/kompot-core-iosarm64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iosarm64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosArm64MetadataElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "ios_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iosarm64/0.27.0.46/kompot-core-iosarm64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iosarm64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosSimulatorArm64ApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "ios_simulator_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iossimulatorarm64/0.27.0.46/kompot-core-iossimulatorarm64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iossimulatorarm64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosSimulatorArm64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "ios_simulator_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iossimulatorarm64/0.27.0.46/kompot-core-iossimulatorarm64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iossimulatorarm64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosSimulatorArm64MetadataElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "ios_simulator_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iossimulatorarm64/0.27.0.46/kompot-core-iossimulatorarm64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iossimulatorarm64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosX64ApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "ios_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iosx64/0.27.0.46/kompot-core-iosx64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iosx64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosX64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "ios_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iosx64/0.27.0.46/kompot-core-iosx64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iosx64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "iosX64MetadataElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "ios_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../kompot-core-iosx64/0.27.0.46/kompot-core-iosx64-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-iosx64",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "jvmApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "available-at": {
+        "url": "../../kompot-core-jvm/0.27.0.46/kompot-core-jvm-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-jvm",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "jvmRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "available-at": {
+        "url": "../../kompot-core-jvm/0.27.0.46/kompot-core-jvm-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-jvm",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "jvmSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "available-at": {
+        "url": "../../kompot-core-jvm/0.27.0.46/kompot-core-jvm-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-jvm",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "wasmJsApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.platform.type": "wasm",
+        "org.jetbrains.kotlin.wasm.target": "js"
+      },
+      "available-at": {
+        "url": "../../kompot-core-wasm-js/0.27.0.46/kompot-core-wasm-js-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-wasm-js",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "wasmJsRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.platform.type": "wasm",
+        "org.jetbrains.kotlin.wasm.target": "js"
+      },
+      "available-at": {
+        "url": "../../kompot-core-wasm-js/0.27.0.46/kompot-core-wasm-js-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-wasm-js",
+        "version": "0.27.0.46"
+      }
+    },
+    {
+      "name": "wasmJsSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.platform.type": "wasm",
+        "org.jetbrains.kotlin.wasm.target": "js"
+      },
+      "available-at": {
+        "url": "../../kompot-core-wasm-js/0.27.0.46/kompot-core-wasm-js-0.27.0.46.module",
+        "group": "io.github.youndie",
+        "module": "kompot-core-wasm-js",
+        "version": "0.27.0.46"
+      }
+    }
+  ]
+}
