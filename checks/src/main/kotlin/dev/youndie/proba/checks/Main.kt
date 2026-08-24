@@ -42,11 +42,14 @@ private fun context(publication: Publication, reader: PublicationReader, reposit
     // A dependency read once is read once: a transitive api walk revisits the same coordinate from
     // several targets, and each visit is a request over the network.
     val cache = mutableMapOf<Coordinate, Publication?>()
-    return CheckContext(publication) { coordinate ->
-        cache.getOrPut(coordinate) {
-            (reader.read(coordinate, repository) as? ReadOutcome.Read)?.publication
-        }
-    }
+    return CheckContext(
+        publication = publication,
+        lookup = { coordinate ->
+            cache.getOrPut(coordinate) {
+                (reader.read(coordinate, repository) as? ReadOutcome.Read)?.publication
+            }
+        },
+    )
 }
 
 private fun report(coordinate: Coordinate, findings: List<Finding>): Int {

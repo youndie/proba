@@ -30,3 +30,7 @@ data class MavenRepository(val name: String, val baseUrl: String) {
         val MavenCentral = MavenRepository("Maven Central", "https://repo1.maven.org/maven2")
     }
 }
+
+/** The repository a build publishes into before anything leaves the machine. */
+fun mavenLocal(): MavenRepository =
+    MavenRepository("mavenLocal", java.io.File(System.getProperty("user.home"), ".m2/repository").toURI().toString())

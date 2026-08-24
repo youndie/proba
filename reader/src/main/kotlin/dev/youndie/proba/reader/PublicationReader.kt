@@ -1,8 +1,6 @@
 package dev.youndie.proba.reader
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -30,9 +28,12 @@ sealed interface ReadOutcome {
 data class Attempt(val url: String, val status: Int)
 
 class PublicationReader(
-    private val http: HttpClient,
+    private val fetcher: Fetcher,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
+
+    constructor(client: HttpClient, json: Json = Json { ignoreUnknownKeys = true }) :
+        this(RoutingFetcher(HttpFetcher(client)), json)
 
     suspend fun read(coordinate: Coordinate, repository: MavenRepository): ReadOutcome {
         val tried = mutableListOf<Attempt>()
@@ -109,14 +110,9 @@ class PublicationReader(
     }
 
     private suspend fun fetch(url: String, tried: MutableList<Attempt>): String? {
-        val response = try {
-            http.get(url)
-        } catch (failure: Exception) {
-            tried += Attempt(url, 0)
-            return null
-        }
-        tried += Attempt(url, response.status.value)
-        return if (response.status.value == 200) response.bodyAsText() else null
+        val result = fetcher.fetch(url)
+        tried += Attempt(url, result.status)
+        return result.body
     }
 
     private fun group(located: List<Pair<Coordinate, GmmVariant>>): List<Target> =

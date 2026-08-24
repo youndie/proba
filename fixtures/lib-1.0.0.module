@@ -1,0 +1,89 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "dev.youndie.proba.sample",
+    "module": "lib",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "lib-1.0.0.jar",
+          "url": "lib-1.0.0.jar",
+          "size": 1871,
+          "sha512": "ce5f9f9c682aca7505ea285dec1b267776354bbe8f9d4f2310584f667a3f40f43c3fbafc1ecade1ea841eeddc13dc56b71d5c82c9fbad05db583c99453bef51d",
+          "sha256": "5e90019d44684eae291232e313cb61b07db7a0a5aaf8e69b9690b83a771d9978",
+          "sha1": "0259af40812ebe1797cf63c00edf534faa75e556",
+          "md5": "265d9c589f9431b71e5991740cb9e3de"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "dev.youndie.proba.sample",
+          "module": "support",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "lib-1.0.0.jar",
+          "url": "lib-1.0.0.jar",
+          "size": 1871,
+          "sha512": "ce5f9f9c682aca7505ea285dec1b267776354bbe8f9d4f2310584f667a3f40f43c3fbafc1ecade1ea841eeddc13dc56b71d5c82c9fbad05db583c99453bef51d",
+          "sha256": "5e90019d44684eae291232e313cb61b07db7a0a5aaf8e69b9690b83a771d9978",
+          "sha1": "0259af40812ebe1797cf63c00edf534faa75e556",
+          "md5": "265d9c589f9431b71e5991740cb9e3de"
+        }
+      ]
+    }
+  ]
+}

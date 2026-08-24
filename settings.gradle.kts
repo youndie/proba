@@ -6,3 +6,4 @@ dependencyResolutionManagement {
 
 include(":reader")
 include(":checks")
+include(":resolver")

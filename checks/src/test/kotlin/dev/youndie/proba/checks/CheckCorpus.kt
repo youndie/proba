@@ -28,6 +28,7 @@ class CheckCase(
 object CheckCorpus {
 
     private const val GROUP = "io.github.youndie"
+    private val SAMPLE = Coordinate("dev.youndie.proba.sample", "lib", "1.0.0")
 
     val cases: List<CheckCase> = listOf(
 
@@ -78,6 +79,22 @@ object CheckCorpus {
                 lookup = lookup("kompot-client-0.27.0.46.module", "kompot-client-desktop-0.27.0.46.module"),
             )
         },
+        CheckCase("api-unreachable", Expectation.Fires, "the public API hands out a type the classpath does not carry") {
+            CheckContext(
+                publication = read(SAMPLE, "lib-1.0.0.module"),
+                consumer = RecordedConsumer.withoutSupport(),
+            )
+        },
+        CheckCase("api-unreachable", Expectation.Silent, "the same API, with the type on the classpath") {
+            CheckContext(
+                publication = read(SAMPLE, "lib-1.0.0.module"),
+                consumer = RecordedConsumer.withSupport(),
+            )
+        },
+        CheckCase("api-unreachable", Expectation.Undetermined, "no consumer build was run") {
+            CheckContext(read(SAMPLE, "lib-1.0.0.module"))
+        },
+
         CheckCase("api-omits-sibling", Expectation.Undetermined, "the same publication with nothing to look up") {
             CheckContext(
                 read(

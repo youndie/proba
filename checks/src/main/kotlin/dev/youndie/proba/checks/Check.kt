@@ -20,6 +20,8 @@ interface Check {
 class CheckContext(
     val publication: Publication,
     val lookup: PublicationLookup = PublicationLookup { null },
+    /** Present only when a real consumer build was run for this publication. */
+    val consumer: ConsumerView? = null,
 )
 
 /** Reads another publication — an api dependency, a neighbouring version. May answer null. */
@@ -55,6 +57,7 @@ object Checks {
         DanglingRedirect,
         ComponentMatchesPath,
         ApiOmitsSibling,
+        ApiUnreachable,
     )
 
     fun byId(id: String): Check = all.single { it.id == id }
