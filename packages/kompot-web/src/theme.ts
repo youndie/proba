@@ -8,6 +8,21 @@ import type { CSSProperties } from "react";
 export interface Theme {
   color(token: string): string | undefined;
   typography(token: string): CSSProperties | undefined;
+
+  /**
+   * The foreground that goes with a background token, if the theme names one.
+   *
+   * The protocol has nowhere to put the colour of text: `KompotTextStyle` carries size, line height,
+   * weight and tracking, the text component carries a typography token and no colour, and of the
+   * five modifier nodes only `background` names a colour at all. So the foreground is the client's
+   * decision, and every client makes it differently unless it is written down somewhere.
+   *
+   * Pairing it to the background is the version of that decision a server can influence: the server
+   * says `background: surface_raised`, and the text on it comes out in whatever this theme says goes
+   * with `surface_raised`. An unpaired token changes nothing and the text inherits, which is the
+   * same degradation an unknown token gets.
+   */
+  onColor(backgroundToken: string): string | undefined;
 }
 
 const materialColors: Record<string, string> = {
@@ -38,15 +53,32 @@ const materialTypography: Record<string, CSSProperties> = {
   label_small: { fontSize: "11px", lineHeight: "16px", fontWeight: 500 },
 };
 
+/** Material names its foregrounds after its backgrounds already, so the pairing is a prefix. */
+const materialPairs = (token: string): string | undefined => {
+  const paired = `on_${token}`;
+  return paired in materialColors ? materialColors[paired] : undefined;
+};
+
 /** The reference token set, matching the constants a kompot server and client already share. */
 export const materialTheme: Theme = {
   color: (token) => materialColors[token],
   typography: (token) => materialTypography[token],
+  onColor: materialPairs,
 };
 
-export function themeWith(colors: Record<string, string>, typography: Record<string, CSSProperties> = {}): Theme {
-  return {
+export function themeWith(
+  colors: Record<string, string>,
+  typography: Record<string, CSSProperties> = {},
+  pairs: Record<string, string> = {},
+): Theme {
+  const theme: Theme = {
     color: (token) => colors[token] ?? materialTheme.color(token),
     typography: (token) => typography[token] ?? materialTheme.typography(token),
+    onColor: (token) => {
+      const paired = pairs[token];
+      if (paired) return theme.color(paired);
+      return colors[`on_${token}`] ?? materialTheme.onColor(token);
+    },
   };
+  return theme;
 }

@@ -1,0 +1,556 @@
+{
+  "type": "column",
+  "id": "report",
+  "spacing": 16,
+  "modifiers": [
+    {
+      "type": "size",
+      "width": "Fill"
+    },
+    {
+      "type": "background",
+      "color": "surface"
+    },
+    {
+      "type": "padding",
+      "all": 32
+    }
+  ],
+  "children": [
+    {
+      "type": "column",
+      "id": "header",
+      "spacing": 4,
+      "children": [
+        {
+          "type": "text",
+          "id": "title",
+          "text": "io.github.youndie:kompot-core:0.27.0.46",
+          "style": "title_page"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "text": "4 finding(s) from both tiers",
+          "style": "body_small"
+        }
+      ]
+    },
+    {
+      "type": "column",
+      "id": "f0",
+      "spacing": 8,
+      "modifiers": [
+        {
+          "type": "size",
+          "width": "Fill"
+        },
+        {
+          "type": "background",
+          "color": "severity_defect_surface"
+        },
+        {
+          "type": "padding",
+          "all": 20
+        }
+      ],
+      "children": [
+        {
+          "type": "row",
+          "id": "f0-head",
+          "spacing": 8,
+          "children": [
+            {
+              "type": "row",
+              "id": "f0-badge",
+              "spacing": 6,
+              "modifiers": [
+                {
+                  "type": "background",
+                  "color": "severity_defect_surface"
+                },
+                {
+                  "type": "padding",
+                  "all": 6
+                }
+              ],
+              "children": [
+                {
+                  "type": "column",
+                  "id": "f0-mark",
+                  "children": [],
+                  "modifiers": [
+                    {
+                      "type": "size",
+                      "widthDp": 12,
+                      "heightDp": 12
+                    },
+                    {
+                      "type": "background",
+                      "color": "severity_defect"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "f0-word",
+                  "text": "defect",
+                  "style": "label"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "f0-check",
+              "text": "api-unreachable",
+              "style": "code"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "f0-subject",
+          "text": "jvm: lib-1.0.0.jar",
+          "style": "title_section"
+        },
+        {
+          "type": "text",
+          "id": "f0-message",
+          "text": "the public API hands out 1 type a consumer cannot name — dev.youndie.proba.sample.support.Token — so code calling it fails with “Cannot access class” while this build, its tests and its publish stay green",
+          "style": "body"
+        },
+        {
+          "type": "column",
+          "id": "f0-evidence",
+          "spacing": 4,
+          "modifiers": [
+            {
+              "type": "size",
+              "width": "Fill"
+            },
+            {
+              "type": "background",
+              "color": "surface_sunken"
+            },
+            {
+              "type": "padding",
+              "all": 12
+            }
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "f0-e0",
+              "text": "not on the compile classpath: dev.youndie.proba.sample.support.Token",
+              "style": "code_small"
+            },
+            {
+              "type": "text",
+              "id": "f0-e1",
+              "text": "compile classpath: 3 artefacts",
+              "style": "code_small"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "column",
+      "id": "f1",
+      "spacing": 8,
+      "modifiers": [
+        {
+          "type": "size",
+          "width": "Fill"
+        },
+        {
+          "type": "background",
+          "color": "severity_defect_surface"
+        },
+        {
+          "type": "padding",
+          "all": 20
+        }
+      ],
+      "children": [
+        {
+          "type": "row",
+          "id": "f1-head",
+          "spacing": 8,
+          "children": [
+            {
+              "type": "row",
+              "id": "f1-badge",
+              "spacing": 6,
+              "modifiers": [
+                {
+                  "type": "background",
+                  "color": "severity_defect_surface"
+                },
+                {
+                  "type": "padding",
+                  "all": 6
+                }
+              ],
+              "children": [
+                {
+                  "type": "column",
+                  "id": "f1-mark",
+                  "children": [],
+                  "modifiers": [
+                    {
+                      "type": "size",
+                      "widthDp": 12,
+                      "heightDp": 12
+                    },
+                    {
+                      "type": "background",
+                      "color": "severity_defect"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "f1-word",
+                  "text": "defect",
+                  "style": "label"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "f1-check",
+              "text": "version-in-declared-name",
+              "style": "code"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "f1-subject",
+          "text": "jvm: kompot-core-jvm-0.27.0.jar",
+          "style": "title_section"
+        },
+        {
+          "type": "text",
+          "id": "f1-message",
+          "text": "arrives as “kompot-core-jvm-0.27.0.jar”, which carries no version 0.27.0.46 — anything that tells artefacts apart by file name records a version that was never published",
+          "style": "body"
+        },
+        {
+          "type": "column",
+          "id": "f1-evidence",
+          "spacing": 4,
+          "modifiers": [
+            {
+              "type": "size",
+              "width": "Fill"
+            },
+            {
+              "type": "background",
+              "color": "surface_sunken"
+            },
+            {
+              "type": "padding",
+              "all": 12
+            }
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "f1-e0",
+              "text": "declared name kompot-core-jvm-0.27.0.jar",
+              "style": "code_small"
+            },
+            {
+              "type": "text",
+              "id": "f1-e1",
+              "text": "fetched from kompot-core-jvm-0.27.0.46.jar",
+              "style": "code_small"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "column",
+      "id": "f2",
+      "spacing": 8,
+      "modifiers": [
+        {
+          "type": "size",
+          "width": "Fill"
+        },
+        {
+          "type": "background",
+          "color": "severity_suspicion_surface"
+        },
+        {
+          "type": "padding",
+          "all": 20
+        }
+      ],
+      "children": [
+        {
+          "type": "row",
+          "id": "f2-head",
+          "spacing": 8,
+          "children": [
+            {
+              "type": "row",
+              "id": "f2-badge",
+              "spacing": 6,
+              "modifiers": [
+                {
+                  "type": "background",
+                  "color": "severity_suspicion_surface"
+                },
+                {
+                  "type": "padding",
+                  "all": 6
+                }
+              ],
+              "children": [
+                {
+                  "type": "column",
+                  "id": "f2-mark",
+                  "children": [],
+                  "modifiers": [
+                    {
+                      "type": "size",
+                      "widthDp": 12,
+                      "heightDp": 12
+                    },
+                    {
+                      "type": "gradient",
+                      "colors": [
+                        "severity_suspicion",
+                        "severity_suspicion_surface"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "f2-word",
+                  "text": "suspicion",
+                  "style": "label"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "f2-check",
+              "text": "api-omits-sibling",
+              "style": "code"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "f2-subject",
+          "text": "jvm",
+          "style": "title_section"
+        },
+        {
+          "type": "text",
+          "id": "f2-message",
+          "text": "a consumer compiling against this target never receives io.github.youndie:kompot-registry-annotations, which the run time does receive — correct only if no public signature mentions them",
+          "style": "body"
+        },
+        {
+          "type": "column",
+          "id": "f2-evidence",
+          "spacing": 4,
+          "modifiers": [
+            {
+              "type": "size",
+              "width": "Fill"
+            },
+            {
+              "type": "background",
+              "color": "surface_sunken"
+            },
+            {
+              "type": "padding",
+              "all": 12
+            }
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "f2-e0",
+              "text": "api jvmApiElements-published: kompot-core, kotlinx-serialization-json, kotlin-stdlib",
+              "style": "code_small"
+            },
+            {
+              "type": "text",
+              "id": "f2-e1",
+              "text": "runtime jvmRuntimeElements-published: … , kompot-registry-annotations",
+              "style": "code_small"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "column",
+      "id": "f3",
+      "spacing": 8,
+      "modifiers": [
+        {
+          "type": "size",
+          "width": "Fill"
+        },
+        {
+          "type": "background",
+          "color": "severity_undetermined_surface"
+        },
+        {
+          "type": "padding",
+          "all": 20
+        }
+      ],
+      "children": [
+        {
+          "type": "row",
+          "id": "f3-head",
+          "spacing": 8,
+          "children": [
+            {
+              "type": "row",
+              "id": "f3-badge",
+              "spacing": 6,
+              "modifiers": [
+                {
+                  "type": "background",
+                  "color": "severity_undetermined_surface"
+                },
+                {
+                  "type": "padding",
+                  "all": 6
+                }
+              ],
+              "children": [
+                {
+                  "type": "column",
+                  "id": "f3-mark",
+                  "children": [
+                    {
+                      "type": "column",
+                      "id": "f3-mark-hole",
+                      "children": [],
+                      "modifiers": [
+                        {
+                          "type": "size",
+                          "width": "Fill",
+                          "height": "Fill"
+                        },
+                        {
+                          "type": "background",
+                          "color": "severity_undetermined_surface"
+                        }
+                      ]
+                    }
+                  ],
+                  "modifiers": [
+                    {
+                      "type": "size",
+                      "widthDp": 12,
+                      "heightDp": 12
+                    },
+                    {
+                      "type": "background",
+                      "color": "severity_undetermined"
+                    },
+                    {
+                      "type": "padding",
+                      "all": 2
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "f3-word",
+                  "text": "undetermined",
+                  "style": "label"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "f3-check",
+              "text": "api-unreachable",
+              "style": "code"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "f3-subject",
+          "text": "iosArm64",
+          "style": "title_section"
+        },
+        {
+          "type": "text",
+          "id": "f3-message",
+          "text": "no consumer build was run for this target, so what a compile classpath receives is not known here",
+          "style": "body"
+        },
+        {
+          "type": "column",
+          "id": "f3-evidence",
+          "spacing": 4,
+          "modifiers": [
+            {
+              "type": "size",
+              "width": "Fill"
+            },
+            {
+              "type": "background",
+              "color": "surface_sunken"
+            },
+            {
+              "type": "padding",
+              "all": 12
+            }
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "f3-e0",
+              "text": "the confirming tier resolves jvm only; reading a klib's public surface is still an open question",
+              "style": "code_small"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": "actions",
+      "spacing": 8,
+      "children": [
+        {
+          "type": "button",
+          "id": "rerun",
+          "text": "Run again",
+          "action": {
+            "type": "load_page",
+            "url": "/report/rerun"
+          }
+        },
+        {
+          "type": "button",
+          "id": "spec",
+          "text": "What this checks",
+          "variant": "text",
+          "action": {
+            "type": "open_url",
+            "url": "https://github.com/youndie/proba"
+          }
+        }
+      ]
+    }
+  ]
+}

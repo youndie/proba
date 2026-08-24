@@ -173,3 +173,34 @@ describe("actions", () => {
     expect(onAction).toHaveBeenCalledWith({ type: "open_url", url: "https://example.org" });
   });
 });
+
+describe("a constraint reaches the nodes after it", () => {
+  const marker = (modifiers: unknown[]): AnyComponent =>
+    ({ type: "column", id: "m", children: [], modifiers }) as unknown as AnyComponent;
+
+  it("fills a fixed size with a background that follows it", () => {
+    // Found by rendering rather than by reading: the severity mark is an empty box with a size and a
+    // colour, and the colour had nowhere to go. In Compose `size(12.dp).background(c)` is a 12dp
+    // square, because background fills the constraints it is handed; a nested element does not, and
+    // around empty content it collapses to nothing at all.
+    const root = draw(marker([{ type: "size", widthDp: 12, heightDp: 12 }, { type: "background", color: "primary" }]));
+
+    const background = modifier(root, "background")!;
+    expect(background.style.width).toBe("100%");
+    expect(background.style.height).toBe("100%");
+  });
+
+  it("carries the constraint per axis, not for the whole element", () => {
+    const root = draw(marker([{ type: "size", widthDp: 12 }, { type: "background", color: "primary" }]));
+
+    const background = modifier(root, "background")!;
+    expect(background.style.width).toBe("100%");
+    expect(background.style.height).toBe("");
+  });
+
+  it("leaves an unconstrained chain alone, so a padded box does not stretch across its row", () => {
+    const root = draw(marker([{ type: "padding", all: 8 }, { type: "background", color: "primary" }]));
+
+    expect(modifier(root, "background")!.style.width).toBe("");
+  });
+});
