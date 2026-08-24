@@ -1,556 +1,3145 @@
 {
-  "type": "column",
-  "id": "report",
-  "spacing": 16,
-  "modifiers": [
-    {
-      "type": "size",
-      "width": "Fill"
-    },
-    {
-      "type": "background",
-      "color": "surface"
-    },
-    {
-      "type": "padding",
-      "all": 32
-    }
-  ],
-  "children": [
-    {
-      "type": "column",
-      "id": "header",
-      "spacing": 4,
-      "children": [
+    "type": "column",
+    "id": "report",
+    "modifiers": [
         {
-          "type": "text",
-          "id": "title",
-          "text": "io.github.youndie:kompot-core:0.27.0.46",
-          "style": "title_page"
+            "type": "size",
+            "width": "Fill",
+            "height": null,
+            "widthDp": null,
+            "heightDp": null
         },
         {
-          "type": "text",
-          "id": "subtitle",
-          "text": "4 finding(s) from both tiers",
-          "style": "body_small"
+            "type": "background",
+            "color": "surface"
+        },
+        {
+            "type": "padding",
+            "all": 32,
+            "top": null,
+            "bottom": null,
+            "start": null,
+            "end": null
         }
-      ]
-    },
-    {
-      "type": "column",
-      "id": "f0",
-      "spacing": 8,
-      "modifiers": [
+    ],
+    "children": [
         {
-          "type": "size",
-          "width": "Fill"
-        },
-        {
-          "type": "background",
-          "color": "severity_defect_surface"
-        },
-        {
-          "type": "padding",
-          "all": 20
-        }
-      ],
-      "children": [
-        {
-          "type": "row",
-          "id": "f0-head",
-          "spacing": 8,
-          "children": [
-            {
-              "type": "row",
-              "id": "f0-badge",
-              "spacing": 6,
-              "modifiers": [
+            "type": "column",
+            "id": "header",
+            "modifiers": [],
+            "children": [
                 {
-                  "type": "background",
-                  "color": "severity_defect_surface"
+                    "type": "text",
+                    "id": "title",
+                    "modifiers": [],
+                    "text": "io.github.youndie:kompot-standard:0.27.0.46",
+                    "style": "title_page",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
                 },
                 {
-                  "type": "padding",
-                  "all": 6
+                    "type": "text",
+                    "id": "subtitle",
+                    "modifiers": [],
+                    "text": "18 finding(s) from the repository alone",
+                    "style": "body_small",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
                 }
-              ],
-              "children": [
+            ],
+            "spacing": 4,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f0",
+            "modifiers": [
                 {
-                  "type": "column",
-                  "id": "f0-mark",
-                  "children": [],
-                  "modifiers": [
-                    {
-                      "type": "size",
-                      "widthDp": 12,
-                      "heightDp": 12
-                    },
-                    {
-                      "type": "background",
-                      "color": "severity_defect"
-                    }
-                  ]
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
                 },
                 {
-                  "type": "text",
-                  "id": "f0-word",
-                  "text": "defect",
-                  "style": "label"
-                }
-              ]
-            },
-            {
-              "type": "text",
-              "id": "f0-check",
-              "text": "api-unreachable",
-              "style": "code"
-            }
-          ]
-        },
-        {
-          "type": "text",
-          "id": "f0-subject",
-          "text": "jvm: lib-1.0.0.jar",
-          "style": "title_section"
-        },
-        {
-          "type": "text",
-          "id": "f0-message",
-          "text": "the public API hands out 1 type a consumer cannot name — dev.youndie.proba.sample.support.Token — so code calling it fails with “Cannot access class” while this build, its tests and its publish stay green",
-          "style": "body"
-        },
-        {
-          "type": "column",
-          "id": "f0-evidence",
-          "spacing": 4,
-          "modifiers": [
-            {
-              "type": "size",
-              "width": "Fill"
-            },
-            {
-              "type": "background",
-              "color": "surface_sunken"
-            },
-            {
-              "type": "padding",
-              "all": 12
-            }
-          ],
-          "children": [
-            {
-              "type": "text",
-              "id": "f0-e0",
-              "text": "not on the compile classpath: dev.youndie.proba.sample.support.Token",
-              "style": "code_small"
-            },
-            {
-              "type": "text",
-              "id": "f0-e1",
-              "text": "compile classpath: 3 artefacts",
-              "style": "code_small"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "column",
-      "id": "f1",
-      "spacing": 8,
-      "modifiers": [
-        {
-          "type": "size",
-          "width": "Fill"
-        },
-        {
-          "type": "background",
-          "color": "severity_defect_surface"
-        },
-        {
-          "type": "padding",
-          "all": 20
-        }
-      ],
-      "children": [
-        {
-          "type": "row",
-          "id": "f1-head",
-          "spacing": 8,
-          "children": [
-            {
-              "type": "row",
-              "id": "f1-badge",
-              "spacing": 6,
-              "modifiers": [
-                {
-                  "type": "background",
-                  "color": "severity_defect_surface"
+                    "type": "background",
+                    "color": "surface_raised"
                 },
                 {
-                  "type": "padding",
-                  "all": 6
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
                 }
-              ],
-              "children": [
+            ],
+            "children": [
                 {
-                  "type": "column",
-                  "id": "f1-mark",
-                  "children": [],
-                  "modifiers": [
-                    {
-                      "type": "size",
-                      "widthDp": 12,
-                      "heightDp": 12
-                    },
-                    {
-                      "type": "background",
-                      "color": "severity_defect"
-                    }
-                  ]
-                },
-                {
-                  "type": "text",
-                  "id": "f1-word",
-                  "text": "defect",
-                  "style": "label"
-                }
-              ]
-            },
-            {
-              "type": "text",
-              "id": "f1-check",
-              "text": "version-in-declared-name",
-              "style": "code"
-            }
-          ]
-        },
-        {
-          "type": "text",
-          "id": "f1-subject",
-          "text": "jvm: kompot-core-jvm-0.27.0.jar",
-          "style": "title_section"
-        },
-        {
-          "type": "text",
-          "id": "f1-message",
-          "text": "arrives as “kompot-core-jvm-0.27.0.jar”, which carries no version 0.27.0.46 — anything that tells artefacts apart by file name records a version that was never published",
-          "style": "body"
-        },
-        {
-          "type": "column",
-          "id": "f1-evidence",
-          "spacing": 4,
-          "modifiers": [
-            {
-              "type": "size",
-              "width": "Fill"
-            },
-            {
-              "type": "background",
-              "color": "surface_sunken"
-            },
-            {
-              "type": "padding",
-              "all": 12
-            }
-          ],
-          "children": [
-            {
-              "type": "text",
-              "id": "f1-e0",
-              "text": "declared name kompot-core-jvm-0.27.0.jar",
-              "style": "code_small"
-            },
-            {
-              "type": "text",
-              "id": "f1-e1",
-              "text": "fetched from kompot-core-jvm-0.27.0.46.jar",
-              "style": "code_small"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "column",
-      "id": "f2",
-      "spacing": 8,
-      "modifiers": [
-        {
-          "type": "size",
-          "width": "Fill"
-        },
-        {
-          "type": "background",
-          "color": "severity_suspicion_surface"
-        },
-        {
-          "type": "padding",
-          "all": 20
-        }
-      ],
-      "children": [
-        {
-          "type": "row",
-          "id": "f2-head",
-          "spacing": 8,
-          "children": [
-            {
-              "type": "row",
-              "id": "f2-badge",
-              "spacing": 6,
-              "modifiers": [
-                {
-                  "type": "background",
-                  "color": "severity_suspicion_surface"
-                },
-                {
-                  "type": "padding",
-                  "all": 6
-                }
-              ],
-              "children": [
-                {
-                  "type": "column",
-                  "id": "f2-mark",
-                  "children": [],
-                  "modifiers": [
-                    {
-                      "type": "size",
-                      "widthDp": 12,
-                      "heightDp": 12
-                    },
-                    {
-                      "type": "gradient",
-                      "colors": [
-                        "severity_suspicion",
-                        "severity_suspicion_surface"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "text",
-                  "id": "f2-word",
-                  "text": "suspicion",
-                  "style": "label"
-                }
-              ]
-            },
-            {
-              "type": "text",
-              "id": "f2-check",
-              "text": "api-omits-sibling",
-              "style": "code"
-            }
-          ]
-        },
-        {
-          "type": "text",
-          "id": "f2-subject",
-          "text": "jvm",
-          "style": "title_section"
-        },
-        {
-          "type": "text",
-          "id": "f2-message",
-          "text": "a consumer compiling against this target never receives io.github.youndie:kompot-registry-annotations, which the run time does receive — correct only if no public signature mentions them",
-          "style": "body"
-        },
-        {
-          "type": "column",
-          "id": "f2-evidence",
-          "spacing": 4,
-          "modifiers": [
-            {
-              "type": "size",
-              "width": "Fill"
-            },
-            {
-              "type": "background",
-              "color": "surface_sunken"
-            },
-            {
-              "type": "padding",
-              "all": 12
-            }
-          ],
-          "children": [
-            {
-              "type": "text",
-              "id": "f2-e0",
-              "text": "api jvmApiElements-published: kompot-core, kotlinx-serialization-json, kotlin-stdlib",
-              "style": "code_small"
-            },
-            {
-              "type": "text",
-              "id": "f2-e1",
-              "text": "runtime jvmRuntimeElements-published: … , kompot-registry-annotations",
-              "style": "code_small"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "column",
-      "id": "f3",
-      "spacing": 8,
-      "modifiers": [
-        {
-          "type": "size",
-          "width": "Fill"
-        },
-        {
-          "type": "background",
-          "color": "severity_undetermined_surface"
-        },
-        {
-          "type": "padding",
-          "all": 20
-        }
-      ],
-      "children": [
-        {
-          "type": "row",
-          "id": "f3-head",
-          "spacing": 8,
-          "children": [
-            {
-              "type": "row",
-              "id": "f3-badge",
-              "spacing": 6,
-              "modifiers": [
-                {
-                  "type": "background",
-                  "color": "severity_undetermined_surface"
-                },
-                {
-                  "type": "padding",
-                  "all": 6
-                }
-              ],
-              "children": [
-                {
-                  "type": "column",
-                  "id": "f3-mark",
-                  "children": [
-                    {
-                      "type": "column",
-                      "id": "f3-mark-hole",
-                      "children": [],
-                      "modifiers": [
+                    "type": "row",
+                    "id": "f0-head",
+                    "modifiers": [],
+                    "children": [
                         {
-                          "type": "size",
-                          "width": "Fill",
-                          "height": "Fill"
+                            "type": "row",
+                            "id": "f0-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f0-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f0-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
                         },
                         {
-                          "type": "background",
-                          "color": "severity_undetermined_surface"
+                            "type": "text",
+                            "id": "f0-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
                         }
-                      ]
-                    }
-                  ],
-                  "modifiers": [
-                    {
-                      "type": "size",
-                      "widthDp": 12,
-                      "heightDp": 12
-                    },
-                    {
-                      "type": "background",
-                      "color": "severity_undetermined"
-                    },
-                    {
-                      "type": "padding",
-                      "all": 2
-                    }
-                  ]
+                    ],
+                    "spacing": 8,
+                    "action": null
                 },
                 {
-                  "type": "text",
-                  "id": "f3-word",
-                  "text": "undetermined",
-                  "style": "label"
+                    "type": "text",
+                    "id": "f0-subject",
+                    "modifiers": [],
+                    "text": "common: kompot-standard-metadata-0.27.0.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f0-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-metadata-0.27.0.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f0-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f0-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-metadata-0.27.0.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f0-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-0.27.0.46.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
                 }
-              ]
-            },
-            {
-              "type": "text",
-              "id": "f3-check",
-              "text": "api-unreachable",
-              "style": "code"
-            }
-          ]
+            ],
+            "spacing": 8,
+            "action": null
         },
         {
-          "type": "text",
-          "id": "f3-subject",
-          "text": "iosArm64",
-          "style": "title_section"
+            "type": "column",
+            "id": "f1",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f1-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f1-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f1-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f1-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f1-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f1-subject",
+                    "modifiers": [],
+                    "text": "common: kompot-standard-kotlin-0.27.0-sources.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f1-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-kotlin-0.27.0-sources.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f1-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f1-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-kotlin-0.27.0-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f1-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-0.27.0.46-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
         },
         {
-          "type": "text",
-          "id": "f3-message",
-          "text": "no consumer build was run for this target, so what a compile classpath receives is not known here",
-          "style": "body"
+            "type": "column",
+            "id": "f2",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f2-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f2-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f2-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f2-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f2-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f2-subject",
+                    "modifiers": [],
+                    "text": "iosArm64: kompot-standard-iosArm64Main-0.27.0.klib",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f2-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iosArm64Main-0.27.0.klib\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f2-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f2-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iosArm64Main-0.27.0.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f2-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iosarm64-0.27.0.46.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
         },
         {
-          "type": "column",
-          "id": "f3-evidence",
-          "spacing": 4,
-          "modifiers": [
-            {
-              "type": "size",
-              "width": "Fill"
-            },
-            {
-              "type": "background",
-              "color": "surface_sunken"
-            },
-            {
-              "type": "padding",
-              "all": 12
-            }
-          ],
-          "children": [
-            {
-              "type": "text",
-              "id": "f3-e0",
-              "text": "the confirming tier resolves jvm only; reading a klib's public surface is still an open question",
-              "style": "code_small"
-            }
-          ]
+            "type": "column",
+            "id": "f3",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f3-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f3-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f3-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f3-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f3-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f3-subject",
+                    "modifiers": [],
+                    "text": "iosArm64: kompot-standard-iosarm64-0.27.0-sources.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f3-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iosarm64-0.27.0-sources.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f3-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f3-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iosarm64-0.27.0-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f3-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iosarm64-0.27.0.46-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f4",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f4-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f4-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f4-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f4-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f4-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f4-subject",
+                    "modifiers": [],
+                    "text": "iosArm64: kompot-standard-iosarm64-0.27.0-metadata.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f4-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iosarm64-0.27.0-metadata.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f4-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f4-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iosarm64-0.27.0-metadata.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f4-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iosarm64-0.27.0.46-metadata.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f5",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f5-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f5-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f5-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f5-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f5-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f5-subject",
+                    "modifiers": [],
+                    "text": "iosSimulatorArm64: kompot-standard-iosSimulatorArm64Main-0.27.0.klib",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f5-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iosSimulatorArm64Main-0.27.0.klib\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f5-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f5-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iosSimulatorArm64Main-0.27.0.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f5-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iossimulatorarm64-0.27.0.46.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f6",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f6-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f6-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f6-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f6-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f6-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f6-subject",
+                    "modifiers": [],
+                    "text": "iosSimulatorArm64: kompot-standard-iossimulatorarm64-0.27.0-sources.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f6-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iossimulatorarm64-0.27.0-sources.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f6-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f6-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iossimulatorarm64-0.27.0-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f6-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iossimulatorarm64-0.27.0.46-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f7",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f7-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f7-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f7-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f7-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f7-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f7-subject",
+                    "modifiers": [],
+                    "text": "iosSimulatorArm64: kompot-standard-iossimulatorarm64-0.27.0-metadata.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f7-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iossimulatorarm64-0.27.0-metadata.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f7-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f7-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iossimulatorarm64-0.27.0-metadata.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f7-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iossimulatorarm64-0.27.0.46-metadata.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f8",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f8-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f8-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f8-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f8-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f8-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f8-subject",
+                    "modifiers": [],
+                    "text": "iosX64: kompot-standard-iosX64Main-0.27.0.klib",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f8-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iosX64Main-0.27.0.klib\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f8-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f8-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iosX64Main-0.27.0.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f8-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iosx64-0.27.0.46.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f9",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f9-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f9-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f9-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f9-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f9-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f9-subject",
+                    "modifiers": [],
+                    "text": "iosX64: kompot-standard-iosx64-0.27.0-sources.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f9-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iosx64-0.27.0-sources.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f9-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f9-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iosx64-0.27.0-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f9-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iosx64-0.27.0.46-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f10",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f10-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f10-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f10-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f10-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f10-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f10-subject",
+                    "modifiers": [],
+                    "text": "iosX64: kompot-standard-iosx64-0.27.0-metadata.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f10-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-iosx64-0.27.0-metadata.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f10-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f10-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-iosx64-0.27.0-metadata.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f10-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-iosx64-0.27.0.46-metadata.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f11",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f11-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f11-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f11-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f11-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f11-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f11-subject",
+                    "modifiers": [],
+                    "text": "jvm: kompot-standard-jvm-0.27.0.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f11-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-jvm-0.27.0.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f11-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f11-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-jvm-0.27.0.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f11-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-jvm-0.27.0.46.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f12",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f12-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f12-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f12-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f12-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f12-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f12-subject",
+                    "modifiers": [],
+                    "text": "jvm: kompot-standard-jvm-0.27.0-sources.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f12-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-jvm-0.27.0-sources.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f12-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f12-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-jvm-0.27.0-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f12-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-jvm-0.27.0.46-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f13",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f13-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f13-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f13-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f13-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f13-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f13-subject",
+                    "modifiers": [],
+                    "text": "wasmJs: kompot-standard-wasm-js-0.27.0.klib",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f13-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-wasm-js-0.27.0.klib\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f13-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f13-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-wasm-js-0.27.0.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f13-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-wasm-js-0.27.0.46.klib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f14",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f14-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f14-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_defect_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f14-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_defect"
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f14-word",
+                                    "modifiers": [],
+                                    "text": "defect",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f14-check",
+                            "modifiers": [],
+                            "text": "version-in-declared-name",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f14-subject",
+                    "modifiers": [],
+                    "text": "wasmJs: kompot-standard-wasm-js-0.27.0-sources.jar",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f14-message",
+                    "modifiers": [],
+                    "text": "arrives as \"kompot-standard-wasm-js-0.27.0-sources.jar\", which carries no version 0.27.0.46 \u2014 anything that tells artefacts apart by file name records a version that was never published",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f14-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f14-e0",
+                            "modifiers": [],
+                            "text": "declared name kompot-standard-wasm-js-0.27.0-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f14-e1",
+                            "modifiers": [],
+                            "text": "fetched from kompot-standard-wasm-js-0.27.0.46-sources.jar",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f15",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f15-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f15-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_suspicion_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f15-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "gradient",
+                                            "colors": [
+                                                "severity_suspicion",
+                                                "severity_suspicion_surface"
+                                            ]
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f15-word",
+                                    "modifiers": [],
+                                    "text": "suspicion",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f15-check",
+                            "modifiers": [],
+                            "text": "api-omits-sibling",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f15-subject",
+                    "modifiers": [],
+                    "text": "jvm",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f15-message",
+                    "modifiers": [],
+                    "text": "a consumer compiling against this target never receives io.github.youndie:kompot-registry-annotations, which the run time does receive \u2014 correct only if no public signature mentions them",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f15-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f15-e0",
+                            "modifiers": [],
+                            "text": "api jvmApiElements-published: io.github.youndie:kompot-core, org.jetbrains.kotlinx:kotlinx-serialization-json, org.jetbrains.kotlin:kotlin-stdlib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f15-e1",
+                            "modifiers": [],
+                            "text": "runtime jvmRuntimeElements-published: io.github.youndie:kompot-core, org.jetbrains.kotlinx:kotlinx-serialization-json, org.jetbrains.kotlin:kotlin-stdlib, io.github.youndie:kompot-registry-annotations",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f16",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f16-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f16-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_suspicion_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f16-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "gradient",
+                                            "colors": [
+                                                "severity_suspicion",
+                                                "severity_suspicion_surface"
+                                            ]
+                                        }
+                                    ],
+                                    "children": [],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f16-word",
+                                    "modifiers": [],
+                                    "text": "suspicion",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f16-check",
+                            "modifiers": [],
+                            "text": "api-omits-sibling",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f16-subject",
+                    "modifiers": [],
+                    "text": "wasmJs",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f16-message",
+                    "modifiers": [],
+                    "text": "a consumer compiling against this target never receives io.github.youndie:kompot-registry-annotations, which the run time does receive \u2014 correct only if no public signature mentions them",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f16-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [
+                        {
+                            "type": "text",
+                            "id": "f16-e0",
+                            "modifiers": [],
+                            "text": "api wasmJsApiElements-published: io.github.youndie:kompot-core, org.jetbrains.kotlinx:kotlinx-serialization-json, org.jetbrains.kotlin:kotlin-stdlib",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        },
+                        {
+                            "type": "text",
+                            "id": "f16-e1",
+                            "modifiers": [],
+                            "text": "runtime wasmJsRuntimeElements-published: io.github.youndie:kompot-core, org.jetbrains.kotlinx:kotlinx-serialization-json, org.jetbrains.kotlin:kotlin-stdlib, io.github.youndie:kompot-registry-annotations",
+                            "style": "code_small",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "column",
+            "id": "f17",
+            "modifiers": [
+                {
+                    "type": "size",
+                    "width": "Fill",
+                    "height": null,
+                    "widthDp": null,
+                    "heightDp": null
+                },
+                {
+                    "type": "background",
+                    "color": "surface_raised"
+                },
+                {
+                    "type": "padding",
+                    "all": 20,
+                    "top": null,
+                    "bottom": null,
+                    "start": null,
+                    "end": null
+                }
+            ],
+            "children": [
+                {
+                    "type": "row",
+                    "id": "f17-head",
+                    "modifiers": [],
+                    "children": [
+                        {
+                            "type": "row",
+                            "id": "f17-badge",
+                            "modifiers": [
+                                {
+                                    "type": "background",
+                                    "color": "severity_undetermined_surface"
+                                },
+                                {
+                                    "type": "padding",
+                                    "all": 6,
+                                    "top": null,
+                                    "bottom": null,
+                                    "start": null,
+                                    "end": null
+                                }
+                            ],
+                            "children": [
+                                {
+                                    "type": "column",
+                                    "id": "f17-mark",
+                                    "modifiers": [
+                                        {
+                                            "type": "size",
+                                            "width": null,
+                                            "height": null,
+                                            "widthDp": 12,
+                                            "heightDp": 12
+                                        },
+                                        {
+                                            "type": "background",
+                                            "color": "severity_undetermined"
+                                        },
+                                        {
+                                            "type": "padding",
+                                            "all": 2,
+                                            "top": null,
+                                            "bottom": null,
+                                            "start": null,
+                                            "end": null
+                                        }
+                                    ],
+                                    "children": [
+                                        {
+                                            "type": "column",
+                                            "id": "f17-mark-hole",
+                                            "modifiers": [
+                                                {
+                                                    "type": "size",
+                                                    "width": "Fill",
+                                                    "height": "Fill",
+                                                    "widthDp": null,
+                                                    "heightDp": null
+                                                },
+                                                {
+                                                    "type": "background",
+                                                    "color": "severity_undetermined_surface"
+                                                }
+                                            ],
+                                            "children": [],
+                                            "spacing": 0,
+                                            "action": null
+                                        }
+                                    ],
+                                    "spacing": 0,
+                                    "action": null
+                                },
+                                {
+                                    "type": "text",
+                                    "id": "f17-word",
+                                    "modifiers": [],
+                                    "text": "undetermined",
+                                    "style": "label",
+                                    "spans": [],
+                                    "maxLines": null,
+                                    "ellipsis": true
+                                }
+                            ],
+                            "spacing": 6,
+                            "action": null
+                        },
+                        {
+                            "type": "text",
+                            "id": "f17-check",
+                            "modifiers": [],
+                            "text": "api-unreachable",
+                            "style": "code",
+                            "spans": [],
+                            "maxLines": null,
+                            "ellipsis": true
+                        }
+                    ],
+                    "spacing": 8,
+                    "action": null
+                },
+                {
+                    "type": "text",
+                    "id": "f17-subject",
+                    "modifiers": [],
+                    "text": "io.github.youndie:kompot-standard:0.27.0.46",
+                    "style": "title_section",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "text",
+                    "id": "f17-message",
+                    "modifiers": [],
+                    "text": "no consumer build was run, so what a compile classpath receives is not known here",
+                    "style": "body",
+                    "spans": [],
+                    "maxLines": null,
+                    "ellipsis": true
+                },
+                {
+                    "type": "column",
+                    "id": "f17-evidence",
+                    "modifiers": [
+                        {
+                            "type": "size",
+                            "width": "Fill",
+                            "height": null,
+                            "widthDp": null,
+                            "heightDp": null
+                        },
+                        {
+                            "type": "background",
+                            "color": "surface_sunken"
+                        },
+                        {
+                            "type": "padding",
+                            "all": 12,
+                            "top": null,
+                            "bottom": null,
+                            "start": null,
+                            "end": null
+                        }
+                    ],
+                    "children": [],
+                    "spacing": 4,
+                    "action": null
+                }
+            ],
+            "spacing": 8,
+            "action": null
+        },
+        {
+            "type": "row",
+            "id": "actions",
+            "modifiers": [],
+            "children": [
+                {
+                    "type": "button",
+                    "id": "spec",
+                    "modifiers": [],
+                    "text": "What this checks",
+                    "action": {
+                        "type": "open_url",
+                        "url": "https://github.com/youndie/proba"
+                    },
+                    "variant": null
+                },
+                {
+                    "type": "button",
+                    "id": "artefact",
+                    "modifiers": [],
+                    "text": "The artefact",
+                    "action": {
+                        "type": "open_url",
+                        "url": "https://central.sonatype.com/artifact/io.github.youndie/kompot-standard"
+                    },
+                    "variant": "text"
+                }
+            ],
+            "spacing": 8,
+            "action": null
         }
-      ]
-    },
-    {
-      "type": "row",
-      "id": "actions",
-      "spacing": 8,
-      "children": [
-        {
-          "type": "button",
-          "id": "rerun",
-          "text": "Run again",
-          "action": {
-            "type": "load_page",
-            "url": "/report/rerun"
-          }
-        },
-        {
-          "type": "button",
-          "id": "spec",
-          "text": "What this checks",
-          "variant": "text",
-          "action": {
-            "type": "open_url",
-            "url": "https://github.com/youndie/proba"
-          }
-        }
-      ]
-    }
-  ]
+    ],
+    "spacing": 16,
+    "action": null
 }

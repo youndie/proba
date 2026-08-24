@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from kompot-core.schema.json, kompot-standard.schema.json, form-core.schema.json, form-standard.schema.json, kompot-forms.schema.json in kompot-spec 0.27.0.46.
+// Generated from kompot-core.schema.json, kompot-standard.schema.json, form-core.schema.json, form-standard.schema.json, kompot-forms.schema.json in kompot-spec 0.27.1.50.
 // Do not edit. Regenerate with: pnpm schema
 
 /**

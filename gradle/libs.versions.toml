@@ -4,7 +4,18 @@ ktor = "3.4.0"
 serialization = "1.11.0"
 coroutines = "1.11.0"
 
+kompot = "0.27.1.50"
+
 [libraries]
+kompot-bom = { module = "io.github.youndie:kompot-bom", version.ref = "kompot" }
+kompot-core = { module = "io.github.youndie:kompot-core" }
+kompot-standard = { module = "io.github.youndie:kompot-standard" }
+kompot-ktor = { module = "io.github.youndie:kompot-ktor" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 asm = { module = "org.ow2.asm:asm", version = "9.9" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }

@@ -1,3 +1,8 @@
+"use client";
+
+// React Server Components cannot hold a context or a hook, and this file has both. Without the
+// directive a framework that renders on the server refuses the whole import chain — which is every
+// consumer who wanted server-rendered kompot screens in the first place.
 import type { CSSProperties, ReactNode } from "react";
 import { dp } from "./modifiers";
 import { KompotNode, type KompotEnvironment } from "./render";

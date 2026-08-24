@@ -45,8 +45,8 @@ deduplication, a dependency-report diff — cannot tell those two apart.
 | `reader` | reads a publication from a repository: follows the redirector, keeps `api` and `runtime` apart |
 | `checks` | the questions, and the corpus of cases each one must fire and stay quiet on |
 | `resolver` | the confirming tier: a real consumer build, and the public API read out of the artefact |
-| `server` | Kotlin: the checks, and the screens as backend-driven UI |
-| `web` | Next.js: the report pages, server-rendered and shareable |
+| `server` | Kotlin + Ktor: runs the checks and describes the report as a kompot screen |
+| `packages/proba-web` | Next.js: the report pages, server-rendered and shareable |
 | `packages/kompot-web` | a React renderer for [kompot](https://github.com/youndie/kompot) screens, typed from the published wire schemas |
 | `research-stand` | the consumer build that produced the numbers in the research document |
 
