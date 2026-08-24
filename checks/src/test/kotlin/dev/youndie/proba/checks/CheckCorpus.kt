@@ -29,6 +29,7 @@ object CheckCorpus {
 
     private const val GROUP = "io.github.youndie"
     private val SAMPLE = Coordinate("dev.youndie.proba.sample", "lib", "1.0.0")
+    private val ANALYTICS = Coordinate(GROUP, "kompot-analytics-jvm", "0.10.0.17")
 
     val cases: List<CheckCase> = listOf(
 
@@ -121,6 +122,25 @@ object CheckCorpus {
         },
         CheckCase("bytecode-java-version", Expectation.Undetermined, "the jar could not be fetched") {
             CheckContext(publication = read(SAMPLE, "lib-1.0.0.module"), artefacts = { null })
+        },
+
+        CheckCase("api-omits-sibling", Expectation.Silent, "the confirming tier already answered what the suspicion asks") {
+            // The suspicion states its own condition — correct only if no public signature mentions
+            // them — and a consumer build that reached everything has measured exactly that. Left as a
+            // suspicion it teaches a reader that suspicions are noise, and the next one, on a
+            // publication nothing answered, reads the same.
+            CheckContext(
+                publication = read(ANALYTICS, "kompot-analytics-jvm-0.10.0.17.module"),
+                consumer = RecordedConsumer.reachingEverything(ANALYTICS),
+            )
+        },
+        CheckCase("api-omits-sibling", Expectation.Fires, "and stands for a target that build did not cover") {
+            // Same answer, different target: the consumer build ran for one, so the other is exactly
+            // the case the suspicion was written for.
+            CheckContext(
+                publication = read(ANALYTICS, "kompot-analytics-jvm-0.10.0.17.module"),
+                consumer = RecordedConsumer.reachingEverything(ANALYTICS, target = "iosArm64"),
+            )
         },
 
         CheckCase("api-omits-sibling", Expectation.Undetermined, "the same publication with nothing to look up") {

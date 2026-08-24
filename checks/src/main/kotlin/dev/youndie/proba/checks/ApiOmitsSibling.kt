@@ -32,7 +32,15 @@ object ApiOmitsSibling : Check {
         val publication = context.publication
         val group = publication.coordinate.group
 
+        // The suspicion states its own condition — correct only if no public signature mentions them —
+        // and the confirming tier measures exactly that. When it ran and found nothing unreachable, the
+        // case is decided and the word for it is not "suspicion": keeping it would teach a reader that
+        // suspicions are noise, and the next one, on a publication nothing answered, reads the same.
+        val answered = ApiUnreachable.reach(context) is ApiUnreachable.Reach.Complete
+
         return publication.targets.mapNotNull { target ->
+            // Only for the target the consumer build actually ran for; the others were not answered.
+            if (answered && target.name == context.consumer?.target) return@mapNotNull null
             val api = target.apiVariant ?: target.metadataVariant ?: return@mapNotNull null
             val runtime = target.runtimeVariant ?: return@mapNotNull null
 

@@ -37,6 +37,25 @@ class RecordedConsumer(
             present = setOf("dev.youndie.proba.sample.lib.Gate"),
         )
 
+        /**
+         * A consumer build that reached everything the public API mentions.
+         *
+         * The target is named `jvm` because a suspicion is only resolved for the target the build
+         * actually ran for; the others were not answered and keep it.
+         */
+        fun reachingEverything(of: Coordinate, target: String = "jvm"): RecordedConsumer {
+            // The artefact has to be the publication under test: a consumer build that resolved
+            // somebody else's library answers nothing about this one, and saying so is what
+            // ApiUnreachable.reach does when they do not match.
+            val file = "${of.artifact}-${of.version}.jar"
+            return RecordedConsumer(
+                target = target,
+                compileClasspath = listOf(ResolvedArtifact(of, File(file))),
+                surface = mapOf(file to setOf(TOKEN)),
+                present = setOf(TOKEN),
+            )
+        }
+
         /** The same, from the version that declares the dependency `api`. */
         fun withSupport() = RecordedConsumer(
             target = "jvm",

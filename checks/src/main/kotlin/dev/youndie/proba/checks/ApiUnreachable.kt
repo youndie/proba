@@ -15,66 +15,74 @@ package dev.youndie.proba.checks
  */
 object ApiUnreachable : Check {
 
+    /**
+     * What a consumer build says about the types this publication hands out.
+     *
+     * Shared with [ApiOmitsSibling] rather than computed twice: the second check's suspicion states
+     * the condition this one measures, so two answers that could disagree would be worse than one.
+     */
+    sealed interface Reach {
+        /** Every type the public API mentions is on the compile classpath. */
+        data object Complete : Reach
+
+        data class Missing(val types: List<String>, val artefact: String, val classpath: Int) : Reach
+
+        /** No consumer build, or one whose answer does not apply to this artefact. */
+        data class Unknown(val why: String) : Reach
+    }
+
+    internal fun reach(context: CheckContext): Reach {
+        val consumer = context.consumer
+            ?: return Reach.Unknown(
+                context.consumerRefusal
+                    ?.let { "a consumer build was run and did not finish, so what a compile classpath receives is not known here: $it" }
+                    ?: "no consumer build was run, so what a compile classpath receives is not known here",
+            )
+
+        val subject = consumer.compileClasspath.firstOrNull { it.isModule(context.publication.coordinate) }
+            ?: return Reach.Unknown(
+                "the consumer build resolved ${consumer.compileClasspath.size} artefact(s), " +
+                    "none of them this module — nothing to read a public API out of",
+            )
+
+        consumer.toolKind(subject)?.let { kind ->
+            return Reach.Unknown(
+                "this is $kind, which a tool loads rather than a compiler resolves — " +
+                    "nothing puts it on a compile classpath, so what one would receive is not a question about it",
+            )
+        }
+
+        val unreachable = consumer.apiSurface(subject).filterNot { consumer.onCompileClasspath(it) }.sorted()
+        return if (unreachable.isEmpty()) Reach.Complete
+        else Reach.Missing(unreachable, subject.file.name, consumer.compileClasspath.size)
+    }
+
     override val id = "api-unreachable"
     override val title = "every type the public API hands out can be named by a consumer"
 
-    override suspend fun run(context: CheckContext): List<Finding> {
-        val consumer = context.consumer ?: return listOf(
+    override suspend fun run(context: CheckContext): List<Finding> = when (val reach = reach(context)) {
+        is Reach.Complete -> emptyList()
+
+        is Reach.Unknown -> listOf(
             Finding(
                 checkId = id,
                 severity = Severity.Undetermined,
                 subject = context.publication.coordinate.toString(),
-                message = context.consumerRefusal
-                    // A build that was attempted and failed is not a build that was never run, and
-                    // saying the second about the first hides both the reason and the fact of trying.
-                    ?.let { "a consumer build was run and did not finish, so what a compile classpath receives is not known here: $it" }
-                    ?: "no consumer build was run, so what a compile classpath receives is not known here",
+                message = reach.why,
                 evidence = context.consumerRefusal?.lines().orEmpty().take(8),
             ),
         )
 
-        val subject = consumer.compileClasspath.firstOrNull { it.isModule(context.publication.coordinate) }
-            ?: return listOf(
-                Finding(
-                    checkId = id,
-                    severity = Severity.Undetermined,
-                    subject = context.publication.coordinate.toString(),
-                    message = "the consumer build resolved ${consumer.compileClasspath.size} artefact(s), " +
-                        "none of them this module — nothing to read a public API out of",
-                ),
-            )
-
-        consumer.toolKind(subject)?.let { kind ->
-            return listOf(
-                Finding(
-                    checkId = id,
-                    severity = Severity.Undetermined,
-                    subject = "${consumer.target}: ${subject.file.name}",
-                    // Said rather than skipped: a check that quietly does not apply is indistinguishable
-                    // from one that ran and found nothing.
-                    message = "this is $kind, which a tool loads rather than a compiler resolves — " +
-                        "nothing puts it on a compile classpath, so what one would receive is not a question about it",
-                    evidence = listOf("declared in the artefact: $kind"),
-                ),
-            )
-        }
-
-        val unreachable = consumer.apiSurface(subject)
-            .filterNot { consumer.onCompileClasspath(it) }
-            .sorted()
-
-        if (unreachable.isEmpty()) return emptyList()
-
-        return listOf(
+        is Reach.Missing -> listOf(
             Finding(
                 checkId = id,
                 severity = Severity.Defect,
-                subject = "${consumer.target}: ${subject.file.name}",
-                message = "the public API hands out ${unreachable.size} type(s) a consumer cannot name — " +
-                    "${unreachable.take(4).joinToString(", ")}${if (unreachable.size > 4) ", …" else ""} — so code " +
+                subject = "${context.consumer?.target}: ${reach.artefact}",
+                message = "the public API hands out ${reach.types.size} type(s) a consumer cannot name — " +
+                    "${reach.types.take(4).joinToString(", ")}${if (reach.types.size > 4) ", …" else ""} — so code " +
                     "calling it fails with \"Cannot access class\" while this build, its tests and its publish stay green",
-                evidence = unreachable.take(12).map { "not on the compile classpath: $it" } +
-                    "compile classpath: ${consumer.compileClasspath.size} artefact(s)",
+                evidence = reach.types.take(12).map { "not on the compile classpath: $it" } +
+                    "compile classpath: ${reach.classpath} artefact(s)",
             ),
         )
     }
