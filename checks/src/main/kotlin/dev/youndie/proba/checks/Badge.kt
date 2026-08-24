@@ -1,7 +1,4 @@
-package dev.youndie.proba.server
-
-import dev.youndie.proba.checks.Finding
-import dev.youndie.proba.checks.Severity
+package dev.youndie.proba.checks
 
 /**
  * The badge for a README.

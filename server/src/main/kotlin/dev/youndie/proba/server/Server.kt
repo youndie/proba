@@ -1,6 +1,7 @@
 package dev.youndie.proba.server
 
 import dev.youndie.proba.checks.CheckContext
+import dev.youndie.proba.checks.Badge
 import dev.youndie.proba.checks.Checks
 import dev.youndie.proba.checks.httpArtefacts
 import dev.youndie.proba.reader.Coordinate

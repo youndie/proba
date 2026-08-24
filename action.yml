@@ -24,6 +24,14 @@ inputs:
     description: defect | suspicion | none
     required: false
     default: defect
+  badge-dir:
+    description: >
+      Where to write an SVG badge per coordinate, named `<group>.<artifact>.svg`. Left empty, none is
+      written. A publication never changes, so a badge changes when a version is released and not
+      when somebody looks at one — which is why this is a file a build produces rather than a service
+      a README calls.
+    required: false
+    default: ""�
 
 runs:
   using: composite
@@ -46,4 +54,5 @@ runs:
         PROBA_REPOSITORY: ${{ inputs.repository }}
         PROBA_DEEP: ${{ inputs.deep }}
         PROBA_FAIL_ON: ${{ inputs.fail-on }}
+        PROBA_BADGE_DIR: ${{ inputs.badge-dir }}
       run: ${{ github.action_path }}/scripts/run-action.sh

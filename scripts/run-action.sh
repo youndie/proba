@@ -14,6 +14,8 @@ deep_flag=""
 
 summary_file="${GITHUB_STEP_SUMMARY:-/dev/null}"
 workspace="${RUNNER_TEMP:-/tmp}/proba-consumer"
+badge_dir="${PROBA_BADGE_DIR:-}"
+[ -n "$badge_dir" ] && mkdir -p "$badge_dir"
 
 echo "==> building proba"
 "$root/gradlew" --quiet --console=plain -p "$root" :resolver:installDist || exit 70
@@ -29,7 +31,13 @@ while IFS= read -r line; do
 
   part="$(mktemp)"
   echo "==> $coordinate"
-  "$proba" "$coordinate" --repo "$repository" $deep_flag \
+  badge_flag=()
+  if [ -n "$badge_dir" ]; then
+    # Named by group and artefact, because two groups may publish the same artefact name and a badge
+    # silently overwritten by another library is worse than no badge.
+    badge_flag=(--badge "$badge_dir/$(cut -d: -f1,2 <<<"$coordinate" | tr ':' '.').svg")
+  fi
+  "$proba" "$coordinate" --repo "$repository" $deep_flag "${badge_flag[@]}" \
     --fail-on "$fail_on" --summary "$part" --workspace "$workspace" --wrapper "$root"
   code=$?
   cat "$part" >> "$summary_file" 2>/dev/null || true

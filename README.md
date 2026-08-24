@@ -113,9 +113,19 @@ step fails on a defect — never on an *undetermined*, which means a check could
 
 ### 🏷 A badge
 
-```markdown
-![proba](https://your-proba/badge/io.github.youndie/kompot-core/0.27.1.50.svg)
+Written by the build, not answered by a service. A publication never changes, so the state of a badge
+changes when a version is released — which is exactly when the build runs anyway:
+
+```yaml
+- uses: youndie/proba@main
+  with:
+    coordinate: io.github.youndie:kompot-core:0.29.0.56
+    badge-dir: badges              # badges/io.github.youndie.kompot-core.svg
 ```
+
+Publish that file however you publish anything — Pages, a branch, a commit — and point the README at
+it. Running instance optional: `GET /badge/{group}/{artifact}/{version}.svg` serves the same picture
+for an ad-hoc query, and computes on every view what cannot change between them.
 
 The state is a **word** — `clean`, `2 defects`, `1 unchecked` — and the colour only agrees with it. A
 badge is the smallest surface the severity language has to survive on and the one most often read
