@@ -1,3 +1,3 @@
 rootProject.name = "proba-broken"
 dependencyResolutionManagement { repositories { mavenCentral() } }
-include(":support", ":lib")
+include(":support", ":lib", ":legacy")

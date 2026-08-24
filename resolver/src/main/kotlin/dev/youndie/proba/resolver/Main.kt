@@ -3,6 +3,7 @@ package dev.youndie.proba.resolver
 import dev.youndie.proba.checks.CheckContext
 import dev.youndie.proba.checks.Checks
 import dev.youndie.proba.checks.Finding
+import dev.youndie.proba.checks.httpArtefacts
 import dev.youndie.proba.checks.Severity
 import dev.youndie.proba.reader.Coordinate
 import dev.youndie.proba.reader.MavenRepository
@@ -57,7 +58,7 @@ fun main(args: Array<String>) {
                 when (val outcome = reader.read(coordinate, repository)) {
                     is ReadOutcome.Read -> {
                         val consumer = if (deep) resolve(coordinate, repository, workspace, wrapper, gradleHome) else null
-                        val context = context(outcome.publication, reader, repository, consumer)
+                        val context = context(outcome.publication, reader, repository, consumer, http)
                         val findings = Checks.runAll(context)
                         summary?.writeText(markdown(coordinate, deep, findings))
                         report(coordinate, deep, findings, failOn)
@@ -98,12 +99,14 @@ private fun context(
     reader: PublicationReader,
     repository: MavenRepository,
     consumer: ResolvedConsumerView?,
+    http: HttpClient,
 ): CheckContext {
     val cache = mutableMapOf<Coordinate, Publication?>()
     return CheckContext(
         publication = publication,
         lookup = { wanted -> cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication } },
         consumer = consumer,
+        artefacts = httpArtefacts(http),
     )
 }
 

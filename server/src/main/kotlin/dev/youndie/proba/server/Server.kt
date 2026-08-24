@@ -2,6 +2,7 @@ package dev.youndie.proba.server
 
 import dev.youndie.proba.checks.CheckContext
 import dev.youndie.proba.checks.Checks
+import dev.youndie.proba.checks.httpArtefacts
 import dev.youndie.proba.reader.Coordinate
 import dev.youndie.proba.reader.MavenRepository
 import dev.youndie.proba.reader.Publication
@@ -160,7 +161,7 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
 
             when (val outcome = reader.read(coordinate, repository)) {
                 is ReadOutcome.Read -> {
-                    val findings = Checks.runAll(context(outcome.publication, reader, repository))
+                    val findings = Checks.runAll(context(outcome.publication, reader, repository, http))
                     call.respondKompotComponent(kompotJson, ReportScreen.of(coordinate, findings, deep = false))
                 }
 
@@ -207,7 +208,7 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
                 ?: MavenRepository.MavenCentral
 
             val svg = when (val outcome = reader.read(coordinate, repository)) {
-                is ReadOutcome.Read -> Badge.of(Checks.runAll(context(outcome.publication, reader, repository)))
+                is ReadOutcome.Read -> Badge.of(Checks.runAll(context(outcome.publication, reader, repository, http)))
                 is ReadOutcome.NotFound -> Badge.refusal("not published")
                 is ReadOutcome.WithoutModuleMetadata -> Badge.refusal("no module metadata")
                 is ReadOutcome.UnsupportedLayout -> Badge.refusal("snapshot")
@@ -227,11 +228,13 @@ private fun context(
     publication: Publication,
     reader: PublicationReader,
     repository: MavenRepository,
+    http: HttpClient,
 ): CheckContext {
     val cache = mutableMapOf<Coordinate, Publication?>()
     return CheckContext(
         publication = publication,
         lookup = { wanted -> cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication } },
+        artefacts = httpArtefacts(http),
     )
 }
 

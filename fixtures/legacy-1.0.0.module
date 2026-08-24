@@ -1,0 +1,82 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "dev.youndie.proba.sample",
+    "module": "legacy",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "legacy-1.0.0.jar",
+          "url": "legacy-1.0.0.jar",
+          "size": 1755,
+          "sha512": "09680aae42cd066c071ac5da5f36a726ac5f0fe9a5568bb44a748b9d5122637378a2add80c2f0d66d34181de5a12568409e7ededadb29da4c0e27873c935a56f",
+          "sha256": "66a96f18481612d699e2782e3b4c54e56c9230b2a9d3facaf2171a7ee0aaae5f",
+          "sha1": "d95ee8afe10c6d0291b16c18af4b2532923f26a5",
+          "md5": "b86d982988335c71b2be5c386251aab5"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "legacy-1.0.0.jar",
+          "url": "legacy-1.0.0.jar",
+          "size": 1755,
+          "sha512": "09680aae42cd066c071ac5da5f36a726ac5f0fe9a5568bb44a748b9d5122637378a2add80c2f0d66d34181de5a12568409e7ededadb29da4c0e27873c935a56f",
+          "sha256": "66a96f18481612d699e2782e3b4c54e56c9230b2a9d3facaf2171a7ee0aaae5f",
+          "sha1": "d95ee8afe10c6d0291b16c18af4b2532923f26a5",
+          "md5": "b86d982988335c71b2be5c386251aab5"
+        }
+      ]
+    }
+  ]
+}

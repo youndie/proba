@@ -95,6 +95,34 @@ object CheckCorpus {
             CheckContext(read(SAMPLE, "lib-1.0.0.module"))
         },
 
+        CheckCase("bytecode-java-version", Expectation.Fires, "classes that need Java 25, and metadata that says nothing") {
+            // Both halves real and from one publication. A multiplatform build declares no
+            // org.gradle.jvm.version, so nothing can refuse a consumer on an older runtime.
+            CheckContext(
+                publication = read(Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"), "kompot-core-jvm-0.27.0.46.module"),
+                artefacts = artefacts("kompot-core-jvm-0.27.0.46.jar"),
+            )
+        },
+        CheckCase("bytecode-java-version", Expectation.Silent, "the same classes, with the metadata saying which Java") {
+            // Also real and also a pair: a plain java-library publication, where the Java plugin sets
+            // the attribute by itself. Stated is enough — Gradle can then refuse at resolution.
+            CheckContext(publication = read(SAMPLE, "lib-1.0.0.module"), artefacts = artefacts("lib-1.0.0.jar"))
+        },
+        CheckCase("bytecode-java-version", Expectation.Silent, "a document that declares nothing, over classes that exclude nobody") {
+            // The one case assembled rather than found: a real multiplatform document that declares no
+            // version, served a real Java 8 jar. It exists because this branch is what keeps the check
+            // off kotlinx-coroutines and ktor, which publish exactly this shape — and the untouched
+            // version of that pair is a 1.7 MB artefact nobody should commit to see one number.
+            // Verified un-assembled against the live coordinates by scripts/gate-jvm-version.sh.
+            CheckContext(
+                publication = read(Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"), "kompot-core-jvm-0.27.0.46.module"),
+                artefacts = ArtefactSource { Fixtures.bytes("legacy-1.0.0.jar") },
+            )
+        },
+        CheckCase("bytecode-java-version", Expectation.Undetermined, "the jar could not be fetched") {
+            CheckContext(publication = read(SAMPLE, "lib-1.0.0.module"), artefacts = { null })
+        },
+
         CheckCase("api-omits-sibling", Expectation.Undetermined, "the same publication with nothing to look up") {
             CheckContext(
                 read(
@@ -113,6 +141,11 @@ object CheckCorpus {
         val outcome = PublicationReader(client).read(coordinate, Fixtures.Repository)
         return (outcome as? ReadOutcome.Read)?.publication
             ?: error("the case cannot be built: $coordinate read as $outcome")
+    }
+
+    /** Serves the named artefacts by the tail of the url, the way the repository would. */
+    private fun artefacts(vararg files: String) = ArtefactSource { url ->
+        files.firstOrNull { url.endsWith(it) }?.let { Fixtures.bytes(it) }
     }
 
     private fun lookup(vararg documents: String) = PublicationLookup { coordinate ->

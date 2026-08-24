@@ -52,3 +52,6 @@ jobs:
       # checks discriminated rather than stayed quiet.
       - run: ./scripts/gate.sh
       - run: ./scripts/gate-action.sh
+      # Live coordinates, nothing assembled: the rule has to discriminate between a publication that
+      # excludes consumers and two that do not while all three omit the same metadata.
+      - run: ./scripts/gate-jvm-version.sh

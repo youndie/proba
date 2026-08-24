@@ -22,7 +22,20 @@ class CheckContext(
     val lookup: PublicationLookup = PublicationLookup { null },
     /** Present only when a real consumer build was run for this publication. */
     val consumer: ConsumerView? = null,
+    /** Fetches a published file. Absent when only the metadata is available. */
+    val artefacts: ArtefactSource? = null,
 )
+
+/**
+ * The bytes of a published file.
+ *
+ * Metadata says what a module declares; some questions are only answerable by the artefact, and not
+ * all of them need a build to ask. Eight bytes of one class file say which Java a consumer must be
+ * running, and no line of metadata has to agree with them.
+ */
+fun interface ArtefactSource {
+    suspend fun bytes(url: String): ByteArray?
+}
 
 /** Reads another publication — an api dependency, a neighbouring version. May answer null. */
 fun interface PublicationLookup {
@@ -58,6 +71,7 @@ object Checks {
         ComponentMatchesPath,
         ApiOmitsSibling,
         ApiUnreachable,
+        BytecodeRequiresJava,
     )
 
     fun byId(id: String): Check = all.single { it.id == id }

@@ -18,9 +18,11 @@ object Fixtures {
 
     val Repository = MavenRepository("fixtures", "https://repo.example/maven2")
 
-    fun load(name: String): String =
-        checkNotNull(javaClass.getResourceAsStream("/$name")) { "no fixture $name" }
-            .bufferedReader().readText()
+    fun load(name: String): String = String(bytes(name))
+
+    /** Some fixtures are artefacts rather than documents: a jar says things no metadata has to repeat. */
+    fun bytes(name: String): ByteArray =
+        checkNotNull(javaClass.getResourceAsStream("/$name")) { "no fixture $name" }.use { it.readBytes() }
 
     /** Serves the named fixtures by the tail of the URL; anything else answers 404. */
     fun serving(vararg fixtures: String): HttpClient {
