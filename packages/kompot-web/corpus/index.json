@@ -1,4 +1,5 @@
 {
+  "schema": "client-corpus.schema.json",
   "cases": [
     "9.4-a-hidden-field-leaves-the-payload.json",
     "9.4-a-field-returns-when-its-condition-holds-again.json",
@@ -11,6 +12,9 @@
     "9.6-a-patch-replaces-a-value.json",
     "9.6-a-patch-clears-what-it-names.json",
     "9.7-an-initial-value-fills-an-untouched-field.json",
-    "9.7-an-entity-value-keeps-its-metadata.json"
+    "9.7-an-entity-value-keeps-its-metadata.json",
+    "9.4-not-equals-hides-a-field-while-a-neighbour-differs.json",
+    "9.5-an-amount-over-a-balance-is-refused.json",
+    "9.5-an-amount-within-a-balance-passes.json"
   ]
 }

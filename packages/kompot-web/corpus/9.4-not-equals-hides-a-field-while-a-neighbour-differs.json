@@ -1,0 +1,44 @@
+{
+  "id": "9.4-not-equals-hides-a-field-while-a-neighbour-differs",
+  "clause": "§9.4",
+  "title": "not_equals is the condition that holds until a neighbour becomes the named value",
+  "why": "a client that treats an unknown condition as \"true\" shows a field the form meant to hide, and one that treats it as \"false\" hides a field nobody can reach",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "reason",
+        "rules": []
+      },
+      {
+        "type": "text_field",
+        "fieldId": "other_reason",
+        "rules": [],
+        "visibleIf": {
+          "type": "not_equals",
+          "fieldId": "reason",
+          "expectedValue": {
+            "type": "text_value",
+            "text": "salary"
+          }
+        }
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "reason",
+      "value": {
+        "type": "text_value",
+        "text": "salary"
+      }
+    }
+  ],
+  "expect": {
+    "visibleFields": [
+      "reason"
+    ]
+  }
+}

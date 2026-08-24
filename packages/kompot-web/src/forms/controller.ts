@@ -35,7 +35,13 @@ export interface SubmitResult {
   focusOn?: string;
 }
 
-/** Rules this engine does not enforce, so that "no error" and "never checked" are distinguishable. */
+/**
+ * Rules this engine does not enforce, so that "no error" and "never checked" are distinguishable.
+ *
+ * `max_amount_from_field` used to be here: it is in the reference rule set and the corpus covered
+ * nothing about it, and a rule written against no case passes for reasons nobody checked. The corpus
+ * now carries a pair — over the balance and within it — and the rule is implemented against them.
+ */
 export interface UnenforcedRule {
   fieldId: string;
   type: string;
@@ -136,7 +142,7 @@ export function createFormClient(
   };
 }
 
-const enforced = new Set(["required", "regex", "required_if"]);
+const enforced = new Set(["required", "regex", "required_if", "max_amount_from_field"]);
 
 function check(
   rule: { type: string; [k: string]: unknown },
@@ -158,6 +164,28 @@ function check(
       const target = values[String(rule.targetFieldId)];
       const applies = same(target, rule.expectedValue as FieldValue);
       return applies && empty(value) ? String(rule.errorMessage) : undefined;
+    }
+
+    case "max_amount_from_field": {
+      // Cross-field and local: it holds a person back before the request leaves. The balance travels
+      // in the neighbour's entity metadata, and `balance` is the protocol's default key rather than
+      // a detail of this rule (§9.7).
+      const amount = value?.type === "amount_value" ? Number((value as { long?: unknown }).long) : undefined;
+      const source = values[String(rule.balanceFieldId)];
+      const key = rule.balanceMetadataKey === undefined ? "balance" : String(rule.balanceMetadataKey);
+      const carried =
+        source?.type === "entity_value"
+          ? (source as { rawMetadata?: Record<string, string> }).rawMetadata?.[key]
+          : undefined;
+      const balance = carried === undefined ? undefined : Number(carried);
+
+      // Anything missing or unreadable is not a refusal. Blocking a submit because the check could
+      // not be made stops somebody for a reason nobody can see, and the server holds the real limit
+      // anyway (§9.5).
+      if (amount === undefined || balance === undefined || Number.isNaN(amount) || Number.isNaN(balance)) {
+        return undefined;
+      }
+      return amount > balance ? String(rule.errorMessage) : undefined;
     }
 
     default:

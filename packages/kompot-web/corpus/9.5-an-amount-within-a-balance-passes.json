@@ -1,0 +1,74 @@
+{
+  "id": "9.5-an-amount-within-a-balance-passes",
+  "clause": "§9.5",
+  "title": "the same rule stays out of the way while the amount fits",
+  "why": "a cross-field rule that refuses everything is indistinguishable from one that works, until somebody tries to submit a valid form",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "autocomplete_field",
+        "fieldId": "source",
+        "dataSourceId": "accounts",
+        "rules": []
+      },
+      {
+        "type": "amount_field",
+        "fieldId": "amount",
+        "rules": [
+          {
+            "type": "max_amount_from_field",
+            "balanceFieldId": "source",
+            "errorMessage": "Not enough left"
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "source",
+      "value": {
+        "type": "entity_value",
+        "id": "acc-1",
+        "title": "Current account",
+        "rawMetadata": {
+          "balance": "5000"
+        }
+      }
+    },
+    {
+      "step": "set",
+      "fieldId": "amount",
+      "value": {
+        "type": "amount_value",
+        "long": 3000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "noErrors": [
+      "amount"
+    ],
+    "payload": {
+      "source": {
+        "type": "entity_value",
+        "id": "acc-1",
+        "title": "Current account",
+        "rawMetadata": {
+          "balance": "5000"
+        }
+      },
+      "amount": {
+        "type": "amount_value",
+        "long": 3000,
+        "currency": "EUR"
+      }
+    }
+  }
+}

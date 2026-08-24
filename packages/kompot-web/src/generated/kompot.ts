@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from kompot-core.schema.json, kompot-standard.schema.json, form-core.schema.json, form-standard.schema.json, kompot-forms.schema.json in kompot-spec 0.27.1.50.
+// Generated from kompot-core.schema.json, kompot-standard.schema.json, form-core.schema.json, form-standard.schema.json, kompot-forms.schema.json in kompot-spec 0.29.0.56.
 // Do not edit. Regenerate with: pnpm schema
 
 /**
@@ -205,6 +205,7 @@ export interface KompotComponentText {
   )[];
   text: string;
   style?: string | null;
+  color?: string | null;
   spans?: TextSpan[];
   maxLines?: number | null;
   ellipsis?: boolean;
@@ -213,6 +214,7 @@ export interface KompotComponentText {
 export interface TextSpan {
   text: string;
   style?: string | null;
+  color?: string | null;
   action?: KompotAction | null;
   [k: string]: unknown;
 }

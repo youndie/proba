@@ -25,6 +25,19 @@ function textStyle(token: string | null | undefined, environment: KompotEnvironm
   return token ? (environment.theme.typography(token) ?? {}) : {};
 }
 
+/**
+ * The colour of the letters, when the server named one.
+ *
+ * Until kompot 0.29 nothing on the wire could say this, and the only foreground a screen could
+ * influence was the one paired to a background token — which cannot put a red word on an ordinary
+ * card without inventing a surface nobody asked for. An absent or unknown token still falls through
+ * to that pairing: the token is open, so not knowing it costs the colour and not the text.
+ */
+function textColor(token: string | null | undefined, environment: KompotEnvironment): CSSProperties {
+  const colour = token ? environment.theme.color(token) : undefined;
+  return colour === undefined ? {} : { color: colour };
+}
+
 const text: Renderer = (raw, environment) => {
   const component = raw as unknown as KompotComponentText;
   const clamp: CSSProperties =
@@ -40,14 +53,17 @@ const text: Renderer = (raw, environment) => {
 
   const spans = component.spans ?? [];
   return (
-    <span data-kompot="text" style={{ ...textStyle(component.style, environment), ...clamp }}>
+    <span
+      data-kompot="text"
+      style={{ ...textStyle(component.style, environment), ...textColor(component.color, environment), ...clamp }}
+    >
       {spans.length === 0 ? component.text : spans.map((span, index) => renderSpan(span, index, environment))}
     </span>
   );
 };
 
 function renderSpan(span: TextSpan, index: number, environment: KompotEnvironment): ReactNode {
-  const style = textStyle(span.style, environment);
+  const style = { ...textStyle(span.style, environment), ...textColor(span.color, environment) };
   const action = span.action as AnyAction | null | undefined;
   if (!action) {
     return (

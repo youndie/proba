@@ -238,3 +238,53 @@ describe("the component's own element inherits what the chain constrained", () =
     expect(root.querySelector("[data-kompot-fill]")).toBeNull();
   });
 })
+
+describe("a colour the server named", () => {
+  const text = (extra: Record<string, unknown>): AnyComponent =>
+    ({ type: "text", id: "t", text: "ok", ...extra }) as unknown as AnyComponent;
+
+  it("paints the letters with the token the node carries", () => {
+    const root = draw(text({ color: "error" }));
+
+    expect(root.querySelector<HTMLElement>('[data-kompot="text"]')!.style.color).toBe("rgb(179, 38, 30)");
+  });
+
+  it("leaves the letters to the background pairing when the node names none", () => {
+    // The mechanism that existed before the wire could carry a colour at all, and still the answer
+    // for every node that does not ask for one.
+    const root = draw({
+      type: "column",
+      id: "c",
+      modifiers: [{ type: "background", color: "primary" }],
+      children: [text({})],
+    } as unknown as AnyComponent);
+
+    expect(root.querySelector<HTMLElement>('[data-kompot="text"]')!.style.color).toBe("");
+    expect(modifier(root, "background")!.style.color).toBe("rgb(255, 255, 255)");
+  });
+
+  it("costs the colour and not the text when the token is unknown", () => {
+    const root = draw(text({ color: "promo_gold" }));
+
+    const span = root.querySelector<HTMLElement>('[data-kompot="text"]')!;
+    expect(span.style.color).toBe("");
+    expect(span.textContent).toBe("ok");
+  });
+
+  it("colours one word inside a sentence, which a modifier could never do", () => {
+    // Spans carry no modifiers, so before this field the only way to colour part of a line was not
+    // to have one.
+    const root = draw(
+      text({
+        text: "",
+        spans: [
+          { text: "paid " },
+          { text: "1200", color: "error" },
+        ],
+      }),
+    );
+
+    const coloured = Array.from(root.querySelectorAll<HTMLElement>("span")).find((it) => it.textContent === "1200")!;
+    expect(coloured.style.color).toBe("rgb(179, 38, 30)");
+  });
+});
