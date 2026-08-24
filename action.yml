@@ -31,7 +31,7 @@ inputs:
       when somebody looks at one — which is why this is a file a build produces rather than a service
       a README calls.
     required: false
-    default: ""�
+    default: ""
 
 runs:
   using: composite

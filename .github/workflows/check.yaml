@@ -52,6 +52,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       # Both stand on a library published with a defect on purpose, so a green run here means the
       # checks discriminated rather than stayed quiet.
+      # Cheap and first: a manifest that does not parse breaks every consumer of the action before
+      # anything else in this job has a chance to say so.
+      - run: python3 ./scripts/check-action-manifest.py
       - run: ./scripts/gate.sh
       - run: ./scripts/gate-action.sh
       # Live coordinates, nothing assembled: the rule has to discriminate between a publication that

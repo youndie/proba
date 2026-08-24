@@ -9,6 +9,12 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fail() { echo; echo "GATE FAILED: $1"; exit 1; }
 
+# First, because everything below runs the action's body directly and would pass with action.yml
+# deleted. A composite action has two halves and only one of them is exercised by running it here.
+echo "==> the half only GitHub reads"
+python3 "$root/scripts/check-action-manifest.py" || fail "action.yml does not hold up"
+
+
 echo "==> publishing the sample: 1.0.0 with the defect, 1.0.1 without"
 (cd "$root/research-stand/broken-publication" && ./gradlew -q --console=plain publishToMavenLocal -PsampleVersion=1.0.0)
 (cd "$root/research-stand/broken-publication" && ./gradlew -q --console=plain publishToMavenLocal -PsampleVersion=1.0.1 -Pfixed)
