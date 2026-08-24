@@ -14,6 +14,10 @@ dependencies {
     implementation(libs.kompot.core)
     implementation(libs.kompot.standard)
     implementation(libs.kompot.ktor)
+    implementation(libs.kompot.forms)
+    implementation(libs.form.core)
+    implementation(libs.kompot.realtime)
+    implementation(libs.kompot.realtime.server)
 
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.server.core)

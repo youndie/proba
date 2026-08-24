@@ -6,7 +6,10 @@ import dev.youndie.proba.reader.Coordinate
 import dev.youndie.proba.reader.MavenRepository
 import dev.youndie.proba.reader.Publication
 import dev.youndie.proba.reader.PublicationReader
+import dev.youndie.proba.reader.HttpFetcher
 import dev.youndie.proba.reader.ReadOutcome
+import dev.youndie.proba.reader.RepositoryIndex
+import dev.youndie.proba.reader.RoutingFetcher
 import io.github.youndie.kompot.generated.generatedStandardSerializersModule
 import io.github.youndie.kompot.kompotCoreSerializersModule
 import io.github.youndie.kompot.ktor.respondKompotComponent
@@ -21,6 +24,14 @@ import io.ktor.server.request.uri
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.github.youndie.kompot.form.FormSchema
+import io.github.youndie.kompot.forms.KompotFormResponse
+import io.github.youndie.kompot.realtime.server.KompotUpdateBroadcaster
+import io.ktor.http.ContentType
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.response.respondTextWriter
+import kotlinx.coroutines.channels.Channel
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 // A top-level extension, so `+` on two modules needs it by name: without the import the operator
@@ -49,9 +60,90 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
     install(CORS) { anyHost() }
 
     val reader = PublicationReader(http)
+    val broadcaster = KompotUpdateBroadcaster()
+    // Started here and not in the constructor: without it every broadcast reaches the bus and nothing
+    // hands it out, and the toolkit fails loudly on that rather than delivering silence.
+    broadcaster.start(this)
+    val sweeps = SweepRunner(reader, broadcaster, kompotJson)
 
     routing {
         get("/health") { call.respondText("ok") }
+
+        // Every module of one group, filled in as each is read. The screen is a form response because
+        // that is the only shape on the wire that can carry a topic — see the empty schema below.
+        get("/sweep/{group}") {
+            val group = call.parameters["group"].orEmpty()
+            val repository = call.request.queryParameters["repo"]
+                ?.let { MavenRepository(it, it) }
+                ?: MavenRepository.MavenCentral
+
+            val sweep = sweeps.start(
+                scope = this@proba,
+                group = group,
+                repository = repository,
+                index = RepositoryIndex.of(repository, RoutingFetcher(HttpFetcher(http))),
+                fresh = call.request.queryParameters["fresh"] == "1",
+            )
+            if (sweep == null) {
+                call.respondText(
+                    "this repository publishes no index, so its modules cannot be enumerated from here",
+                    status = HttpStatusCode.NotImplemented,
+                )
+                return@get
+            }
+            call.respondSweep(sweep)
+        }
+
+        get("/sweep/{group}/state") {
+            val sweep = sweeps.get(call.parameters["group"].orEmpty())
+            if (sweep == null) {
+                call.respondText("no such sweep", status = HttpStatusCode.NotFound)
+                return@get
+            }
+            val results = sweep.snapshot()
+            call.respondText(
+                kompotJson.encodeToString(
+                    SweepState.serializer(),
+                    SweepState(
+                        modules = sweep.modules.size,
+                        read = results.values.count { it !is ModuleResult.Pending },
+                        // The two numbers that make an idle channel a fact rather than a silence.
+                        subscribers = broadcaster.localSubscriberCount(sweep.topic),
+                        framesDelivered = sweep.framesDelivered,
+                        topic = sweep.topic,
+                    ),
+                ),
+                ContentType.Application.Json,
+            )
+        }
+
+        // The transport. The protocol does not fix one (SPEC 10.1); this is the browser's native.
+        get("/updates/{topic}") {
+            val topic = call.parameters["topic"].orEmpty()
+            val channel = Channel<String>(Channel.BUFFERED)
+            // Subscribing and unsubscribing both live INSIDE the writer, and that is not a style
+            // choice: respondTextWriter returns as soon as the response is set up, and its body runs
+            // afterwards in a coroutine of its own. Cleanup in a finally around the call therefore
+            // closes the channel immediately, the loop below finds it closed, and the stream opens and
+            // ends at once — which reads exactly like a broken transport rather than like a mistake
+            // three lines up.
+            call.respondTextWriter(ContentType.Text.EventStream) {
+                broadcaster.subscribe(topic, channel)
+                try {
+                    // Written after the subscription, so a client waiting for it knows the difference
+                    // between "subscribed" and "connected to something that will never speak".
+                    write("event: open\ndata: $topic\n\n")
+                    flush()
+                    for (payload in channel) {
+                        write("data: $payload\n\n")
+                        flush()
+                    }
+                } finally {
+                    broadcaster.unsubscribe(topic, channel)
+                    channel.close()
+                }
+            }
+        }
 
         // A permanent address: everything the report is about is in the path, so the link somebody
         // pastes tomorrow asks the same question it asked today.
@@ -89,6 +181,11 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
                     ),
                 )
 
+                is ReadOutcome.UnsupportedLayout -> call.respondKompotComponent(
+                    kompotJson,
+                    ReportScreen.refusal(coordinate, outcome.reason, listOf("no check was run")),
+                )
+
                 is ReadOutcome.Unreadable -> call.respondKompotComponent(
                     kompotJson,
                     ReportScreen.refusal(coordinate, "The module metadata could not be read.", listOf(outcome.url, outcome.reason)),
@@ -112,4 +209,30 @@ private fun context(
         publication = publication,
         lookup = { wanted -> cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication } },
     )
+}
+
+
+@Serializable
+private data class SweepState(
+    val modules: Int,
+    val read: Int,
+    val subscribers: Int,
+    val framesDelivered: Int,
+    val topic: String,
+)
+
+/**
+ * The sweep screen goes out as a form response with an empty schema.
+ *
+ * Not because it is a form. `KompotFormResponse.realtimeTopic` is the only field in the whole
+ * protocol that can name an update channel, and a screen that is not a form has nowhere else to put
+ * it — so a form with no fields is invented to carry one string.
+ */
+private suspend fun ApplicationCall.respondSweep(sweep: Sweep) {
+    val response = KompotFormResponse(
+        schema = FormSchema(formId = sweep.id, fields = emptyList()),
+        screen = SweepScreen.of(sweep, sweep.snapshot()),
+        realtimeTopic = sweep.topic,
+    )
+    respondText(kompotJson.encodeToString(KompotFormResponse.serializer(), response), ContentType.Application.Json)
 }

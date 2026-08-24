@@ -8,6 +8,9 @@ data class Coordinate(val group: String, val artifact: String, val version: Stri
     /** The file a publication of this coordinate is expected to carry, by extension. */
     fun file(extension: String): String = "$directory/$artifact-$version.$extension"
 
+    /** A snapshot is addressed differently from a release; see ReadOutcome.UnsupportedLayout. */
+    val isSnapshot: Boolean get() = version.endsWith("-SNAPSHOT")
+
     override fun toString(): String = "$group:$artifact:$version"
 
     companion object {

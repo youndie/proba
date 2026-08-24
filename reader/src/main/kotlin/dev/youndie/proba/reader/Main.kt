@@ -76,6 +76,12 @@ private fun report(outcome: ReadOutcome, repository: MavenRepository): Int = whe
         2
     }
 
+    is ReadOutcome.UnsupportedLayout -> {
+        println("${outcome.coordinate} — not read")
+        println("  ${outcome.reason}")
+        5
+    }
+
     is ReadOutcome.Unreadable -> {
         println("${outcome.coordinate} — the module metadata could not be read")
         println("  ${outcome.url}")

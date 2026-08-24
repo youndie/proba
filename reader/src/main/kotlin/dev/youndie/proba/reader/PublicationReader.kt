@@ -23,6 +23,16 @@ sealed interface ReadOutcome {
     data class NotFound(val coordinate: Coordinate, val tried: List<Attempt>) : ReadOutcome
 
     data class Unreadable(val coordinate: Coordinate, val url: String, val reason: String) : ReadOutcome
+
+    /**
+     * The version exists but this reader cannot address it.
+     *
+     * A SNAPSHOT does not keep its files under its own name: they carry a build timestamp, and
+     * finding them means reading a second, version-level maven-metadata.xml. Until that is written,
+     * saying so is the only honest answer — reporting "nothing is published here" about a version
+     * that is published is exactly the confident wrongness this tool exists to catch.
+     */
+    data class UnsupportedLayout(val coordinate: Coordinate, val reason: String) : ReadOutcome
 }
 
 data class Attempt(val url: String, val status: Int)
@@ -36,6 +46,13 @@ class PublicationReader(
         this(RoutingFetcher(HttpFetcher(client)), json)
 
     suspend fun read(coordinate: Coordinate, repository: MavenRepository): ReadOutcome {
+        if (coordinate.isSnapshot) {
+            return ReadOutcome.UnsupportedLayout(
+                coordinate,
+                "a SNAPSHOT keeps its files under a build timestamp rather than under the version, " +
+                    "and resolving that layout is not implemented",
+            )
+        }
         val tried = mutableListOf<Attempt>()
 
         val moduleUrl = repository.url(coordinate.file("module"))
