@@ -1,0 +1,6 @@
+build/
+.gradle/
+node_modules/
+.next/
+*.log
+research-stand/resolve/src/
