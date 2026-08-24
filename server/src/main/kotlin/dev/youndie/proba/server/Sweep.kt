@@ -147,14 +147,11 @@ class SweepRunner(
         index: RepositoryIndex,
     ): ModuleResult {
         val advertised = index.versions(group, module)
-        // The newest release, not the newest entry: a snapshot beside a release is not a later
-        // version of it, and a module with nothing but snapshots is a refusal rather than a defect.
+        // The newest release, and a snapshot only when there is no release: a snapshot beside a
+        // release is not a later version of it, whatever order the metadata happens to list them in.
         val version = advertised.lastOrNull { !it.endsWith("-SNAPSHOT") }
-            ?: return ModuleResult.Refused(
-                module,
-                if (advertised.isEmpty()) "the repository advertises no version of it"
-                else "only snapshots are published (${advertised.size}), and their layout is not read",
-            )
+            ?: advertised.lastOrNull()
+            ?: return ModuleResult.Refused(module, "the repository advertises no version of it")
         val coordinate = Coordinate(group, module, version)
         return when (val outcome = reader.read(coordinate, repository)) {
             is ReadOutcome.Read -> {

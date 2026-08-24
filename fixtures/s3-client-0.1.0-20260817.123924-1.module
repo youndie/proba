@@ -1,0 +1,224 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.youndie",
+    "module": "s3-client",
+    "version": "0.1.0-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.7.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "metadataApiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.platform.type": "common"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.youndie",
+          "module": "s3-sigv4",
+          "version": {
+            "requires": "0.1.0-SNAPSHOT"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.5.2"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.11.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "s3-client-metadata-0.1.0-SNAPSHOT.jar",
+          "url": "s3-client-0.1.0-SNAPSHOT.jar",
+          "size": 5956,
+          "sha512": "22f9f52f1be106b759483f587d33633e9248cc8188533ec541f5646efc631b5a57fe4670f1bcd1c90eb2ae8156ae3c892c635575ecbeb2573577e54e8051a29d",
+          "sha256": "479f2847ce04b5e0d1c23f9265a43074161c128c7a3f4fb2ef6db14909154764",
+          "sha1": "9c18c743718a75f84b3a0a0a55669f5be74052be",
+          "md5": "bc99f4224d489e1ff371f203c96d0682"
+        }
+      ]
+    },
+    {
+      "name": "metadataSourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.platform.type": "common"
+      },
+      "files": [
+        {
+          "name": "s3-client-kotlin-0.1.0-SNAPSHOT-sources.jar",
+          "url": "s3-client-0.1.0-SNAPSHOT-sources.jar",
+          "size": 12908,
+          "sha512": "6cb2ee0fa32588de7f163a629fb54d8e8efdcfd6caf599992ac1a3d2e6e12ac9330d40f8925caae805166cbc3b8f045b2978a5f6b4de541154f4bd3cf60ce918",
+          "sha256": "1c96efbe01965ad771fc95428840b2d89b916aedd5f0f4c03029972ddd3e4f67",
+          "sha1": "5a19679f2442170accfc232f93af2dd6920ec08f",
+          "md5": "a3332e44ac374171032f2737831fc2c2"
+        }
+      ]
+    },
+    {
+      "name": "jvmApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "available-at": {
+        "url": "../../s3-client-jvm/0.1.0-SNAPSHOT/s3-client-jvm-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-jvm",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    },
+    {
+      "name": "jvmRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "available-at": {
+        "url": "../../s3-client-jvm/0.1.0-SNAPSHOT/s3-client-jvm-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-jvm",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    },
+    {
+      "name": "jvmSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "available-at": {
+        "url": "../../s3-client-jvm/0.1.0-SNAPSHOT/s3-client-jvm-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-jvm",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    },
+    {
+      "name": "linuxX64ApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "linux_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../s3-client-linuxx64/0.1.0-SNAPSHOT/s3-client-linuxx64-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-linuxx64",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    },
+    {
+      "name": "linuxX64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "linux_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../s3-client-linuxx64/0.1.0-SNAPSHOT/s3-client-linuxx64-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-linuxx64",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    },
+    {
+      "name": "macosArm64ApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "macos_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../s3-client-macosarm64/0.1.0-SNAPSHOT/s3-client-macosarm64-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-macosarm64",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    },
+    {
+      "name": "macosArm64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "macos_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../s3-client-macosarm64/0.1.0-SNAPSHOT/s3-client-macosarm64-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-macosarm64",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    },
+    {
+      "name": "macosArm64MetadataElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "macos_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../s3-client-macosarm64/0.1.0-SNAPSHOT/s3-client-macosarm64-0.1.0-SNAPSHOT.module",
+        "group": "io.github.youndie",
+        "module": "s3-client-macosarm64",
+        "version": "0.1.0-SNAPSHOT"
+      }
+    }
+  ]
+}

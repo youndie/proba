@@ -141,3 +141,78 @@ class TargetKeyTest {
         assertEquals("jvm", TargetKey(null, null, null).name)
     }
 }
+
+class DocumentationVariantTest {
+
+    @Test
+    fun `sources with no platform of their own belong to the target there is`() = runTest {
+        // Gradle's Java plugin publishes sourcesElements with no Kotlin platform attribute while
+        // apiElements beside it has one. Grouping by attributes alone therefore split this
+        // publication into two targets, both called jvm — one with the code, one with the sources —
+        // and asking the first for its sources answered "none" about a library that publishes them.
+        val outcome = PublicationReader(Fixtures.serving("kompot-client-tck-0.28.0.53.module"))
+            .read(Coordinate("io.github.youndie", "kompot-client-tck", "0.28.0.53"), Fixtures.Repository)
+
+        val publication = (outcome as ReadOutcome.Read).publication
+
+        assertEquals(listOf("jvm"), publication.targets.map { it.name })
+        assertNotNull(publication.targets.single().sourcesVariant, "the sources variant went missing")
+        assertNotNull(publication.targets.single().apiVariant, "and the api variant has to still be there")
+    }
+
+    @Test
+    fun `a multiplatform publication keeps its sources on the target that names them`() = runTest {
+        val outcome = PublicationReader(Fixtures.serving(*Fixtures.KompotCoreDocuments))
+            .read(Fixtures.KompotCore, Fixtures.Repository)
+
+        val publication = (outcome as ReadOutcome.Read).publication
+
+        // Six targets and no more: nothing was merged that should have stayed apart.
+        assertEquals(6, publication.targets.size)
+        assertTrue(publication.targets.all { it.sourcesVariant != null }, "every target here publishes sources")
+    }
+}
+
+class SnapshotLayoutTest {
+
+    /** A repository serving one snapshot: its version-level metadata and the root module it names. */
+    private fun snapshotRepository() = Fixtures.answering { path ->
+        when {
+            path.endsWith("/maven-metadata.xml") ->
+                HttpStatusCode.OK to Fixtures.load("s3-client-snapshot-maven-metadata.xml")
+
+            path.endsWith("s3-client-0.1.0-20260817.123924-1.module") ->
+                HttpStatusCode.OK to Fixtures.load("s3-client-0.1.0-20260817.123924-1.module")
+
+            else -> HttpStatusCode.NotFound to ""
+        }
+    }
+
+    @Test
+    fun `a snapshot is read through the timestamp its metadata names`() = runTest {
+        // Asking for `s3-client-0.1.0-SNAPSHOT.module` gets a 404 from every repository on earth: the
+        // file is called `s3-client-0.1.0-20260817.123924-1.module`, and which timestamp is current is
+        // written in a second metadata document. A reader assuming the release layout calls a
+        // published version absent, and does it with confidence — which is the failure this whole
+        // tool exists to catch, so making it here was worse than embarrassing.
+        val outcome = PublicationReader(snapshotRepository())
+            .read(Coordinate("io.github.youndie", "s3-client", "0.1.0-SNAPSHOT"), Fixtures.Repository)
+
+        val publication = (outcome as? ReadOutcome.Read)?.publication ?: fail("not read: $outcome")
+        assertTrue(publication.targets.isNotEmpty())
+    }
+
+    @Test
+    fun `the files of a snapshot are named the way they are actually stored`() = runTest {
+        val outcome = PublicationReader(snapshotRepository())
+            .read(Coordinate("io.github.youndie", "s3-client", "0.1.0-SNAPSHOT"), Fixtures.Repository)
+
+        val urls = (outcome as ReadOutcome.Read).publication.targets.flatMap { it.variants }.flatMap { it.files }.map { it.url }
+
+        assertTrue(urls.isNotEmpty(), "no files at all")
+        // Corrected in the reader rather than in every caller: the metadata says -SNAPSHOT and the
+        // disk says the timestamp, and anything fetching by the first reads a 404 as a missing file.
+        assertTrue(urls.none { it.contains("-SNAPSHOT") }, "still asking for a name nothing is stored under: $urls")
+        assertTrue(urls.all { it.contains("20260817.123924-1") }, urls.toString())
+    }
+}

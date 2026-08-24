@@ -1,0 +1,109 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.youndie",
+    "module": "kompot-client-tck",
+    "version": "0.28.0.53",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kompot-client-tck-0.28.0.53.jar",
+          "url": "kompot-client-tck-0.28.0.53.jar",
+          "size": 65102,
+          "sha512": "62f50497396efae805f93541a306ea80010b6c8e7c9d09fb9cf1e035f322272e127bb792b75018fb4e3ff08ec7689930d2956adf79811db40e86c401dc655d6e",
+          "sha256": "098dc4f830cb906a576cbeab02474be51e7e8b005c9c946af5d1c39c61ed2af8",
+          "sha1": "4a56795daa02d30753762af82d9150cad3bb180b",
+          "md5": "e88af94b83e695d6b017c456314b507a"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.11.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kompot-client-tck-0.28.0.53.jar",
+          "url": "kompot-client-tck-0.28.0.53.jar",
+          "size": 65102,
+          "sha512": "62f50497396efae805f93541a306ea80010b6c8e7c9d09fb9cf1e035f322272e127bb792b75018fb4e3ff08ec7689930d2956adf79811db40e86c401dc655d6e",
+          "sha256": "098dc4f830cb906a576cbeab02474be51e7e8b005c9c946af5d1c39c61ed2af8",
+          "sha1": "4a56795daa02d30753762af82d9150cad3bb180b",
+          "md5": "e88af94b83e695d6b017c456314b507a"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "kompot-client-tck-0.28.0.53-sources.jar",
+          "url": "kompot-client-tck-0.28.0.53-sources.jar",
+          "size": 12246,
+          "sha512": "05cf0e49cdb22b91a11640068ce28da5e2493e156450f441f07cead351e16fd7223e00aa0dc43cc733342fddcbcd04996bac6ee6ea4dbe2ae6a60c81a2ea4055",
+          "sha256": "dc955c301f6c39e9df976ec9de4a83d4ceeabf3b18aca64b3e8031c44d14e691",
+          "sha1": "f403d3fddddea00f696e5104557f06a984b8508b",
+          "md5": "f2d28c0f467d60b54faaeb4a2ad8913f"
+        }
+      ]
+    }
+  ]
+}

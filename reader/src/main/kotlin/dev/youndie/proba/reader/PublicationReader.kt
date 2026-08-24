@@ -5,6 +5,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.Json
+import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * The outcome of reading a publication.
@@ -25,12 +26,12 @@ sealed interface ReadOutcome {
     data class Unreadable(val coordinate: Coordinate, val url: String, val reason: String) : ReadOutcome
 
     /**
-     * The version exists but this reader cannot address it.
+     * The version is there and the reader cannot address its files.
      *
-     * A SNAPSHOT does not keep its files under its own name: they carry a build timestamp, and
-     * finding them means reading a second, version-level maven-metadata.xml. Until that is written,
-     * saying so is the only honest answer — reporting "nothing is published here" about a version
-     * that is published is exactly the confident wrongness this tool exists to catch.
+     * Left for a snapshot whose version-level metadata names neither a module nor a pom: something is
+     * published, and what it is called is not written anywhere this reader knows to look. Saying so
+     * is the only honest answer — "nothing is published here" about a version that is published is
+     * exactly the confident wrongness this tool exists to catch.
      */
     data class UnsupportedLayout(val coordinate: Coordinate, val reason: String) : ReadOutcome
 }
@@ -42,20 +43,21 @@ class PublicationReader(
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
 
+    // One version-level metadata document serves every file of that snapshot, and a multiplatform
+    // snapshot asks for one per target.
+    private val snapshots = mutableMapOf<String, String?>()
+
+    /** The current timestamped value per snapshot directory, learned while resolving its files. */
+    private val snapshotStamps = mutableMapOf<String, String>()
+
     constructor(client: HttpClient, json: Json = Json { ignoreUnknownKeys = true }) :
         this(RoutingFetcher(HttpFetcher(client)), json)
 
     suspend fun read(coordinate: Coordinate, repository: MavenRepository): ReadOutcome {
-        if (coordinate.isSnapshot) {
-            return ReadOutcome.UnsupportedLayout(
-                coordinate,
-                "a SNAPSHOT keeps its files under a build timestamp rather than under the version, " +
-                    "and resolving that layout is not implemented",
-            )
-        }
         val tried = mutableListOf<Attempt>()
 
-        val moduleUrl = repository.url(coordinate.file("module"))
+        val moduleUrl = fileUrl(coordinate, "module", repository, tried)
+            ?: return absent(coordinate, repository, tried)
         val moduleBody = fetch(moduleUrl, tried)
             ?: return absent(coordinate, repository, tried)
 
@@ -72,9 +74,10 @@ class PublicationReader(
         val fetched = coroutineScope {
             redirects.map { redirect ->
                 async {
-                    val url = repository.url(redirect.coordinate.file("module"))
                     val attempts = mutableListOf<Attempt>()
-                    val body = fetch(url, attempts)
+                    // The targets of a snapshot are snapshots too, and each keeps its own timestamp.
+                    val url = fileUrl(redirect.coordinate, "module", repository, attempts)
+                    val body = url?.let { fetch(it, attempts) }
                     redirect.coordinate to (body?.let { runCatching { json.decodeFromString<GmmDocument>(it) }.getOrNull() }
                         to attempts.lastOrNull()?.status)
                 }
@@ -111,6 +114,50 @@ class PublicationReader(
         )
     }
 
+    /**
+     * Where a file of this coordinate actually lies.
+     *
+     * A release keeps its files under its own name. A SNAPSHOT does not: `0.1.0-SNAPSHOT` publishes
+     * `s3-client-0.1.0-20260817.123924-1.module`, and which timestamp is current is written in a
+     * second, version-level maven-metadata.xml. A reader that assumes the release layout reports a
+     * published version as absent, with confidence.
+     */
+    private suspend fun fileUrl(
+        coordinate: Coordinate,
+        extension: String,
+        repository: MavenRepository,
+        tried: MutableList<Attempt>,
+    ): String? {
+        if (!coordinate.isSnapshot) return repository.url(coordinate.file(extension))
+        val metadataUrl = repository.url("${coordinate.directory}/maven-metadata.xml")
+        val metadata = snapshots.getOrPut(metadataUrl) { fetch(metadataUrl, tried) } ?: return null
+        val value = snapshotValue(metadata, extension) ?: return null
+        snapshotStamps[coordinate.directory] = value
+        return repository.url("${coordinate.directory}/${coordinate.artifact}-$value.$extension")
+    }
+
+    /** The timestamped name for one extension, ignoring the classified entries beside it. */
+    private fun snapshotValue(metadata: String, extension: String): String? = runCatching {
+        val document = DocumentBuilderFactory.newInstance()
+            .also { it.isNamespaceAware = false; it.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true) }
+            .newDocumentBuilder()
+            .parse(metadata.byteInputStream())
+        val entries = document.getElementsByTagName("snapshotVersion")
+        (0 until entries.length)
+            .map { entries.item(it) }
+            .firstOrNull { entry ->
+                val children = (0 until entry.childNodes.length).map { entry.childNodes.item(it) }
+                children.none { it.nodeName == "classifier" } &&
+                    children.any { it.nodeName == "extension" && it.textContent.trim() == extension }
+            }
+            ?.let { entry ->
+                (0 until entry.childNodes.length)
+                    .map { entry.childNodes.item(it) }
+                    .firstOrNull { it.nodeName == "value" }
+                    ?.textContent?.trim()
+            }
+    }.getOrNull()
+
     private suspend fun absent(
         coordinate: Coordinate,
         repository: MavenRepository,
@@ -118,7 +165,17 @@ class PublicationReader(
     ): ReadOutcome {
         // No module metadata is not the same as nothing published: a plain Maven publication has a POM
         // and no variants at all, and saying so is more use than reporting a coordinate that is not there.
-        val pomUrl = repository.url(coordinate.file("pom"))
+        val pomUrl = fileUrl(coordinate, "pom", repository, tried)
+        if (pomUrl == null) {
+            return if (coordinate.isSnapshot) {
+                ReadOutcome.UnsupportedLayout(
+                    coordinate,
+                    "the version-level metadata of this snapshot names neither a module nor a pom",
+                )
+            } else {
+                ReadOutcome.NotFound(coordinate, tried.toList())
+            }
+        }
         return if (fetch(pomUrl, tried) != null) {
             ReadOutcome.WithoutModuleMetadata(coordinate, pomUrl)
         } else {
@@ -132,16 +189,54 @@ class PublicationReader(
         return result.body
     }
 
-    private fun group(located: List<Pair<Coordinate, GmmVariant>>): List<Target> =
-        located.groupBy({ keyOf(it.second) }, { it })
+    /**
+     * Targets are formed from the variants that carry the library; documentation joins them.
+     *
+     * A sources variant does not always say which platform it documents. Gradle's Java plugin adds
+     * `sourcesElements` with no Kotlin platform attribute at all, while `apiElements` beside it has
+     * one — so grouping every variant by its attributes alone splits one publication into two
+     * targets, both of them called jvm, one holding the code and one holding the sources. Asking
+     * such a target for its sources then answers "none" about a publication that has them, which is
+     * how this reader came to state, out loud, that a library published no sources when it did.
+     *
+     * Documentation with no platform of its own is attached to the one target there is. When there
+     * are several it is left where it fell rather than guessed at: a wrong attachment would make one
+     * platform look documented and another not.
+     */
+    private fun group(located: List<Pair<Coordinate, GmmVariant>>): List<Target> {
+        val (documentation, library) = located.partition { roleOf(it.second) != Role.Library }
+        val targets = library.groupBy({ keyOf(it.second) }, { it })
             .map { (key, entries) ->
                 Target(
                     key = key,
                     coordinate = entries.first().first,
-                    variants = entries.map { variant(it.second) },
+                    variants = entries.map { variant(it.second, entries.first().first) },
                 )
             }
-            .sortedBy { it.name }
+
+        val attached = documentation.map { (coordinate, source) ->
+            val key = keyOf(source)
+            val home = targets.firstOrNull { it.key == key }
+                ?: targets.singleOrNull()?.takeIf { key == TargetKey(null, null, null) }
+            (home?.key ?: key) to (coordinate to source)
+        }
+
+        val extra = attached.groupBy({ it.first }, { it.second })
+        return (targets.map { target ->
+            target.copy(
+                variants = target.variants + extra[target.key].orEmpty().map { variant(it.second, it.first) },
+            )
+        } + extra.filterKeys { key -> targets.none { it.key == key } }.map { (key, entries) ->
+            Target(
+                key = key,
+                coordinate = entries.first().first,
+                variants = entries.map { variant(it.second, it.first) },
+            )
+        }).sortedBy { it.name }
+    }
+
+    private fun roleOf(variant: GmmVariant): Role =
+        Role.of(variant.attribute(CATEGORY), variant.attribute(DOCS_TYPE))
 
     private fun keyOf(variant: GmmVariant): TargetKey = TargetKey(
         platform = variant.attribute(PLATFORM_TYPE),
@@ -149,7 +244,7 @@ class PublicationReader(
         wasmTarget = variant.attribute(WASM_TARGET),
     )
 
-    private fun variant(source: GmmVariant): Variant {
+    private fun variant(source: GmmVariant, coordinate: Coordinate): Variant {
         val attributes = source.attributes.mapValues { (_, value) -> value.content }
         return Variant(
             name = source.name,
@@ -157,8 +252,22 @@ class PublicationReader(
             usage = Usage.of(attributes[USAGE]),
             role = Role.of(attributes[CATEGORY], attributes[DOCS_TYPE]),
             dependencies = source.dependencies.map { Dependency(it.group, it.module, it.version?.requires) },
-            files = source.files.map { ArtefactFile(it.name, it.url, it.size, it.sha1) },
+            files = source.files.map { ArtefactFile(it.name, resolved(it.url, coordinate), it.size, it.sha1) },
         )
+    }
+
+    /**
+     * The name a file of a snapshot really has.
+     *
+     * Module metadata inside a snapshot names its files with `-SNAPSHOT` in them, and the files on
+     * disk carry the build timestamp instead. Anything fetching by that url gets a 404 and reads it
+     * as an absent artefact — so the url is corrected here, once, rather than in every caller who
+     * would have to know about snapshots to get it right.
+     */
+    private fun resolved(url: String, coordinate: Coordinate): String {
+        if (!coordinate.isSnapshot) return url
+        val stamped = snapshotStamps[coordinate.directory] ?: return url
+        return url.replace(coordinate.version, stamped)
     }
 
     private fun GmmVariant.attribute(key: String): String? = attributes[key]?.content
