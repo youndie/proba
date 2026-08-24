@@ -167,6 +167,13 @@ when it cannot run, when its subject never reaches it, and when nobody wired it 
 carries a case on each side, and a guard *per check* fails the build when one does not. A total over
 all checks would be satisfied by the ones that do have cases, on behalf of the one that does not.
 
+**One version, pinned in three places, checked to be one.** The server compiles against kompot, the
+renderer generates its types from kompot's schemas, and the conformance corpus is fetched from it —
+and `schema:check` and `corpus:check` each compare a committed copy against *their own* pin, so both
+stay green while the pins drift apart. `scripts/check-kompot-pins.py` is what notices, and it also
+checks that Renovate's custom managers still find the pins they were written for: a field renamed on
+one side leaves a manager matching nothing, which behaves exactly like one with no update to offer.
+
 **Every gate has been watched failing.** `scripts/gate*.sh` are runnable, and each was run against a
 broken version of the thing it guards. The library published with a defect on purpose lives in
 `research-stand/broken-publication` and is switched by one word, so the two halves of the pair cannot

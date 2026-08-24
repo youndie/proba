@@ -55,6 +55,9 @@ jobs:
       # Cheap and first: a manifest that does not parse breaks every consumer of the action before
       # anything else in this job has a chance to say so.
       - run: python3 ./scripts/check-action-manifest.py
+      # One kompot version wearing three hats. schema:check and corpus:check each compare a committed
+      # copy against their own pin, so both stay green while the pins drift apart from the server's.
+      - run: python3 ./scripts/check-kompot-pins.py
       - run: ./scripts/gate.sh
       - run: ./scripts/gate-action.sh
       # Live coordinates, nothing assembled: the rule has to discriminate between a publication that
