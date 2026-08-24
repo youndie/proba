@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
         println(
             "usage: proba <group:artifact:version> [--repo <base-url>] [--deep] [--workspace <dir>] " +
                 "[--wrapper <dir>] [--gradle-home <dir>] [--fail-on defect|suspicion|none] " +
-                "[--summary <file>] [--badge <file>]",
+                "[--summary <file>] [--badge <file>] [--badge-label <text>]",
         )
         exitProcess(64)
     }
@@ -50,6 +50,9 @@ fun main(args: Array<String>) {
     // Written by the build rather than answered by a service: a publication never changes, so the
     // state of a badge changes when a version is released and not when somebody looks at one.
     val badge = args.option("--badge")?.let { File(it) }
+    // The artefact, because a badge is nearly always read beside others of its kind and that is the
+    // half a reader cannot get from anywhere else.
+    val badgeLabel = args.option("--badge-label") ?: coordinate.artifact
     val workspace = File(args.option("--workspace") ?: System.getProperty("java.io.tmpdir") + "/proba-workspace")
     // Where the consumer build takes its Gradle from. Named rather than guessed: the working directory
     // of a forked process is not the repository root, and a guess here fails far from its cause.
@@ -66,7 +69,7 @@ fun main(args: Array<String>) {
                         val context = context(outcome.publication, reader, repository, attempt, http)
                         val findings = Checks.runAll(context)
                         summary?.writeText(markdown(coordinate, deep, findings))
-                        badge?.also { it.parentFile?.mkdirs() }?.writeText(Badge.of(findings))
+                        badge?.also { it.parentFile?.mkdirs() }?.writeText(Badge.of(findings, badgeLabel))
                         report(coordinate, deep, findings, failOn)
                     }
 

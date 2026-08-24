@@ -209,11 +209,13 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
                 ?: MavenRepository.MavenCentral
 
             val svg = when (val outcome = reader.read(coordinate, repository)) {
-                is ReadOutcome.Read -> Badge.of(Checks.runAll(context(outcome.publication, reader, repository, http)))
-                is ReadOutcome.NotFound -> Badge.refusal("not published")
-                is ReadOutcome.WithoutModuleMetadata -> Badge.refusal("no module metadata")
-                is ReadOutcome.UnsupportedLayout -> Badge.refusal("snapshot")
-                is ReadOutcome.Unreadable -> Badge.refusal("unreadable")
+                is ReadOutcome.Read ->
+                    Badge.of(Checks.runAll(context(outcome.publication, reader, repository, http)), coordinate.artifact)
+
+                is ReadOutcome.NotFound -> Badge.refusal("not published", coordinate.artifact)
+                is ReadOutcome.WithoutModuleMetadata -> Badge.refusal("no module metadata", coordinate.artifact)
+                is ReadOutcome.UnsupportedLayout -> Badge.refusal("snapshot", coordinate.artifact)
+                is ReadOutcome.Unreadable -> Badge.refusal("unreadable", coordinate.artifact)
             }
             call.response.headers.append(HttpHeaders.CacheControl, "public, max-age=3600")
             call.respondText(svg, ContentType.Image.SVG)

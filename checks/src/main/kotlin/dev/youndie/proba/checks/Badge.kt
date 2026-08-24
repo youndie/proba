@@ -11,11 +11,29 @@ package dev.youndie.proba.checks
  */
 object Badge {
 
-    private const val LABEL = "proba"
+    /**
+     * Used when a caller names nothing — a single badge standing on its own, where the tool is the
+     * news. A row of them wants the artefact instead, which is what every caller here passes.
+     */
+    const val TOOL = "proba"
 
-    fun of(findings: List<Finding>): String = svg(message(findings), colour(findings), message(findings))
+    /**
+     * [label] is the left half, and it carries the identity.
+     *
+     * Four badges in a README with `proba` on the left read as one picture repeated: nothing in them
+     * says which artefact each belongs to, and the only thing that does is the file name a reader
+     * never sees. The distinction the message buys — `clean` against `1 unchecked` — pays off only
+     * once a reader can tell whose state it is, and a row where one says `2 defects` and nobody can
+     * see which library it is about is worse than no badge at all.
+     *
+     * The tool's own name goes with it, including out of the accessible text. That is the trade the
+     * left half forces, and the artefact is the half a reader cannot get from anywhere else: the
+     * badge is nearly always seen among others of its kind.
+     */
+    fun of(findings: List<Finding>, label: String = TOOL): String =
+        svg(label, message(findings), colour(findings), message(findings))
 
-    fun refusal(reason: String): String = svg(reason, Neutral, reason)
+    fun refusal(reason: String, label: String = TOOL): String = svg(label, reason, Neutral, reason)
 
     fun message(findings: List<Finding>): String {
         val defects = findings.count { it.severity == Severity.Defect }
@@ -50,13 +68,13 @@ object Badge {
     private const val Clean = "#3f7d46"
     private const val Neutral = "#5d6b73"
 
-    private fun svg(message: String, colour: String, label: String): String {
-        val left = width(LABEL)
+    private fun svg(label: String, message: String, colour: String, state: String): String {
+        val left = width(label)
         val right = width(message)
         val total = left + right
         return """
-            <svg xmlns="http://www.w3.org/2000/svg" width="$total" height="20" role="img" aria-label="$LABEL: $label">
-              <title>$LABEL: $label</title>
+            <svg xmlns="http://www.w3.org/2000/svg" width="$total" height="20" role="img" aria-label="$label: $state">
+              <title>${label.escaped()}: $state</title>
               <linearGradient id="s" x2="0" y2="100%">
                 <stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/>
               </linearGradient>
@@ -67,7 +85,7 @@ object Badge {
                 <rect width="$total" height="20" fill="url(#s)"/>
               </g>
               <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
-                <text x="${left / 2}" y="14">$LABEL</text>
+                <text x="${left / 2}" y="14">${label.escaped()}</text>
                 <text x="${left + right / 2}" y="14">${message.escaped()}</text>
               </g>
             </svg>

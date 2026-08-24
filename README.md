@@ -127,6 +127,14 @@ Publish that file however you publish anything — Pages, a branch, a commit —
 it. Running instance optional: `GET /badge/{group}/{artifact}/{version}.svg` serves the same picture
 for an ad-hoc query, and computes on every view what cannot change between them.
 
+The left half is the **artefact**, not the tool: badges are read beside others of their kind, and a
+row of them all saying `proba` is one picture repeated with no way to tell whose state is whose —
+which is worst exactly when one of them says `2 defects`.
+
+```
+kompot-core: clean        kompot-client: 1 suspicion        kompot-forms: 2 defects
+```
+
 The state is a **word** — `clean`, `2 defects`, `1 unchecked` — and the colour only agrees with it. A
 badge is the smallest surface the severity language has to survive on and the one most often read
 where colour is not available at all; the same sentence is the `aria-label`, which is what is left
