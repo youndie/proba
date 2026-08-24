@@ -28,5 +28,7 @@ class ResolvedConsumerView(
 
     override fun apiSurface(artifact: ResolvedArtifact): Set<String> = JarApiSurface.of(artifact.file)
 
+    override fun toolKind(artifact: ResolvedArtifact): String? = ArtefactKind.of(artifact.file)
+
     override fun onCompileClasspath(className: String): Boolean = className in onClasspath
 }

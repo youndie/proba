@@ -25,6 +25,19 @@ interface ConsumerView {
 
     /** Whether a class can be found anywhere on the compile classpath. */
     fun onCompileClasspath(className: String): Boolean
+
+    /**
+     * What kind of artefact this is, when it is one a tool loads rather than one a compiler resolves.
+     *
+     * A KSP processor implements `SymbolProcessorProvider`, so those types really are in its public
+     * signatures — and it is still not a defect, because nothing puts a processor on a compile
+     * classpath. KSP loads it through its own configuration and supplies that API itself, which is
+     * why `implementation` is what every processor declares.
+     *
+     * The question this check asks — what a consumer receives when they add this — has no meaning for
+     * such an artefact. Answering it anyway describes a consumer who does not exist.
+     */
+    fun toolKind(artifact: ResolvedArtifact): String? = null
 }
 
 data class ResolvedArtifact(val coordinate: Coordinate?, val file: File) {

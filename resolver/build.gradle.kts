@@ -6,6 +6,8 @@ plugins {
 dependencies {
     api(project(":checks"))
     implementation(libs.asm)
+    implementation(libs.asm.tree)
+    implementation(libs.kotlin.metadata.jvm)
     implementation(libs.ktor.client.cio)
 
     testImplementation(kotlin("test"))

@@ -44,6 +44,21 @@ object ApiUnreachable : Check {
                 ),
             )
 
+        consumer.toolKind(subject)?.let { kind ->
+            return listOf(
+                Finding(
+                    checkId = id,
+                    severity = Severity.Undetermined,
+                    subject = "${consumer.target}: ${subject.file.name}",
+                    // Said rather than skipped: a check that quietly does not apply is indistinguishable
+                    // from one that ran and found nothing.
+                    message = "this is $kind, which a tool loads rather than a compiler resolves — " +
+                        "nothing puts it on a compile classpath, so what one would receive is not a question about it",
+                    evidence = listOf("declared in the artefact: $kind"),
+                ),
+            )
+        }
+
         val unreachable = consumer.apiSurface(subject)
             .filterNot { consumer.onCompileClasspath(it) }
             .sorted()

@@ -37,7 +37,9 @@ while IFS= read -r line; do
     # silently overwritten by another library is worse than no badge.
     badge_flag=(--badge "$badge_dir/$(cut -d: -f1,2 <<<"$coordinate" | tr ':' '.').svg")
   fi
-  "$proba" "$coordinate" --repo "$repository" $deep_flag "${badge_flag[@]}" \
+  # Expanded through the +-form: with set -u an empty array is an unbound variable in bash 3.2, and
+  # the empty case is the default one — the badge directory is opt-in.
+  "$proba" "$coordinate" --repo "$repository" $deep_flag ${badge_flag[@]+"${badge_flag[@]}"} \
     --fail-on "$fail_on" --summary "$part" --workspace "$workspace" --wrapper "$root"
   code=$?
   cat "$part" >> "$summary_file" 2>/dev/null || true
