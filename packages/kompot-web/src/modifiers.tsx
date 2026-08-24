@@ -23,7 +23,11 @@ export function applyModifiers(nodes: ModifierNode[], child: ReactNode, theme: T
     weight === undefined ? {} : { flexGrow: weight.value, flexBasis: 0, minWidth: 0, minHeight: 0 };
 
   if (visual.length === 0) {
-    return <div style={{ boxSizing: "border-box", ...share }}>{child}</div>;
+    return (
+      <div style={{ boxSizing: "border-box", ...share }}>
+        {inside(child, weight === undefined ? {} : { width: "100%", height: "100%" })}
+      </div>
+    );
   }
 
   // A constraint set by one node reaches the nodes after it. In Compose `size(12.dp).background(c)`
@@ -33,7 +37,11 @@ export function applyModifiers(nodes: ModifierNode[], child: ReactNode, theme: T
   // the height, and filling both would stretch a padded box across its row.
   const fills = fillsFrom(visual, weight !== undefined);
 
-  let rendered: ReactNode = child;
+  // The component's own element fills what the chain constrained, exactly as an inner wrapper does.
+  // Without this a `column` inside a chain that fixed a height is a flex container of content height
+  // sitting in a box the right size — invisible along the inline axis, where a block element fills
+  // its parent anyway, and plain along the block axis, where it does not.
+  let rendered: ReactNode = inside(child, fillsFrom(visual, weight !== undefined, visual.length));
   for (let index = visual.length - 1; index >= 0; index -= 1) {
     const node = visual[index]!;
     const outermost = index === 0;
@@ -55,10 +63,12 @@ export function applyModifiers(nodes: ModifierNode[], child: ReactNode, theme: T
 }
 
 /** For each node, what it must fill because an earlier node in the chain — or a weight — constrained it. */
-function fillsFrom(visual: ModifierNode[], weighted: boolean): CSSProperties[] {
+function fillsFrom(visual: ModifierNode[], weighted: boolean): CSSProperties[];
+function fillsFrom(visual: ModifierNode[], weighted: boolean, at: number): CSSProperties;
+function fillsFrom(visual: ModifierNode[], weighted: boolean, at?: number): CSSProperties[] | CSSProperties {
   let width = weighted;
   let height = weighted;
-  return visual.map((node) => {
+  const all = visual.map((node) => {
     const fill: CSSProperties = {};
     if (width) fill.width = "100%";
     if (height) fill.height = "100%";
@@ -68,6 +78,26 @@ function fillsFrom(visual: ModifierNode[], weighted: boolean): CSSProperties[] {
     }
     return fill;
   });
+  if (at === undefined) return all;
+  // One past the last node: what the component's own element inherits from the whole chain.
+  const fill: CSSProperties = {};
+  if (width) fill.width = "100%";
+  if (height) fill.height = "100%";
+  return fill;
+}
+
+/** A box for the component itself, added only when the chain actually constrained something. */
+function inside(child: ReactNode, fill: CSSProperties): ReactNode {
+  if (fill.width === undefined && fill.height === undefined) return child;
+  return (
+    // A grid, because its single child stretches to the whole area by itself. A block box would
+    // leave the component sized by its content along the block axis, which is the axis where nothing
+    // else corrects it, and a flex box would need the child to carry a flex property it cannot be
+    // given from out here.
+    <div data-kompot-fill="" style={{ boxSizing: "border-box", display: "grid", ...fill }}>
+      {child}
+    </div>
+  );
 }
 
 function styleOf(node: ModifierNode, theme: Theme): CSSProperties {

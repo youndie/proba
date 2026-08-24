@@ -204,3 +204,37 @@ describe("a constraint reaches the nodes after it", () => {
     expect(modifier(root, "background")!.style.width).toBe("");
   });
 });
+
+describe("the component's own element inherits what the chain constrained", () => {
+  it("stretches inside a chain that fixed a size", () => {
+    // Found by measuring, not by reading: a column inside a chain that fixed a height was a flex
+    // container of content height sitting in a box of the right size. Invisible along the inline
+    // axis, where a block element fills its parent anyway; plain along the block axis, where the
+    // measured share was 16px of a 300px frame.
+    const root = draw({
+      type: "column",
+      id: "c",
+      children: [{ type: "text", id: "t", text: "ok" }],
+      modifiers: [{ type: "size", width: "Fill", height: "Fill" }],
+    } as unknown as AnyComponent);
+
+    const fill = root.querySelector<HTMLElement>("[data-kompot-fill]")!;
+    expect(fill).not.toBeNull();
+    expect(fill.style.height).toBe("100%");
+    // A grid, so its single child stretches without needing a property it cannot be given from
+    // outside.
+    expect(fill.style.display).toBe("grid");
+    expect(fill.querySelector('[data-kompot="column"]')).not.toBeNull();
+  });
+
+  it("adds nothing when the chain constrained nothing", () => {
+    const root = draw({
+      type: "column",
+      id: "c",
+      children: [],
+      modifiers: [{ type: "padding", all: 8 }],
+    } as unknown as AnyComponent);
+
+    expect(root.querySelector("[data-kompot-fill]")).toBeNull();
+  });
+})

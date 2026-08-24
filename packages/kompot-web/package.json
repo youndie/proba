@@ -16,7 +16,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "corpus": "node scripts/fetch-corpus.mjs",
-    "corpus:check": "node scripts/fetch-corpus.mjs --check"
+    "corpus:check": "node scripts/fetch-corpus.mjs --check",
+    "measure": "vite-node scripts/measure-layout.tsx"
   },
   "peerDependencies": {
     "react": ">=18",
@@ -30,9 +31,11 @@
     "@types/react-dom": "^19.0.0",
     "jsdom": "^25.0.1",
     "json-schema-to-typescript": "^15.0.3",
+    "playwright": "^1.49.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "^5.7.2",
+    "vite-node": "^2.1.8",
     "vitest": "^2.1.8"
   }
 }

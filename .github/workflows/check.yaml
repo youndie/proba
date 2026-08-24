@@ -38,6 +38,8 @@ jobs:
       # Without this they are a copy, and a copy nobody regenerates stops being true quietly.
       - run: pnpm --filter kompot-web schema:check
       - run: pnpm --filter kompot-web corpus:check
+      # Boxes, not styles. The runner has Chrome, so this costs no download.
+      - run: ./scripts/gate-layout.sh
 
   gates:
     runs-on: ubuntu-latest
