@@ -1,53 +1,47 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "prConcurrentLimit": 5,
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "The wire schemas kompot-web generates its types from. Renovate reads gradle/libs.versions.toml on its own and would move the server's kompot while leaving this behind, so the two pins would drift and the server would be built against one version while the client's types came from another.",
-      "fileMatch": ["^packages/kompot-web/package\\.json$"],
-      "matchStrings": ["\"specVersion\"\\s*:\\s*\"(?<currentValue>[^\"]+)\""],
-      "depNameTemplate": "io.github.youndie:kompot-spec",
-      "datasourceTemplate": "maven",
-      "registryUrlTemplate": "https://reposilite.kotlin.website/snapshots"
-    },
-    {
-      "customType": "regex",
-      "description": "The conformance corpus kompot-web is held to, pinned beside the schemas and for the same reason.",
-      "fileMatch": ["^packages/kompot-web/package\\.json$"],
-      "matchStrings": ["\"tckVersion\"\\s*:\\s*\"(?<currentValue>[^\"]+)\""],
-      "depNameTemplate": "io.github.youndie:kompot-client-tck",
-      "datasourceTemplate": "maven",
-      "registryUrlTemplate": "https://reposilite.kotlin.website/snapshots"
-    }
+  "extends": [
+    "config:recommended"
   ],
+  "prConcurrentLimit": 5,
   "packageRules": [
     {
       "description": "kompot moves as one thing across all three pins, because they are one version wearing three hats: the server compiles against it, the client's types are generated from it, and the corpus is fetched from it. A pull request that moves one of them is a repository that no longer agrees with itself.",
-      "matchPackageNames": ["io.github.youndie:**"],
+      "matchPackageNames": [
+        "io.github.youndie:**"
+      ],
       "groupName": "kompot",
       "automerge": false,
-      "addLabels": ["needs-work"],
+      "addLabels": [
+        "needs-work"
+      ],
       "prBodyNotes": [
-        "**This one is not a merge button.** A kompot bump has twice brought protocol changes with it: new fields in the generated types, and new cases in the conformance corpus that the form engine had to be written against. `pnpm schema:check` and `pnpm corpus:check` compare the committed copies against the pinned version, so this will fail until they are regenerated — which is the check doing its job, not the bot being wrong.",
+        "**This one is not a merge button.** A kompot bump has twice brought protocol changes with it: new fields in the generated types, and new cases in the conformance corpus that the form engine had to be written against. `pnpm schema:check` and `pnpm corpus:check` compare the committed copies against the pinned version, so this will fail until they are regenerated \u2014 which is the check doing its job, not the bot being wrong.",
         "After merging the version bump: `pnpm --filter kompot-web schema` and `pnpm --filter kompot-web corpus`, then read the diff. The schema diff answers \"what else changed\" cheaply; new corpus cases are work."
       ]
     },
     {
-      "description": "Everything the build runs on rather than ships: one pull request instead of four, because each of them is read the same way — did CI stay green.",
-      "matchManagers": ["github-actions"],
+      "description": "Everything the build runs on rather than ships: one pull request instead of four, because each of them is read the same way \u2014 did CI stay green.",
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "CI actions"
     },
     {
       "description": "The libraries proba itself is built from. Grouped by ecosystem so a red build points at one of them rather than at a pull request that moved nine.",
-      "matchManagers": ["gradle"],
-      "excludePackageNames": ["io.github.youndie:**"],
+      "matchManagers": [
+        "gradle"
+      ],
+      "excludePackageNames": [
+        "io.github.youndie:**"
+      ],
       "groupName": "gradle dependencies"
     },
     {
       "description": "The web side, same reasoning.",
-      "matchManagers": ["npm"],
+      "matchManagers": [
+        "npm"
+      ],
       "groupName": "npm dependencies"
     }
   ]

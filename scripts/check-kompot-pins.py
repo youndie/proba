@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""One kompot version, pinned in three places, which have to stay one version.
+"""kompot is pinned once, and this is what keeps it once.
 
-The server compiles against it, kompot-web generates its types from its schemas, and the conformance
-corpus is fetched from it. Renovate reads only the Gradle catalogue on its own, so a bump would move
-that and leave the other two behind — a repository built against one version and typed from another,
-which nothing else here would notice: `schema:check` and `corpus:check` compare the committed copies
-against *their own* pin, and stay green while it drifts away from the server's.
+It used to be pinned three times — the Gradle catalogue the server builds against, and two fields in
+packages/kompot-web/package.json that the schema and corpus were fetched by. Renovate reads the
+catalogue natively and each of the three resolved on its own, so a single bump produced a repository
+pinned at 0.30.0.68, 0.30.0.67 and 0.30.0.68 at once. Nothing else would have noticed: schema:check
+and corpus:check each compare a committed copy against *their own* pin and stay green while it drifts
+away from the server's.
 
-Two things are checked, and the second is the one that rots quietly: that the pins agree, and that
-Renovate's custom managers still find them. A field renamed in package.json leaves a manager matching
-nothing, and a manager that matches nothing behaves exactly like one with no update to offer.
+Now the scripts read the catalogue, so the drift is impossible rather than detected — and this guards
+the thing that made it possible, which is a second pin appearing again.
 """
 import json
 import re
@@ -20,38 +20,25 @@ root = Path(__file__).resolve().parent.parent
 problems = []
 
 catalogue = (root / "gradle" / "libs.versions.toml").read_text(encoding="utf-8")
-found = re.search(r'^kompot\s*=\s*"([^"]+)"', catalogue, re.MULTILINE)
-if not found:
+version = re.search(r'^kompot\s*=\s*"([^"]+)"', catalogue, re.MULTILINE)
+if not version:
     sys.exit("gradle/libs.versions.toml declares no kompot version")
-pins = {"gradle/libs.versions.toml": found.group(1)}
 
 package = json.loads((root / "packages" / "kompot-web" / "package.json").read_text(encoding="utf-8"))
-for field in ("specVersion", "tckVersion"):
-    if field not in package.get("kompot", {}):
-        problems.append(f"packages/kompot-web/package.json has no kompot.{field}")
-    else:
-        pins[f"package.json kompot.{field}"] = package["kompot"][field]
+for field, value in (package.get("kompot") or {}).items():
+    # A repository is a place; a version is the thing there must be only one of.
+    if field != "repository" and re.search(r"\d+\.\d+", str(value)):
+        problems.append(f"packages/kompot-web/package.json pins kompot again as kompot.{field} = {value}")
 
-if len(set(pins.values())) > 1:
-    problems.append("the pins disagree: " + ", ".join(f"{where}={version}" for where, version in pins.items()))
-
-# Renovate's regexes are JavaScript's; python spells a named group differently.
-config = json.loads((root / "renovate.json").read_text(encoding="utf-8"))
-target = "packages/kompot-web/package.json"
-text = (root / target).read_text(encoding="utf-8")
-for manager in config.get("customManagers", []):
-    if not any(re.search(pattern, target) for pattern in manager["fileMatch"]):
-        continue
-    for expression in manager["matchStrings"]:
-        if not re.search(expression.replace("(?<", "(?P<"), text):
-            problems.append(
-                f"renovate.json: the manager for {manager['depNameTemplate']} matches nothing in {target}",
-            )
+for name in ("fetch-schema.mjs", "fetch-corpus.mjs"):
+    script = (root / "packages" / "kompot-web" / "scripts" / name).read_text(encoding="utf-8")
+    if "kompotVersion(" not in script:
+        problems.append(f"{name} no longer takes the version from the catalogue")
 
 if problems:
-    print("the kompot pins do not hold together:")
+    print("kompot is pinned in more than one place:")
     for problem in problems:
         print(f"  {problem}")
     sys.exit(1)
 
-print(f"kompot is {next(iter(pins.values()))} in all {len(pins)} places, and Renovate can find each of them")
+print(f"kompot is {version.group(1)}, pinned once in gradle/libs.versions.toml and read from there")

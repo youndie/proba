@@ -9,13 +9,15 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileFromFile } from "json-schema-to-typescript";
+import { kompotVersion } from "./kompot-version.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
 const check = process.argv.includes("--check");
 
 const { kompot } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-const { specVersion: version, repository } = kompot;
+const { repository } = kompot;
+const version = kompotVersion(root);
 const jarUrl = `${repository}/io/github/youndie/kompot-spec/${version}/kompot-spec-${version}.jar`;
 
 // The tree and the forms. Wizards and server-driven themes are left out until something draws them:
