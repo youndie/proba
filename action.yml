@@ -1,0 +1,48 @@
+name: proba
+description: Check what a consumer actually gets when they add your published library
+author: youndie
+
+branding:
+  icon: package
+  color: red
+
+inputs:
+  coordinate:
+    description: "group:artifact:version — one per line for several"
+    required: true
+  repository:
+    description: Base URL of the repository to read. Defaults to Maven Central.
+    required: false
+    default: https://repo1.maven.org/maven2
+  deep:
+    description: >
+      Run a real consumer build to confirm what the metadata only suspects. Slower, and the only way
+      to tell a correct `implementation` from a defect.
+    required: false
+    default: "true"
+  fail-on:
+    description: defect | suspicion | none
+    required: false
+    default: defect
+
+runs:
+  using: composite
+  steps:
+    # proba's own classes are built against 25 because kompot's published classes are — see
+    # docs/research/architecture.md §1.11.
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: "25"
+
+    - uses: gradle/actions/setup-gradle@v4
+      with:
+        build-root-directory: ${{ github.action_path }}
+
+    - shell: bash
+      env:
+        PROBA_COORDINATES: ${{ inputs.coordinate }}
+        PROBA_REPOSITORY: ${{ inputs.repository }}
+        PROBA_DEEP: ${{ inputs.deep }}
+        PROBA_FAIL_ON: ${{ inputs.fail-on }}
+      run: ${{ github.action_path }}/scripts/run-action.sh

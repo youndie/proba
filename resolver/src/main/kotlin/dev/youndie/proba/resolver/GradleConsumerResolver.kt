@@ -17,8 +17,17 @@ class GradleConsumerResolver(
     private val workspace: File,
     /** A directory holding `gradlew` and `gradle/wrapper` — the distribution the consumer build uses. */
     private val wrapperSource: File,
-    private val timeoutSeconds: Long = 180,
+    private val timeoutSeconds: Long = 300,
     private val maxHeap: String = "1g",
+    /**
+     * Where the consumer build keeps its caches, or null for whatever the environment already uses.
+     *
+     * Null by default, and that is the important half. Forcing a home of our own bounds the disk a
+     * long-running service spends — but on a CI runner it also bypasses the cache the runner just
+     * restored, so every run downloads the Gradle distribution again and the first one timed out at
+     * three minutes. A service passes a directory; a one-shot run should not.
+     */
+    private val gradleHome: File? = null,
 ) {
 
     fun resolve(coordinate: Coordinate, repository: MavenRepository): ResolutionOutcome {
@@ -26,14 +35,14 @@ class GradleConsumerResolver(
         copyWrapper(project)
         write(project, coordinate, repository)
 
-        val gradleHome = File(workspace, "gradle-home").apply { mkdirs() }
-        val process = ProcessBuilder(
-            File(project, "gradlew").absolutePath,
-            "--quiet", "--console=plain", "--no-configuration-cache", "--max-workers=2",
-            "-g", gradleHome.absolutePath,
-            "-Dorg.gradle.jvmargs=-Xmx$maxHeap",
-            "probaClasspath",
-        )
+        val command = buildList {
+            add(File(project, "gradlew").absolutePath)
+            addAll(listOf("--quiet", "--console=plain", "--no-configuration-cache", "--max-workers=2"))
+            gradleHome?.let { addAll(listOf("-g", it.apply { mkdirs() }.absolutePath)) }
+            add("-Dorg.gradle.jvmargs=-Xmx$maxHeap")
+            add("probaClasspath")
+        }
+        val process = ProcessBuilder(command)
             .directory(project)
             .redirectErrorStream(true)
             .start()

@@ -28,6 +28,7 @@ import io.github.youndie.kompot.form.FormSchema
 import io.github.youndie.kompot.forms.KompotFormResponse
 import io.github.youndie.kompot.realtime.server.KompotUpdateBroadcaster
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondTextWriter
 import kotlinx.coroutines.channels.Channel
@@ -191,6 +192,29 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
                     ReportScreen.refusal(coordinate, "The module metadata could not be read.", listOf(outcome.url, outcome.reason)),
                 )
             }
+        }
+
+        // A badge for a README. Cached hard: it is fetched by every reader of every page it sits on,
+        // and a publication that already went out does not change.
+        get("/badge/{group}/{artifact}/{version}") {
+            val coordinate = Coordinate(
+                group = call.parameters["group"].orEmpty(),
+                artifact = call.parameters["artifact"].orEmpty(),
+                version = call.parameters["version"].orEmpty().removeSuffix(".svg"),
+            )
+            val repository = call.request.queryParameters["repo"]
+                ?.let { MavenRepository(it, it) }
+                ?: MavenRepository.MavenCentral
+
+            val svg = when (val outcome = reader.read(coordinate, repository)) {
+                is ReadOutcome.Read -> Badge.of(Checks.runAll(context(outcome.publication, reader, repository)))
+                is ReadOutcome.NotFound -> Badge.refusal("not published")
+                is ReadOutcome.WithoutModuleMetadata -> Badge.refusal("no module metadata")
+                is ReadOutcome.UnsupportedLayout -> Badge.refusal("snapshot")
+                is ReadOutcome.Unreadable -> Badge.refusal("unreadable")
+            }
+            call.response.headers.append(HttpHeaders.CacheControl, "public, max-age=3600")
+            call.respondText(svg, ContentType.Image.SVG)
         }
 
         get("{...}") {

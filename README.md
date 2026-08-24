@@ -38,6 +38,37 @@ Two published versions of one library put a file with the *same name* on the con
 Anything that tells artefacts apart by file name — an SBOM, a licence scanner, fat-jar
 deduplication, a dependency-report diff — cannot tell those two apart.
 
+### 🤖 In a build
+
+```yaml
+- uses: youndie/proba@main
+  with:
+    coordinate: |
+      io.github.youndie:kompot-core:0.27.1.50
+      io.github.youndie:kompot-standard:0.27.1.50
+    deep: "true"        # run a real consumer build; the only way to confirm a suspicion
+    fail-on: defect     # defect | suspicion | none
+```
+
+It runs on the runner rather than behind an API, so a publication you have not released yet is never
+handed to somebody else's service to be looked at. The findings land in the step summary, and the
+step fails on a defect — never on an *undetermined*, which means a check could not run here: turning
+"I do not know" into a red build teaches people to switch the answers off along with the noise.
+
+### 🏷 A badge
+
+```markdown
+![proba](https://your-proba/badge/io.github.youndie/kompot-core/0.27.1.50.svg)
+```
+
+The state is a **word** — `clean`, `2 defects`, `1 unchecked` — and the colour only agrees with it. A
+badge is the smallest surface the severity language has to survive on and the one most often read
+where colour is not available at all; the same sentence is the `aria-label`, which is what is left
+when the image does not load.
+
+`1 unchecked` is not `clean`: a check that could not run is not a check that passed, and a badge is
+seen most and inspected least.
+
 ### 📐 How it is put together
 
 | part | what for |

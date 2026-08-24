@@ -1,0 +1,54 @@
+name: check
+
+# On both, deliberately. A check that runs only on main is discovered broken long after the change
+# that broke it; one that runs only on pull requests lets main rot while every branch is green.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  jvm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # 25, because kompot's published classes are class file 69 and nothing older can load them.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew check
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter kompot-web test
+      - run: pnpm --filter kompot-web typecheck
+      # The generated types and the corpus must still be what the pinned kompot version produces.
+      # Without this they are a copy, and a copy nobody regenerates stops being true quietly.
+      - run: pnpm --filter kompot-web schema:check
+      - run: pnpm --filter kompot-web corpus:check
+
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+      - uses: gradle/actions/setup-gradle@v4
+      # Both stand on a library published with a defect on purpose, so a green run here means the
+      # checks discriminated rather than stayed quiet.
+      - run: ./scripts/gate.sh
+      - run: ./scripts/gate-action.sh
