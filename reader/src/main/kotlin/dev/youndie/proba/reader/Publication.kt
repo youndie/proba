@@ -10,11 +10,23 @@ data class Publication(
     val coordinate: Coordinate,
     val repository: MavenRepository,
     val targets: List<Target>,
+    /** What the root document says about which component it belongs to. */
+    val component: ComponentDeclaration?,
     /** Every module document actually fetched, root first — the evidence behind the picture. */
     val documents: List<Coordinate>,
     /** Targets the root points at that could not be fetched. A redirector pointing nowhere. */
     val unreachable: List<UnreachableTarget> = emptyList(),
 )
+
+/**
+ * The `component` block of a module document.
+ *
+ * A root names itself. A target module names the component that owns it and carries a `url` back to
+ * it — kotlinx-coroutines-core-jvm calls itself kotlinx-coroutines-core, and so does every other
+ * multiplatform library. Reading a back-reference as a self-declaration makes every target module
+ * look published under the wrong coordinate.
+ */
+data class ComponentDeclaration(val coordinate: Coordinate, val isBackReference: Boolean)
 
 data class UnreachableTarget(val coordinate: Coordinate, val url: String, val status: Int)
 

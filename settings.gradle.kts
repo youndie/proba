@@ -5,3 +5,4 @@ dependencyResolutionManagement {
 }
 
 include(":reader")
+include(":checks")

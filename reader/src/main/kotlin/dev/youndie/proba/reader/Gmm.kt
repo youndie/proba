@@ -23,6 +23,7 @@ data class GmmComponent(
     val group: String? = null,
     val module: String? = null,
     val version: String? = null,
+    /** Present only on a target module: the path back to the component that owns it. */
     val url: String? = null,
 )
 

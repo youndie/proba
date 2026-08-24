@@ -1,0 +1,172 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../kompot-ds-material-compose/0.27.0.46/kompot-ds-material-compose-0.27.0.46.module",
+    "group": "io.github.youndie",
+    "module": "kompot-ds-material-compose",
+    "version": "0.27.0.46",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "desktopApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-client",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-ds-material",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-theme",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kompot-ds-material-compose-desktop-0.27.0.jar",
+          "url": "kompot-ds-material-compose-desktop-0.27.0.46.jar",
+          "size": 10445,
+          "sha512": "e7b521ad6bb375c61d006521abf25549167f1fb66a9d4378442d77054184f8dcbb779f8503221ea488cb221e0f9cf575a04092133721b82f24d91f48a81d8539",
+          "sha256": "107f390f0d7607db9c4d45b683c845a761ea25fdfc5395b1b236b797af677973",
+          "sha1": "36d4a9c777757ce8287dfe17e2f25ea4a554b10b",
+          "md5": "a4e7b579763d0e5921c70b2f4e6a156e"
+        }
+      ]
+    },
+    {
+      "name": "desktopRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-client",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-ds-material",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-theme",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        },
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-core",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.11.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.material3",
+          "module": "material3",
+          "version": {
+            "requires": "1.11.0-alpha07"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.ui",
+          "module": "ui",
+          "version": {
+            "requires": "1.11.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kompot-ds-material-compose-desktop-0.27.0.jar",
+          "url": "kompot-ds-material-compose-desktop-0.27.0.46.jar",
+          "size": 10445,
+          "sha512": "e7b521ad6bb375c61d006521abf25549167f1fb66a9d4378442d77054184f8dcbb779f8503221ea488cb221e0f9cf575a04092133721b82f24d91f48a81d8539",
+          "sha256": "107f390f0d7607db9c4d45b683c845a761ea25fdfc5395b1b236b797af677973",
+          "sha1": "36d4a9c777757ce8287dfe17e2f25ea4a554b10b",
+          "md5": "a4e7b579763d0e5921c70b2f4e6a156e"
+        }
+      ]
+    },
+    {
+      "name": "desktopSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "kompot-ds-material-compose-desktop-0.27.0-sources.jar",
+          "url": "kompot-ds-material-compose-desktop-0.27.0.46-sources.jar",
+          "size": 3624,
+          "sha512": "8ce19bbc8a581d3854647bf8be011f0f1672524ef5927306e1df9b1e10206a17b5fc4ea213433ccefce74c17f2c53c80f027ea00245eefaa8986c6076c724045",
+          "sha256": "2a656f4aa8247ca43269b649be5dd47dee4f2c3ae6cbc1246d56bb8175e581c2",
+          "sha1": "98b521302464e083419d8dc6bcc00e8925d5edcb",
+          "md5": "82dccd637762b58a4f62edb24dbef163"
+        }
+      ]
+    }
+  ]
+}

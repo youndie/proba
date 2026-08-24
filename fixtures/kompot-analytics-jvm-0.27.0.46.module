@@ -1,0 +1,137 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../kompot-analytics/0.27.0.46/kompot-analytics-0.27.0.46.module",
+    "group": "io.github.youndie",
+    "module": "kompot-analytics",
+    "version": "0.27.0.46",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "jvmApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-core",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "io.github.youndie",
+          "module": "form-core",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kompot-analytics-jvm-0.27.0.jar",
+          "url": "kompot-analytics-jvm-0.27.0.46.jar",
+          "size": 28439,
+          "sha512": "d83c373133e2550ded1500e4cf6c987ce60228db1061d04073301444a523fa23f4d4dfcae749f84f1365d11ef88fe5a0ce3f41019a29517a93465f173813be0d",
+          "sha256": "dd8e083ae1ddf85916c8ae2a621e0191e0e22a1821f3c0a7f870dd5b8c7a792e",
+          "sha1": "af9ecb81973c83cede5537aecb017e46346a83f2",
+          "md5": "f53e9d73d965709f08685acad0ae5fcb"
+        }
+      ]
+    },
+    {
+      "name": "jvmRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.youndie",
+          "module": "kompot-core",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "io.github.youndie",
+          "module": "form-core",
+          "version": {
+            "requires": "0.27.0.46"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.10"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.11.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kompot-analytics-jvm-0.27.0.jar",
+          "url": "kompot-analytics-jvm-0.27.0.46.jar",
+          "size": 28439,
+          "sha512": "d83c373133e2550ded1500e4cf6c987ce60228db1061d04073301444a523fa23f4d4dfcae749f84f1365d11ef88fe5a0ce3f41019a29517a93465f173813be0d",
+          "sha256": "dd8e083ae1ddf85916c8ae2a621e0191e0e22a1821f3c0a7f870dd5b8c7a792e",
+          "sha1": "af9ecb81973c83cede5537aecb017e46346a83f2",
+          "md5": "f53e9d73d965709f08685acad0ae5fcb"
+        }
+      ]
+    },
+    {
+      "name": "jvmSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "kompot-analytics-jvm-0.27.0-sources.jar",
+          "url": "kompot-analytics-jvm-0.27.0.46-sources.jar",
+          "size": 4552,
+          "sha512": "040a8095b9a0df3391cde9af8e9030c89fbedadf3ce84b5e00bcd976eaf0b44c0e9d7c11f2e4faa847dd563ba3793038a343877aa7c3053d98bbedd39ea27277",
+          "sha256": "4abaa595ef3b07273e39486f44ad022ee5cae3c8e71e51d0513967869b68e9f2",
+          "sha1": "c519d80ae3b0e8576eb6328135be5099d9bb88eb",
+          "md5": "f061d1203ff0d2be4c843c12a89ff9ff"
+        }
+      ]
+    }
+  ]
+}

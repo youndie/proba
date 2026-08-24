@@ -19,7 +19,7 @@ object Fixtures {
     val Repository = MavenRepository("fixtures", "https://repo.example/maven2")
 
     fun load(name: String): String =
-        checkNotNull(javaClass.getResourceAsStream("/fixtures/$name")) { "no fixture $name" }
+        checkNotNull(javaClass.getResourceAsStream("/$name")) { "no fixture $name" }
             .bufferedReader().readText()
 
     /** Serves the named fixtures by the tail of the URL; anything else answers 404. */
@@ -57,3 +57,17 @@ object Fixtures {
         "kompot-core-wasm-js-0.27.0.46.module",
     )
 }
+
+/**
+ * Serves one recorded document whatever is asked for.
+ *
+ * This is how a publication is put somewhere it does not belong without editing it: the document
+ * stays exactly as it was published, and only the path it answers on is ours. A hand-edited fixture
+ * would drift into meaning something else the moment the real one changed, and nothing would say so.
+ */
+fun Fixtures.servingAnything(fixture: String): HttpClient =
+    HttpClient(
+        MockEngine {
+            respond(load(fixture), HttpStatusCode.OK, headersOf("Content-Type", "application/json"))
+        },
+    )

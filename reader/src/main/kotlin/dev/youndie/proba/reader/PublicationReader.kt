@@ -79,6 +79,13 @@ class PublicationReader(
             Publication(
                 coordinate = coordinate,
                 repository = repository,
+                component = root.component.let { component ->
+                    val group = component.group
+                    val module = component.module
+                    val version = component.version
+                    if (group == null || module == null || version == null) null
+                    else ComponentDeclaration(Coordinate(group, module, version), isBackReference = component.url != null)
+                },
                 targets = group(located),
                 documents = listOf(coordinate) + fetched.filter { it.second.first != null }.map { it.first },
                 unreachable = unreachable,
