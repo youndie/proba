@@ -47,7 +47,7 @@ deduplication, a dependency-report diff — cannot tell those two apart.
 | `resolver` | the confirming tier: a real consumer build, and the public API read out of the artefact |
 | `server` | Kotlin: the checks, and the screens as backend-driven UI |
 | `web` | Next.js: the report pages, server-rendered and shareable |
-| `packages/kompot-web` | a React renderer for [kompot](https://github.com/youndie/kompot) screens |
+| `packages/kompot-web` | a React renderer for [kompot](https://github.com/youndie/kompot) screens, typed from the published wire schemas |
 | `research-stand` | the consumer build that produced the numbers in the research document |
 
 Documentation is in Russian and lives in [docs/](docs/); the research document records what was

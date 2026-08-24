@@ -1,0 +1,34 @@
+{
+  "name": "kompot-web",
+  "version": "0.1.0",
+  "description": "A React renderer for kompot screens: the server describes a screen, the browser draws it",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "kompot": {
+    "specVersion": "0.27.0.46",
+    "repository": "https://reposilite.kotlin.website/snapshots"
+  },
+  "scripts": {
+    "schema": "node scripts/fetch-schema.mjs",
+    "schema:check": "node scripts/fetch-schema.mjs --check",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^25.0.1",
+    "json-schema-to-typescript": "^15.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

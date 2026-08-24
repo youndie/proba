@@ -4,3 +4,4 @@ node_modules/
 .next/
 *.log
 research-stand/resolve/src/
+packages/*/node_modules/
