@@ -24,9 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Exact, not "10": a resolve-to-latest turned a warning about skipped build scripts into an
+      # error inside the same major, and main went red without a commit to blame. Renovate moves this
+      # now, which makes such a change a pull request rather than a surprise.
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 10.16.1
       - uses: actions/setup-node@v4
         with:
           node-version: "24"

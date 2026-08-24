@@ -1,2 +1,9 @@
 packages:
   - "packages/*"
+
+# esbuild and sharp fetch or build a platform binary in a postinstall script, and pnpm 10 refuses to
+# skip such scripts silently — it fails the install instead, which is the right default. Naming them
+# is the answer; the alternative is an install that quietly produces a tree missing its binaries.
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
