@@ -18,14 +18,14 @@ const { kompot } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 const { specVersion: version, repository } = kompot;
 const jarUrl = `${repository}/io/github/youndie/kompot-spec/${version}/kompot-spec-${version}.jar`;
 
-// Only these two carry the tree: the others describe forms, wizards and themes, which the renderer
-// does not draw yet. Generating them all would produce types nothing refers to, and a reader could
-// not tell which of them the code is actually held to.
+// The tree and the forms. Wizards and server-driven themes are left out until something draws them:
+// generating every module would produce types nothing refers to, and a reader could not tell which
+// of them the code is actually held to.
 //
 // Both are compiled into one file. Generating a file per module makes json-schema-to-typescript
 // inline every type kompot-standard references out of kompot-core into both, and the duplicates
 // collide the moment anything imports both.
-const modules = ["kompot-core", "kompot-standard"];
+const modules = ["kompot-core", "kompot-standard", "form-core", "form-standard", "kompot-forms"];
 const bundle = "kompot.ts";
 const wrapperTitle = "KompotWireBundle";
 

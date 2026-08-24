@@ -1,0 +1,33 @@
+{
+  "id": "9.5-regex-passes-an-empty-value",
+  "clause": "§9.5",
+  "title": "regex lets an empty value through, so an optional field can stay empty",
+  "why": "were it otherwise, no field carrying a format could ever be left blank, and every optional one would need a rule that says nothing",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "code",
+        "rules": [
+          {
+            "type": "regex",
+            "pattern": "^[A-Z]{3}$",
+            "errorMessage": "Three capitals"
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payloadBlocked": false,
+    "noErrors": [
+      "code"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "9.5-validation-waits-for-blur",
+  "clause": "§9.5",
+  "title": "a rule runs when focus leaves a field, not on every keystroke",
+  "why": "validating as somebody types marks a field wrong before they have finished being right",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "code",
+        "rules": [
+          {
+            "type": "regex",
+            "pattern": "^[A-Z]{3}$",
+            "errorMessage": "Three capitals"
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "code",
+      "value": {
+        "type": "text_value",
+        "text": "a"
+      }
+    }
+  ],
+  "expect": {
+    "noErrors": [
+      "code"
+    ]
+  }
+}

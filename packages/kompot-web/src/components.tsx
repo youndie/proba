@@ -147,7 +147,10 @@ const paginatedList: Renderer = (raw) => {
   );
 };
 
+import { formRenderers } from "./forms/components";
+
 export const renderers: Record<string, Renderer> = {
+  ...Object.fromEntries(Object.entries(formRenderers).map(([type, draw]) => [type, (component: AnyComponent) => draw(component)])),
   text,
   button,
   row: stack("row"),

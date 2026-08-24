@@ -1,0 +1,37 @@
+{
+  "id": "9.5-required-before-regex-blocks-an-empty-value",
+  "clause": "§9.5",
+  "title": "the order of rules is significant: required first is what makes an empty value fail",
+  "why": "the same two rules in the other order accept an empty value silently, which is why the clause says required SHOULD come first",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "code",
+        "rules": [
+          {
+            "type": "required",
+            "errorMessage": "Code is required"
+          },
+          {
+            "type": "regex",
+            "pattern": "^[A-Z]{3}$",
+            "errorMessage": "Three capitals"
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payloadBlocked": true,
+    "errors": {
+      "code": "Code is required"
+    }
+  }
+}

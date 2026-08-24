@@ -1,0 +1,56 @@
+{
+  "id": "9.4-a-hidden-field-is-not-validated",
+  "clause": "§9.4",
+  "title": "a hidden field does not block a submit, however required it is",
+  "why": "a required field nobody can see stops a form for a reason that is invisible on screen — the worst kind of refusal",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "kind",
+        "rules": []
+      },
+      {
+        "type": "text_field",
+        "fieldId": "reason",
+        "rules": [
+          {
+            "type": "required",
+            "errorMessage": "Reason is required"
+          }
+        ],
+        "visibleIf": {
+          "type": "equals",
+          "fieldId": "kind",
+          "expectedValue": {
+            "type": "text_value",
+            "text": "other"
+          }
+        }
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "kind",
+      "value": {
+        "type": "text_value",
+        "text": "standard"
+      }
+    },
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payloadBlocked": false,
+    "payload": {
+      "kind": {
+        "type": "text_value",
+        "text": "standard"
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "9.7-an-entity-value-keeps-its-metadata",
+  "clause": "§9.7",
+  "title": "a selection resolves to entity_value and carries rawMetadata to the server unchanged",
+  "why": "rawMetadata is where the reserved keys travel — currency and balance are read by the mechanisms themselves, so a client that flattens a selection to a string breaks rules it never touched",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "selection_field",
+        "fieldId": "account",
+        "rules": []
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "account",
+      "value": {
+        "type": "entity_value",
+        "id": "acc-1",
+        "title": "Current account",
+        "rawMetadata": {
+          "currency": "EUR",
+          "balance": "1200"
+        }
+      }
+    },
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payload": {
+      "account": {
+        "type": "entity_value",
+        "id": "acc-1",
+        "title": "Current account",
+        "rawMetadata": {
+          "currency": "EUR",
+          "balance": "1200"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "id": "9.5-blur-raises-the-error-the-rule-carries",
+  "clause": "§9.5",
+  "title": "the message shown is the one the rule carries, ready to read",
+  "why": "errorMessage is finished localised text (§14), not a key: a client that translates it has nothing to translate it from",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "code",
+        "rules": [
+          {
+            "type": "regex",
+            "pattern": "^[A-Z]{3}$",
+            "errorMessage": "Three capitals"
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "code",
+      "value": {
+        "type": "text_value",
+        "text": "a"
+      }
+    },
+    {
+      "step": "blur",
+      "fieldId": "code"
+    }
+  ],
+  "expect": {
+    "errors": {
+      "code": "Three capitals"
+    }
+  }
+}

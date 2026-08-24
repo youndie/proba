@@ -1,0 +1,54 @@
+{
+  "id": "9.6-a-patch-replaces-a-value",
+  "clause": "§9.6",
+  "title": "a patch's updates land on the fields already rendered",
+  "why": "this is how a server auto-fills without reissuing the form, and a client that ignores it shows stale values with no sign of it",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "template",
+        "rules": [],
+        "triggersPatch": true
+      },
+      {
+        "type": "text_field",
+        "fieldId": "title",
+        "rules": []
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "title",
+      "value": {
+        "type": "text_value",
+        "text": "typed by hand"
+      }
+    },
+    {
+      "step": "patch",
+      "patch": {
+        "updates": {
+          "title": {
+            "type": "text_value",
+            "text": "filled by the server"
+          }
+        }
+      }
+    },
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payload": {
+      "title": {
+        "type": "text_value",
+        "text": "filled by the server"
+      }
+    }
+  }
+}

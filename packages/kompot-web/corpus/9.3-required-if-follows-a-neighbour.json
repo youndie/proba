@@ -1,0 +1,50 @@
+{
+  "id": "9.3-required-if-follows-a-neighbour",
+  "clause": "§9.3",
+  "title": "a rule that points at another field is evaluated against that field's current value",
+  "why": "a cross-reference resolved once, or against the wrong field, produces a form that refuses for a reason on a different line",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "checkbox_field",
+        "fieldId": "byPost",
+        "rules": []
+      },
+      {
+        "type": "text_field",
+        "fieldId": "address",
+        "rules": [
+          {
+            "type": "required_if",
+            "targetFieldId": "byPost",
+            "errorMessage": "An address is required",
+            "expectedValue": {
+              "type": "boolean_value",
+              "value": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "byPost",
+      "value": {
+        "type": "boolean_value",
+        "value": true
+      }
+    },
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payloadBlocked": true,
+    "errors": {
+      "address": "An address is required"
+    }
+  }
+}

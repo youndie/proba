@@ -1,0 +1,69 @@
+{
+  "id": "9.4-a-hidden-field-leaves-the-payload",
+  "clause": "§9.4",
+  "title": "a field whose condition stops holding is neither shown nor submitted, even after a value was typed into it",
+  "why": "a value typed before the condition turned false is the one a person cannot see and cannot remove; sending it submits something nobody agreed to",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "kind",
+        "rules": []
+      },
+      {
+        "type": "text_field",
+        "fieldId": "reason",
+        "rules": [],
+        "visibleIf": {
+          "type": "equals",
+          "fieldId": "kind",
+          "expectedValue": {
+            "type": "text_value",
+            "text": "other"
+          }
+        }
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "kind",
+      "value": {
+        "type": "text_value",
+        "text": "other"
+      }
+    },
+    {
+      "step": "set",
+      "fieldId": "reason",
+      "value": {
+        "type": "text_value",
+        "text": "because"
+      }
+    },
+    {
+      "step": "set",
+      "fieldId": "kind",
+      "value": {
+        "type": "text_value",
+        "text": "standard"
+      }
+    },
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "visibleFields": [
+      "kind"
+    ],
+    "payload": {
+      "kind": {
+        "type": "text_value",
+        "text": "standard"
+      }
+    }
+  }
+}

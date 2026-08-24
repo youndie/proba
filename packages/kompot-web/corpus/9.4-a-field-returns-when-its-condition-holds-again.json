@@ -1,0 +1,61 @@
+{
+  "id": "9.4-a-field-returns-when-its-condition-holds-again",
+  "clause": "§9.4",
+  "title": "visibility is recomputed locally, in both directions",
+  "why": "a condition evaluated once at render time looks identical until the first time somebody changes their mind",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "kind",
+        "rules": []
+      },
+      {
+        "type": "text_field",
+        "fieldId": "reason",
+        "rules": [],
+        "visibleIf": {
+          "type": "equals",
+          "fieldId": "kind",
+          "expectedValue": {
+            "type": "text_value",
+            "text": "other"
+          }
+        }
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "kind",
+      "value": {
+        "type": "text_value",
+        "text": "other"
+      }
+    },
+    {
+      "step": "set",
+      "fieldId": "kind",
+      "value": {
+        "type": "text_value",
+        "text": "standard"
+      }
+    },
+    {
+      "step": "set",
+      "fieldId": "kind",
+      "value": {
+        "type": "text_value",
+        "text": "other"
+      }
+    }
+  ],
+  "expect": {
+    "visibleFields": [
+      "kind",
+      "reason"
+    ]
+  }
+}

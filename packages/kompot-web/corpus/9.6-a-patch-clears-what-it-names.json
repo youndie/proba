@@ -1,0 +1,54 @@
+{
+  "id": "9.6-a-patch-clears-what-it-names",
+  "clause": "§9.6",
+  "title": "clearFields empties a field rather than setting it to something",
+  "why": "a choice that invalidates a neighbour has to be able to say so; setting an empty string instead leaves a value that passes a required rule",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "country",
+        "rules": [],
+        "triggersPatch": true
+      },
+      {
+        "type": "text_field",
+        "fieldId": "city",
+        "rules": [
+          {
+            "type": "required",
+            "errorMessage": "City is required"
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "city",
+      "value": {
+        "type": "text_value",
+        "text": "Riga"
+      }
+    },
+    {
+      "step": "patch",
+      "patch": {
+        "clearFields": [
+          "city"
+        ]
+      }
+    },
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payloadBlocked": true,
+    "errors": {
+      "city": "City is required"
+    }
+  }
+}

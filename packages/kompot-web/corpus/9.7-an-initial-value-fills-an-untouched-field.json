@@ -1,0 +1,33 @@
+{
+  "id": "9.7-an-initial-value-fills-an-untouched-field",
+  "clause": "§9.7",
+  "title": "a field starts on the value its definition carries",
+  "why": "without it, going back a step in a scenario is a form somebody fills in twice",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "title",
+        "rules": [],
+        "initialValue": {
+          "type": "text_value",
+          "text": "Draft"
+        }
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "submit"
+    }
+  ],
+  "expect": {
+    "payload": {
+      "title": {
+        "type": "text_value",
+        "text": "Draft"
+      }
+    }
+  }
+}

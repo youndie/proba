@@ -1,0 +1,16 @@
+{
+  "cases": [
+    "9.4-a-hidden-field-leaves-the-payload.json",
+    "9.4-a-field-returns-when-its-condition-holds-again.json",
+    "9.4-a-hidden-field-is-not-validated.json",
+    "9.5-regex-passes-an-empty-value.json",
+    "9.5-required-before-regex-blocks-an-empty-value.json",
+    "9.5-validation-waits-for-blur.json",
+    "9.5-blur-raises-the-error-the-rule-carries.json",
+    "9.3-required-if-follows-a-neighbour.json",
+    "9.6-a-patch-replaces-a-value.json",
+    "9.6-a-patch-clears-what-it-names.json",
+    "9.7-an-initial-value-fills-an-untouched-field.json",
+    "9.7-an-entity-value-keeps-its-metadata.json"
+  ]
+}
