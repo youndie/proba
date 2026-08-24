@@ -24,6 +24,13 @@ class CheckContext(
     val consumer: ConsumerView? = null,
     /** Fetches a published file. Absent when only the metadata is available. */
     val artefacts: ArtefactSource? = null,
+    /**
+     * Why there is no [consumer], when the reason is that one was attempted and failed.
+     *
+     * "Not run" and "run, and it failed" are different answers and lead to different actions, so a
+     * check that has neither must not report the first about the second.
+     */
+    val consumerRefusal: String? = null,
 )
 
 /**

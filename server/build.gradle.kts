@@ -31,10 +31,11 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 }
 
-// 25, and not by choice: kompot publishes class file version 69, so nothing older can even load it.
-// Its metadata does not say so — no org.gradle.jvm.version anywhere — which is why the refusal
-// arrives as UnsupportedClassVersionError at class loading rather than as an unresolvable dependency.
-kotlin { jvmToolchain(25) }
+// 21, with its neighbours. It was 25, and not by choice: kompot published class file version 69 and
+// said so nowhere. That was reported by this repository's own check, fixed upstream, and 0.29.0.56
+// publishes class file 61 with `org.gradle.jvm.version: 17` beside it — so the constraint is gone and
+// carrying it forward would only impose proba's floor on whoever uses the action.
+kotlin { jvmToolchain(21) }
 
 application { mainClass.set("dev.youndie.proba.server.MainKt") }
 

@@ -57,8 +57,8 @@ fun main(args: Array<String>) {
                 val reader = PublicationReader(http)
                 when (val outcome = reader.read(coordinate, repository)) {
                     is ReadOutcome.Read -> {
-                        val consumer = if (deep) resolve(coordinate, repository, workspace, wrapper, gradleHome) else null
-                        val context = context(outcome.publication, reader, repository, consumer, http)
+                        val attempt = if (deep) resolve(coordinate, repository, workspace, wrapper, gradleHome) else null
+                        val context = context(outcome.publication, reader, repository, attempt, http)
                         val findings = Checks.runAll(context)
                         summary?.writeText(markdown(coordinate, deep, findings))
                         report(coordinate, deep, findings, failOn)
@@ -74,22 +74,24 @@ fun main(args: Array<String>) {
     )
 }
 
+private class ConsumerAttempt(val view: ResolvedConsumerView?, val refusal: String?)
+
 private fun resolve(
     coordinate: Coordinate,
     repository: MavenRepository,
     workspace: File,
     wrapper: File,
     gradleHome: File?,
-): ResolvedConsumerView? {
+): ConsumerAttempt {
     println("  running a consumer build in ${workspace.absolutePath} …")
     return when (
         val outcome = GradleConsumerResolver(workspace, wrapper, gradleHome = gradleHome).resolve(coordinate, repository)
     ) {
-        is ResolutionOutcome.Resolved -> outcome.view
+        is ResolutionOutcome.Resolved -> ConsumerAttempt(outcome.view, null)
         is ResolutionOutcome.Failed -> {
             println("  the consumer build did not answer: ${outcome.reason}")
-            outcome.output.lines().takeLast(6).forEach { println("    $it") }
-            null
+            outcome.cause.forEach { println("    $it") }
+            ConsumerAttempt(null, (listOf(outcome.reason) + outcome.cause).joinToString("\n"))
         }
     }
 }
@@ -98,14 +100,15 @@ private fun context(
     publication: Publication,
     reader: PublicationReader,
     repository: MavenRepository,
-    consumer: ResolvedConsumerView?,
+    attempt: ConsumerAttempt?,
     http: HttpClient,
 ): CheckContext {
     val cache = mutableMapOf<Coordinate, Publication?>()
     return CheckContext(
         publication = publication,
         lookup = { wanted -> cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication } },
-        consumer = consumer,
+        consumer = attempt?.view,
+        consumerRefusal = attempt?.refusal,
         artefacts = httpArtefacts(http),
     )
 }

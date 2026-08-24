@@ -24,7 +24,12 @@ object ApiUnreachable : Check {
                 checkId = id,
                 severity = Severity.Undetermined,
                 subject = context.publication.coordinate.toString(),
-                message = "no consumer build was run, so what a compile classpath receives is not known here",
+                message = context.consumerRefusal
+                    // A build that was attempted and failed is not a build that was never run, and
+                    // saying the second about the first hides both the reason and the fact of trying.
+                    ?.let { "a consumer build was run and did not finish, so what a compile classpath receives is not known here: $it" }
+                    ?: "no consumer build was run, so what a compile classpath receives is not known here",
+                evidence = context.consumerRefusal?.lines().orEmpty().take(8),
             ),
         )
 

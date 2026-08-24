@@ -28,12 +28,13 @@ inputs:
 runs:
   using: composite
   steps:
-    # proba's own classes are built against 25 because kompot's published classes are — see
-    # docs/research/architecture.md §1.11.
+    # 21, deliberately low: a composite action that pins a newer JDK imposes its own floor on every
+    # repository that uses it. See docs/research/architecture.md §1.11 for the constraint this used
+    # to carry and how it went away.
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: "25"
+        java-version: "21"
 
     - uses: gradle/actions/setup-gradle@v4
       with:

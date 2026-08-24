@@ -28,6 +28,21 @@ class GradleConsumerResolver(
      * three minutes. A service passes a directory; a one-shot run should not.
      */
     private val gradleHome: File? = null,
+    /**
+     * Repositories the modelled consumer declares beside the one under test.
+     *
+     * Google's is here by default because every Compose Multiplatform publication depends on
+     * `compose.ui`, which depends on `androidx.lifecycle` and `androidx.savedstate`, which live only
+     * there — so without it this tier could never run on any of that family and answered
+     * "undetermined" for a reason that was about the harness rather than about the library.
+     *
+     * Each repository is an assumption about who the consumer is, which is why they are a parameter
+     * and not a literal: a caller checking a library whose consumers have neither can say so.
+     */
+    private val consumerRepositories: List<String> = listOf(
+        "https://repo1.maven.org/maven2",
+        "https://dl.google.com/dl/android/maven2",
+    ),
 ) {
 
     fun resolve(coordinate: Coordinate, repository: MavenRepository): ResolutionOutcome {
@@ -84,17 +99,21 @@ class GradleConsumerResolver(
     }
 
     private fun write(project: File, coordinate: Coordinate, repository: MavenRepository) {
+        val declarations = (listOf(repository.baseUrl) + consumerRepositories)
+            .distinct()
+            .joinToString("\n") { url -> "                    maven { url = uri(\"" + url + "\") }" }
+
         File(project, "settings.gradle.kts").writeText(
             """
             rootProject.name = "proba-consumer"
             dependencyResolutionManagement {
                 repositories {
-                    maven { url = uri("${repository.baseUrl}") }
-                    mavenCentral()
+$declarations
                 }
             }
             """.trimIndent(),
         )
+
         File(project, "build.gradle.kts").writeText(
             """
             plugins { `java-library` }
@@ -122,5 +141,34 @@ class GradleConsumerResolver(
 
 sealed interface ResolutionOutcome {
     data class Resolved(val view: ResolvedConsumerView) : ResolutionOutcome
-    data class Failed(val reason: String, val output: String) : ResolutionOutcome
+
+    data class Failed(val reason: String, val output: String) : ResolutionOutcome {
+        /** The reason, as the failure itself states it. See [causeOf]. */
+        val cause: List<String> get() = causeOf(output)
+    }
+}
+
+/**
+ * The part of a failed build that says what went wrong.
+ *
+ * Gradle ends every failure with the same four lines of advice and `BUILD FAILED`, so a report that
+ * keeps the tail keeps the boilerplate and drops the cause. From those four lines a reader cannot
+ * tell an unresolvable library — which would be a defect in it, and the most valuable thing this
+ * tool could say — from a repository this harness failed to declare, from a network that was down.
+ * Three different actions, and none of them supported.
+ *
+ * Gradle marks the cause itself, between `* What went wrong:` and `* Try:`. Bounded, because it
+ * prints one such block, and capped anyway so a pathological failure cannot become the report.
+ */
+fun causeOf(output: String, limit: Int = 24): List<String> {
+    val lines = output.lines()
+    val start = lines.indexOfFirst { it.trimStart().startsWith("* What went wrong:") }
+    if (start < 0) {
+        // No marked cause: keep the head rather than the tail, which is where a stack trace or a
+        // toolchain complaint says its piece before Gradle's closing advice.
+        return lines.filter { it.isNotBlank() }.take(limit)
+    }
+    val end = lines.drop(start + 1).indexOfFirst { it.trimStart().startsWith("* Try:") }
+    val block = if (end < 0) lines.drop(start + 1) else lines.subList(start + 1, start + 1 + end)
+    return block.filter { it.isNotBlank() }.take(limit)
 }
