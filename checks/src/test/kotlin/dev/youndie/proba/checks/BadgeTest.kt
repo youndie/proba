@@ -4,11 +4,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private fun finding(severity: Severity) =
-    Finding(checkId = "c", severity = severity, subject = "s", message = "m")
+private fun finding(severity: Severity) = Finding(checkId = "c", severity = severity, subject = "s", message = "m")
 
 class BadgeTest {
-
     @Test
     fun `the state is a word, and the colour only agrees with it`() {
         // The one place colour is most tempting to lean on, and the one where it survives least: a
@@ -46,5 +44,4 @@ class BadgeTest {
         assertTrue(svg.contains("""aria-label="proba: 1 defect""""), svg.take(200))
         assertTrue(svg.contains("<title>proba: 1 defect</title>"))
     }
-
 }

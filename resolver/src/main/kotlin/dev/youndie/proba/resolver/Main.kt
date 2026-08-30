@@ -4,8 +4,8 @@ import dev.youndie.proba.checks.Badge
 import dev.youndie.proba.checks.CheckContext
 import dev.youndie.proba.checks.Checks
 import dev.youndie.proba.checks.Finding
-import dev.youndie.proba.checks.httpArtefacts
 import dev.youndie.proba.checks.Severity
+import dev.youndie.proba.checks.httpArtefacts
 import dev.youndie.proba.reader.Coordinate
 import dev.youndie.proba.reader.MavenRepository
 import dev.youndie.proba.reader.Publication
@@ -37,15 +37,25 @@ fun main(args: Array<String>) {
     // What counts as failing. A suspicion is a shape defects take and not a defect, so it does not
     // stop a build by default: a check that cries wolf gets switched off, and then it stops finding
     // the real ones too.
-    val failOn = when (val level = args.option("--fail-on") ?: "defect") {
-        "defect" -> Severity.Defect
-        "suspicion" -> Severity.Suspicion
-        "none" -> null
-        else -> {
-            println("--fail-on takes defect, suspicion or none, not \"$level\"")
-            exitProcess(64)
+    val failOn =
+        when (val level = args.option("--fail-on") ?: "defect") {
+            "defect" -> {
+                Severity.Defect
+            }
+
+            "suspicion" -> {
+                Severity.Suspicion
+            }
+
+            "none" -> {
+                null
+            }
+
+            else -> {
+                println("--fail-on takes defect, suspicion or none, not \"$level\"")
+                exitProcess(64)
+            }
         }
-    }
     val summary = args.option("--summary")?.let { File(it) }
     // Written by the build rather than answered by a service: a publication never changes, so the
     // state of a badge changes when a version is released and not when somebody looks at one.
@@ -65,7 +75,18 @@ fun main(args: Array<String>) {
                 val reader = PublicationReader(http)
                 when (val outcome = reader.read(coordinate, repository)) {
                     is ReadOutcome.Read -> {
-                        val attempt = if (deep) resolve(coordinate, repository, workspace, wrapper, gradleHome) else null
+                        val attempt =
+                            if (deep) {
+                                resolve(
+                                    coordinate,
+                                    repository,
+                                    workspace,
+                                    wrapper,
+                                    gradleHome,
+                                )
+                            } else {
+                                null
+                            }
                         val context = context(outcome.publication, reader, repository, attempt, http)
                         val findings = Checks.runAll(context)
                         summary?.writeText(markdown(coordinate, deep, findings))
@@ -83,7 +104,10 @@ fun main(args: Array<String>) {
     )
 }
 
-private class ConsumerAttempt(val view: ResolvedConsumerView?, val refusal: String?)
+private class ConsumerAttempt(
+    val view: ResolvedConsumerView?,
+    val refusal: String?,
+)
 
 private fun resolve(
     coordinate: Coordinate,
@@ -94,9 +118,17 @@ private fun resolve(
 ): ConsumerAttempt {
     println("  running a consumer build in ${workspace.absolutePath} …")
     return when (
-        val outcome = GradleConsumerResolver(workspace, wrapper, gradleHome = gradleHome).resolve(coordinate, repository)
+        val outcome =
+            GradleConsumerResolver(
+                workspace,
+                wrapper,
+                gradleHome = gradleHome,
+            ).resolve(coordinate, repository)
     ) {
-        is ResolutionOutcome.Resolved -> ConsumerAttempt(outcome.view, null)
+        is ResolutionOutcome.Resolved -> {
+            ConsumerAttempt(outcome.view, null)
+        }
+
         is ResolutionOutcome.Failed -> {
             println("  the consumer build did not answer: ${outcome.reason}")
             outcome.cause.forEach { println("    $it") }
@@ -115,7 +147,9 @@ private fun context(
     val cache = mutableMapOf<Coordinate, Publication?>()
     return CheckContext(
         publication = publication,
-        lookup = { wanted -> cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication } },
+        lookup = { wanted ->
+            cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication }
+        },
         consumer = attempt?.view,
         consumerRefusal = attempt?.refusal,
         artefacts = httpArtefacts(http),
@@ -131,20 +165,35 @@ private fun Array<String>.option(name: String): String? =
  * The severity is a word here and a word only. A badge or a page can add a colour and a shape; a
  * summary is read as text, pasted into an issue and quoted in a chat, and none of those carry either.
  */
-private fun markdown(coordinate: Coordinate, deep: Boolean, findings: List<Finding>): String = buildString {
-    appendLine("### proba — `$coordinate`")
-    appendLine()
-    appendLine("${findings.size} finding(s) against ${if (deep) "both tiers" else "the repository alone"}.")
-    if (findings.isEmpty()) return@buildString
-    appendLine()
-    appendLine("| severity | check | subject | what |")
-    appendLine("| --- | --- | --- | --- |")
-    findings.sortedBy { it.severity.ordinal }.forEach {
-        appendLine("| ${it.severity.name.lowercase()} | `${it.checkId}` | `${it.subject}` | ${it.message.replace("|", "\\|")} |")
+private fun markdown(
+    coordinate: Coordinate,
+    deep: Boolean,
+    findings: List<Finding>,
+): String =
+    buildString {
+        appendLine("### proba — `$coordinate`")
+        appendLine()
+        appendLine("${findings.size} finding(s) against ${if (deep) "both tiers" else "the repository alone"}.")
+        if (findings.isEmpty()) return@buildString
+        appendLine()
+        appendLine("| severity | check | subject | what |")
+        appendLine("| --- | --- | --- | --- |")
+        findings.sortedBy { it.severity.ordinal }.forEach {
+            appendLine(
+                "| ${it.severity.name.lowercase()} | `${it.checkId}` | `${it.subject}` | ${it.message.replace(
+                    "|",
+                    "\\|",
+                )} |",
+            )
+        }
     }
-}
 
-private fun report(coordinate: Coordinate, deep: Boolean, findings: List<Finding>, failOn: Severity?): Int {
+private fun report(
+    coordinate: Coordinate,
+    deep: Boolean,
+    findings: List<Finding>,
+    failOn: Severity?,
+): Int {
     val tier = if (deep) "both tiers" else "the repository alone"
     println("$coordinate — ${Checks.all.size} checks against $tier, ${findings.size} finding(s)")
     if (findings.isEmpty()) {

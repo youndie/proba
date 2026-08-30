@@ -5,7 +5,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /** Recorded from an actual failed consumer run, closing boilerplate and all. */
-private val GRADLE_FAILURE = """
+private val GRADLE_FAILURE =
+    """
     > Task :probaClasspath FAILED
 
     FAILURE: Build failed with an exception.
@@ -24,10 +25,9 @@ private val GRADLE_FAILURE = """
     > Get more help at https://help.gradle.org.
 
     BUILD FAILED in 1s
-""".trimIndent()
+    """.trimIndent()
 
 class CauseOfTest {
-
     @Test
     fun `keeps what went wrong rather than the advice that follows it`() {
         val cause = causeOf(GRADLE_FAILURE)

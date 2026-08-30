@@ -12,7 +12,6 @@ import java.io.File
  * and so that a check can be exercised against a recorded consumer without running one.
  */
 interface ConsumerView {
-
     val target: String
 
     /** Every artefact on the compile classpath, as Gradle's own resolution reported it. */
@@ -40,13 +39,17 @@ interface ConsumerView {
     fun toolKind(artifact: ResolvedArtifact): String? = null
 }
 
-data class ResolvedArtifact(val coordinate: Coordinate?, val file: File) {
+data class ResolvedArtifact(
+    val coordinate: Coordinate?,
+    val file: File,
+) {
     /**
      * Whether this artefact is the module that was asked about. The artefact resolved for a
      * multiplatform coordinate carries a target suffix — asking for `kompot-core` gets
      * `kompot-core-jvm` — so the suffix is allowed and nothing else is.
      */
-    fun isModule(other: Coordinate): Boolean = coordinate != null &&
-        coordinate.group == other.group &&
-        (coordinate.artifact == other.artifact || coordinate.artifact.startsWith("${other.artifact}-"))
+    fun isModule(other: Coordinate): Boolean =
+        coordinate != null &&
+            coordinate.group == other.group &&
+            (coordinate.artifact == other.artifact || coordinate.artifact.startsWith("${other.artifact}-"))
 }

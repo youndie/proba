@@ -12,12 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # 25, because kompot's published classes are class file 69 and nothing older can load them.
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      # Java and Gradle in one step and at one version for the portfolio: the action installs 21 and
+      # 25 and leaves 25 as the default. What the modules compile to is `sborka.jvmToolchain=21`,
+      # fetched by the toolchain resolver — the comment that used to sit here said 25 and named a
+      # kompot defect that has since been fixed upstream.
+      - uses: youndie/sborka/.github/actions/setup-kotlin@main
       - run: ./gradlew check
 
   web:
@@ -48,11 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: youndie/sborka/.github/actions/setup-kotlin@main
       # Both stand on a library published with a defect on purpose, so a green run here means the
       # checks discriminated rather than stayed quiet.
       # Cheap and first: a manifest that does not parse breaks every consumer of the action before

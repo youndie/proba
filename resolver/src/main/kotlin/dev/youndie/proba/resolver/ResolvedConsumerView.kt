@@ -10,14 +10,15 @@ class ResolvedConsumerView(
     override val compileClasspath: List<ResolvedArtifact>,
     override val runtimeClasspath: List<ResolvedArtifact>,
 ) : ConsumerView {
-
     private val onClasspath: Set<String> by lazy {
         buildSet {
             compileClasspath.forEach { artefact ->
                 if (!artefact.file.isFile) return@forEach
                 runCatching {
                     JarFile(artefact.file).use { archive ->
-                        archive.entries().asSequence()
+                        archive
+                            .entries()
+                            .asSequence()
                             .filter { it.name.endsWith(".class") }
                             .forEach { add(it.name.removeSuffix(".class").replace('/', '.')) }
                     }

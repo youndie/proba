@@ -12,7 +12,6 @@ import kotlin.test.assertNull
  * pinned to Java 8, so the pair is two artefacts rather than one artefact and an idea of another.
  */
 class BytecodeVersionTest {
-
     @Test
     fun `reads the version out of the first class a jar carries`() {
         assertEquals(69, BytecodeRequiresJava.firstClassFileVersion(Fixtures.bytes("lib-1.0.0.jar")), "Java 25")

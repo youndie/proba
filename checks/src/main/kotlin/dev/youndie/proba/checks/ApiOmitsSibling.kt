@@ -22,7 +22,6 @@ import dev.youndie.proba.reader.Target
  * Without the transitive walk this check calls that healthy publication broken.
  */
 object ApiOmitsSibling : Check {
-
     override val id = "api-omits-sibling"
     override val title = "what the api variant advertises covers the siblings the run time gets"
 
@@ -44,42 +43,60 @@ object ApiOmitsSibling : Check {
             val api = target.apiVariant ?: target.metadataVariant ?: return@mapNotNull null
             val runtime = target.runtimeVariant ?: return@mapNotNull null
 
-            val omitted = runtime.dependencies.filter { it.group == group }.map { it.key() }.toSet() -
-                api.dependencies.map { it.key() }.toSet()
+            val omitted =
+                runtime.dependencies
+                    .filter { it.group == group }
+                    .map { it.key() }
+                    .toSet() -
+                    api.dependencies.map { it.key() }.toSet()
             if (omitted.isEmpty()) return@mapNotNull null
 
             val walk = reach(omitted, api.dependencies, context, group)
 
             when {
-                walk.remaining.isEmpty() -> null
+                walk.remaining.isEmpty() -> {
+                    null
+                }
 
-                walk.unread.isNotEmpty() -> Finding(
-                    checkId = id,
-                    severity = Severity.Undetermined,
-                    subject = target.name,
-                    message = "the api variant does not reach ${walk.remaining.sorted().joinToString(", ")}, " +
-                        "and ${walk.unread.sorted().joinToString(", ")} could not be read, so whether the " +
-                        "transitive closure covers them is not known from here",
-                    evidence = walk.unread.sorted().map { "unread $it" },
-                )
+                walk.unread.isNotEmpty() -> {
+                    Finding(
+                        checkId = id,
+                        severity = Severity.Undetermined,
+                        subject = target.name,
+                        message =
+                            "the api variant does not reach ${walk.remaining.sorted().joinToString(", ")}, " +
+                                "and ${walk.unread.sorted().joinToString(", ")} could not be read, so whether the " +
+                                "transitive closure covers them is not known from here",
+                        evidence = walk.unread.sorted().map { "unread $it" },
+                    )
+                }
 
-                else -> Finding(
-                    checkId = id,
-                    severity = Severity.Suspicion,
-                    subject = target.name,
-                    message = "a consumer compiling against this target never receives " +
-                        "${walk.remaining.sorted().joinToString(", ")}, which the run time does receive — " +
-                        "correct only if no public signature mentions them",
-                    evidence = listOf(
-                        "api ${api.name}: ${api.dependencies.joinToString(", ") { it.key() }.ifEmpty { "nothing" }}",
-                        "runtime ${runtime.name}: ${runtime.dependencies.joinToString(", ") { it.key() }}",
-                    ),
-                )
+                else -> {
+                    Finding(
+                        checkId = id,
+                        severity = Severity.Suspicion,
+                        subject = target.name,
+                        message =
+                            "a consumer compiling against this target never receives " +
+                                "${walk.remaining.sorted().joinToString(", ")}, which the run time does receive — " +
+                                "correct only if no public signature mentions them",
+                        evidence =
+                            listOf(
+                                "api ${api.name}: ${api.dependencies.joinToString(
+                                    ", ",
+                                ) { it.key() }.ifEmpty { "nothing" }}",
+                                "runtime ${runtime.name}: ${runtime.dependencies.joinToString(", ") { it.key() }}",
+                            ),
+                    )
+                }
             }
         }
     }
 
-    private class Walk(val remaining: Set<String>, val unread: Set<String>)
+    private class Walk(
+        val remaining: Set<String>,
+        val unread: Set<String>,
+    )
 
     /**
      * Walks api edges outwards until nothing is missing any more, and no further.

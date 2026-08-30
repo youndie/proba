@@ -18,16 +18,22 @@ fun main(args: Array<String>) {
     }
 
     val coordinate = Coordinate.parse(args[0])
-    val repository = args.indexOf("--repo").takeIf { it >= 0 && it + 1 < args.size }
-        ?.let { MavenRepository(args[it + 1], args[it + 1]) }
-        ?: MavenRepository.MavenCentral
+    val repository =
+        args
+            .indexOf("--repo")
+            .takeIf { it >= 0 && it + 1 < args.size }
+            ?.let { MavenRepository(args[it + 1], args[it + 1]) }
+            ?: MavenRepository.MavenCentral
 
     exitProcess(
         HttpClient(CIO).use { http ->
             runBlocking {
                 val reader = PublicationReader(http)
                 when (val outcome = reader.read(coordinate, repository)) {
-                    is ReadOutcome.Read -> report(coordinate, Checks.runAll(context(outcome.publication, reader, repository)))
+                    is ReadOutcome.Read -> {
+                        report(coordinate, Checks.runAll(context(outcome.publication, reader, repository)))
+                    }
+
                     else -> {
                         println("$coordinate — not checked: $outcome")
                         2
@@ -38,7 +44,11 @@ fun main(args: Array<String>) {
     )
 }
 
-private fun context(publication: Publication, reader: PublicationReader, repository: MavenRepository): CheckContext {
+private fun context(
+    publication: Publication,
+    reader: PublicationReader,
+    repository: MavenRepository,
+): CheckContext {
     // A dependency read once is read once: a transitive api walk revisits the same coordinate from
     // several targets, and each visit is a request over the network.
     val cache = mutableMapOf<Coordinate, Publication?>()
@@ -52,7 +62,10 @@ private fun context(publication: Publication, reader: PublicationReader, reposit
     )
 }
 
-private fun report(coordinate: Coordinate, findings: List<Finding>): Int {
+private fun report(
+    coordinate: Coordinate,
+    findings: List<Finding>,
+): Int {
     println("$coordinate — ${Checks.all.size} checks, ${findings.size} finding(s)")
     if (findings.isEmpty()) {
         println("  nothing to report")

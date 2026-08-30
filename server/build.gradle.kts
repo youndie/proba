@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     application
+    id("ru.workinprogress.sborka.jvm")
+    id("ru.workinprogress.sborka.lint")
 }
 
 dependencies {
@@ -35,11 +37,8 @@ dependencies {
 // said so nowhere. That was reported by this repository's own check, fixed upstream, and 0.29.0.56
 // publishes class file 61 with `org.gradle.jvm.version: 17` beside it — so the constraint is gone and
 // carrying it forward would only impose proba's floor on whoever uses the action.
-kotlin { jvmToolchain(21) }
 
 application { mainClass.set("dev.youndie.proba.server.MainKt") }
-
-tasks.test { useJUnitPlatform() }
 
 sourceSets.test { resources.srcDir(rootProject.file("fixtures")) }
 
@@ -57,10 +56,13 @@ val generateTokens by tasks.registering {
     outputs.dir(outputDir)
     doLast {
         val json = groovy.json.JsonSlurper().parse(source) as Map<*, *>
+
         @Suppress("UNCHECKED_CAST")
         val colors = ((json["colors"] as Map<String, *>)["light"] as Map<String, String>).keys.sorted()
+
         @Suppress("UNCHECKED_CAST")
         val typography = (json["typography"] as Map<String, *>).keys.sorted()
+
         @Suppress("UNCHECKED_CAST")
         val severity = (json["severity"] as Map<String, *>).filterKeys { !it.startsWith("$") }
 
@@ -84,7 +86,9 @@ val generateTokens by tasks.registering {
                 typography.forEach { appendLine("    val ${konst(it)} = TypographyToken(\"$it\")") }
                 appendLine("}")
                 appendLine()
-                appendLine("enum class SeverityLook(val word: String, val shape: String, val color: ColorToken, val surface: ColorToken) {")
+                appendLine(
+                    "enum class SeverityLook(val word: String, val shape: String, val color: ColorToken, val surface: ColorToken) {",
+                )
                 severity.forEach { (name, value) ->
                     @Suppress("UNCHECKED_CAST")
                     val it = value as Map<String, String>

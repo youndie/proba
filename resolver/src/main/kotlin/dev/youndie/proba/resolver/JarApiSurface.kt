@@ -1,13 +1,5 @@
 package dev.youndie.proba.resolver
 
-import kotlin.metadata.Visibility
-import kotlin.metadata.jvm.KotlinClassMetadata
-import kotlin.metadata.jvm.Metadata
-import kotlin.metadata.jvm.fieldSignature
-import kotlin.metadata.jvm.getterSignature
-import kotlin.metadata.jvm.setterSignature
-import kotlin.metadata.jvm.signature
-import kotlin.metadata.visibility
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -16,6 +8,14 @@ import org.objectweb.asm.signature.SignatureVisitor
 import org.objectweb.asm.tree.ClassNode
 import java.io.File
 import java.util.jar.JarFile
+import kotlin.metadata.Visibility
+import kotlin.metadata.jvm.KotlinClassMetadata
+import kotlin.metadata.jvm.Metadata
+import kotlin.metadata.jvm.fieldSignature
+import kotlin.metadata.jvm.getterSignature
+import kotlin.metadata.jvm.setterSignature
+import kotlin.metadata.jvm.signature
+import kotlin.metadata.visibility
 
 /**
  * The classes a jar's public API mentions and does not itself declare.
@@ -38,7 +38,6 @@ import java.util.jar.JarFile
  * not hold. So they are excluded here, using what Kotlin records rather than what a name looks like.
  */
 object JarApiSurface {
-
     private val ignoredPrefixes = listOf("java.", "javax.", "jdk.", "sun.", "com.sun.")
 
     fun of(jar: File): Set<String> {
@@ -47,13 +46,19 @@ object JarApiSurface {
         val mentioned = mutableSetOf<String>()
 
         JarFile(jar).use { archive ->
-            archive.entries().asSequence()
+            archive
+                .entries()
+                .asSequence()
                 .filter { it.name.endsWith(".class") && !it.isDirectory }
                 .forEach { entry ->
-                    val node = ClassNode().also { node ->
-                        ClassReader(archive.getInputStream(entry).use { it.readBytes() })
-                            .accept(node, ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES)
-                    }
+                    val node =
+                        ClassNode().also { node ->
+                            ClassReader(archive.getInputStream(entry).use { it.readBytes() })
+                                .accept(
+                                    node,
+                                    ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES,
+                                )
+                        }
                     // Declared regardless of visibility: a type the jar carries is one a consumer
                     // already has, whether or not they were meant to name it.
                     declared += node.name.toClassName()
@@ -79,18 +84,26 @@ object JarApiSurface {
         // can refer to it by name.
         if (outerMethod != null) return true
         return when (kotlin) {
-            is KotlinClassMetadata.SyntheticClass -> true
-            is KotlinClassMetadata.Class ->
+            is KotlinClassMetadata.SyntheticClass -> {
+                true
+            }
+
+            is KotlinClassMetadata.Class -> {
                 kotlin.kmClass.visibility in setOf(Visibility.INTERNAL, Visibility.PRIVATE, Visibility.LOCAL)
+            }
+
             // No Kotlin metadata at all is not suspicious by itself — a Java class in a Kotlin
             // library is exactly that — and the JVM checks above have already had their say.
-            else -> false
+            else -> {
+                false
+            }
         }
     }
 
     /** JVM signatures of the members Kotlin considers unavailable, whatever the class file says. */
     private fun KotlinClassMetadata?.hiddenSignatures(): Set<String> {
         val hidden = mutableSetOf<String>()
+
         fun add(signature: kotlin.metadata.jvm.JvmMemberSignature?) {
             signature?.let { hidden += "${it.name}${it.descriptor}" }
         }
@@ -99,7 +112,9 @@ object JarApiSurface {
             is KotlinClassMetadata.Class -> {
                 kmClass.functions.filter { it.visibility in invisible }.forEach { add(it.signature) }
                 kmClass.properties.filter { it.visibility in invisible }.forEach {
-                    add(it.getterSignature); add(it.setterSignature); add(it.fieldSignature)
+                    add(it.getterSignature)
+                    add(it.setterSignature)
+                    add(it.fieldSignature)
                 }
                 kmClass.constructors.filter { it.visibility in invisible }.forEach { add(it.signature) }
             }
@@ -107,11 +122,13 @@ object JarApiSurface {
             is KotlinClassMetadata.FileFacade -> {
                 kmPackage.functions.filter { it.visibility in invisible }.forEach { add(it.signature) }
                 kmPackage.properties.filter { it.visibility in invisible }.forEach {
-                    add(it.getterSignature); add(it.setterSignature); add(it.fieldSignature)
+                    add(it.getterSignature)
+                    add(it.setterSignature)
+                    add(it.fieldSignature)
                 }
             }
 
-            else -> Unit
+            else -> {}
         }
         return hidden
     }
@@ -139,15 +156,21 @@ object JarApiSurface {
 
     private fun ClassNode.kotlinMetadata(): KotlinClassMetadata? {
         val annotation = visibleAnnotations.orEmpty().firstOrNull { it.desc == "Lkotlin/Metadata;" } ?: return null
-        val values = annotation.values.orEmpty().chunked(2).associate { (key, value) -> key as String to value }
+        val values =
+            annotation.values
+                .orEmpty()
+                .chunked(2)
+                .associate { (key, value) -> key as String to value }
+
         @Suppress("UNCHECKED_CAST")
-        val header = Metadata(
-            kind = values["k"] as Int?,
-            metadataVersion = (values["mv"] as List<Int>?)?.toIntArray(),
-            data1 = (values["d1"] as List<String>?)?.toTypedArray(),
-            data2 = (values["d2"] as List<String>?)?.toTypedArray(),
-            extraInt = values["xi"] as Int?,
-        )
+        val header =
+            Metadata(
+                kind = values["k"] as Int?,
+                metadataVersion = (values["mv"] as List<Int>?)?.toIntArray(),
+                data1 = (values["d1"] as List<String>?)?.toTypedArray(),
+                data2 = (values["d2"] as List<String>?)?.toTypedArray(),
+                extraInt = values["xi"] as Int?,
+            )
         // A metadata version this build cannot read is not a reason to fail: the class then falls back
         // to what the JVM says about it, which is what happened before any of this existed.
         return runCatching { KotlinClassMetadata.readLenient(header) }.getOrNull()
@@ -158,18 +181,22 @@ object JarApiSurface {
         val found = mutableSetOf<String>()
         SignatureReader(this).accept(
             object : SignatureVisitor(Opcodes.ASM9) {
-                override fun visitClassType(name: String) { found += name.toClassName() }
+                override fun visitClassType(name: String) {
+                    found += name.toClassName()
+                }
+
                 override fun visitInnerClassType(name: String) { }
             },
         )
         return found
     }
 
-    private fun Type.classNames(): Set<String> = when (sort) {
-        Type.OBJECT -> setOf(className)
-        Type.ARRAY -> elementType.classNames()
-        else -> emptySet()
-    }
+    private fun Type.classNames(): Set<String> =
+        when (sort) {
+            Type.OBJECT -> setOf(className)
+            Type.ARRAY -> elementType.classNames()
+            else -> emptySet()
+        }
 
     private fun String.toClassName() = replace('/', '.')
 

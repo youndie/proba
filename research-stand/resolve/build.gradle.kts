@@ -1,7 +1,8 @@
 plugins { `java-library` }
 
-val coordinate: String = (findProperty("coordinate") as String?)
-    ?: error("usage: -Pcoordinate=group:artifact:version")
+val coordinate: String =
+    (findProperty("coordinate") as String?)
+        ?: error("usage: -Pcoordinate=group:artifact:version")
 
 dependencies { implementation(coordinate) }
 
@@ -9,6 +10,10 @@ dependencies { implementation(coordinate) }
 tasks.register("reportCompileClasspath") {
     val files = configurations.named("compileClasspath")
     doLast {
-        files.get().files.sortedBy { it.name }.forEach { println("CP ${it.name}") }
+        files
+            .get()
+            .files
+            .sortedBy { it.name }
+            .forEach { println("CP ${it.name}") }
     }
 }

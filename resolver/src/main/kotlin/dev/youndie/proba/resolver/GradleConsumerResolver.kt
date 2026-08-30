@@ -39,49 +39,67 @@ class GradleConsumerResolver(
      * Each repository is an assumption about who the consumer is, which is why they are a parameter
      * and not a literal: a caller checking a library whose consumers have neither can say so.
      */
-    private val consumerRepositories: List<String> = listOf(
-        "https://repo1.maven.org/maven2",
-        "https://dl.google.com/dl/android/maven2",
-    ),
+    private val consumerRepositories: List<String> =
+        listOf(
+            "https://repo1.maven.org/maven2",
+            "https://dl.google.com/dl/android/maven2",
+        ),
 ) {
-
-    fun resolve(coordinate: Coordinate, repository: MavenRepository): ResolutionOutcome {
+    fun resolve(
+        coordinate: Coordinate,
+        repository: MavenRepository,
+    ): ResolutionOutcome {
         val project = File(workspace, "consumer").apply { mkdirs() }
         copyWrapper(project)
         write(project, coordinate, repository)
 
-        val command = buildList {
-            add(File(project, "gradlew").absolutePath)
-            addAll(listOf("--quiet", "--console=plain", "--no-configuration-cache", "--max-workers=2"))
-            gradleHome?.let { addAll(listOf("-g", it.apply { mkdirs() }.absolutePath)) }
-            add("-Dorg.gradle.jvmargs=-Xmx$maxHeap")
-            add("probaClasspath")
-        }
-        val process = ProcessBuilder(command)
-            .directory(project)
-            .redirectErrorStream(true)
-            .start()
+        val command =
+            buildList {
+                add(File(project, "gradlew").absolutePath)
+                addAll(listOf("--quiet", "--console=plain", "--no-configuration-cache", "--max-workers=2"))
+                gradleHome?.let { addAll(listOf("-g", it.apply { mkdirs() }.absolutePath)) }
+                add("-Dorg.gradle.jvmargs=-Xmx$maxHeap")
+                add("probaClasspath")
+            }
+        val process =
+            ProcessBuilder(command)
+                .directory(project)
+                .redirectErrorStream(true)
+                .start()
 
         val output = process.inputStream.bufferedReader()
         val lines = mutableListOf<String>()
-        val reader = Thread { output.forEachLine { lines += it } }.apply { isDaemon = true; start() }
+        val reader =
+            Thread { output.forEachLine { lines += it } }.apply {
+                isDaemon = true
+                start()
+            }
 
         // The bound is on the process and not inside the build: a build that wedges does not reach
         // any timeout it was asked to honour, which is exactly when a bound is needed.
         if (!process.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
             process.destroyForcibly()
-            return ResolutionOutcome.Failed("the consumer build did not finish in ${timeoutSeconds}s", lines.joinToString("\n"))
+            return ResolutionOutcome.Failed(
+                "the consumer build did not finish in ${timeoutSeconds}s",
+                lines.joinToString("\n"),
+            )
         }
         reader.join(5_000)
 
         if (process.exitValue() != 0) {
-            return ResolutionOutcome.Failed("the consumer build failed (exit ${process.exitValue()})", lines.joinToString("\n"))
+            return ResolutionOutcome.Failed(
+                "the consumer build failed (exit ${process.exitValue()})",
+                lines.joinToString("\n"),
+            )
         }
 
         val compile = lines.mapNotNull { it.parse("COMPILE") }
         val runtime = lines.mapNotNull { it.parse("RUNTIME") }
         if (compile.isEmpty()) {
-            return ResolutionOutcome.Failed("the consumer build reported no compile classpath", lines.joinToString("\n"))
+            return ResolutionOutcome.Failed(
+                "the consumer build reported no compile classpath",
+                lines.joinToString("\n"),
+            )
         }
         return ResolutionOutcome.Resolved(ResolvedConsumerView("jvm", compile, runtime))
     }
@@ -98,10 +116,15 @@ class GradleConsumerResolver(
         File(wrapperSource, "gradle/wrapper").copyRecursively(File(project, "gradle/wrapper"), overwrite = true)
     }
 
-    private fun write(project: File, coordinate: Coordinate, repository: MavenRepository) {
-        val declarations = (listOf(repository.baseUrl) + consumerRepositories)
-            .distinct()
-            .joinToString("\n") { url -> "                    maven { url = uri(\"" + url + "\") }" }
+    private fun write(
+        project: File,
+        coordinate: Coordinate,
+        repository: MavenRepository,
+    ) {
+        val declarations =
+            (listOf(repository.baseUrl) + consumerRepositories)
+                .distinct()
+                .joinToString("\n") { url -> "                    maven { url = uri(\"" + url + "\") }" }
 
         File(project, "settings.gradle.kts").writeText(
             """
@@ -140,9 +163,14 @@ $declarations
 }
 
 sealed interface ResolutionOutcome {
-    data class Resolved(val view: ResolvedConsumerView) : ResolutionOutcome
+    data class Resolved(
+        val view: ResolvedConsumerView,
+    ) : ResolutionOutcome
 
-    data class Failed(val reason: String, val output: String) : ResolutionOutcome {
+    data class Failed(
+        val reason: String,
+        val output: String,
+    ) : ResolutionOutcome {
         /** The reason, as the failure itself states it. See [causeOf]. */
         val cause: List<String> get() = causeOf(output)
     }
@@ -160,7 +188,10 @@ sealed interface ResolutionOutcome {
  * Gradle marks the cause itself, between `* What went wrong:` and `* Try:`. Bounded, because it
  * prints one such block, and capped anyway so a pathological failure cannot become the report.
  */
-fun causeOf(output: String, limit: Int = 24): List<String> {
+fun causeOf(
+    output: String,
+    limit: Int = 24,
+): List<String> {
     val lines = output.lines()
     val start = lines.indexOfFirst { it.trimStart().startsWith("* What went wrong:") }
     if (start < 0) {

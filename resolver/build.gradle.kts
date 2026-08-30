@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
+    id("ru.workinprogress.sborka.jvm")
+    id("ru.workinprogress.sborka.lint")
 }
 
 dependencies {
@@ -14,11 +16,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 }
 
-kotlin { jvmToolchain(21) }
-
 application { mainClass.set("dev.youndie.proba.resolver.MainKt") }
-
-tasks.test { useJUnitPlatform() }
 
 sourceSets.test { resources.srcDir(rootProject.file("fixtures")) }
 

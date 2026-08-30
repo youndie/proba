@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
+    id("ru.workinprogress.sborka.jvm")
+    id("ru.workinprogress.sborka.lint")
 }
 
 dependencies {
@@ -13,11 +15,7 @@ dependencies {
     testImplementation(testFixtures(project(":reader")))
 }
 
-kotlin { jvmToolchain(21) }
-
 application { mainClass.set("dev.youndie.proba.checks.MainKt") }
-
-tasks.test { useJUnitPlatform() }
 
 // The run reports its own outcome; letting Gradle bury it under a stack trace defeats the point.
 tasks.named<JavaExec>("run") { isIgnoreExitValue = true }

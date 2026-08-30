@@ -15,21 +15,34 @@ import javax.xml.parsers.DocumentBuilderFactory
  * enumerate, rather than an index that answers "no modules" and looks like an empty group.
  */
 interface RepositoryIndex {
-
     /** Every module published under a group. */
     suspend fun modules(group: String): List<String>
 
     /** Every version of one module, newest last, as the repository advertises them. */
-    suspend fun versions(group: String, artifact: String): List<String>
+    suspend fun versions(
+        group: String,
+        artifact: String,
+    ): List<String>
 
     companion object {
-        fun of(repository: MavenRepository, fetcher: Fetcher): RepositoryIndex? = when {
-            repository.baseUrl.startsWith(MavenRepository.MavenCentral.baseUrl) -> MavenCentralIndex(fetcher)
-            // Reposilite serves /api/maven/details/<repo>/<path> beside /<repo>/<path>.
-            Regex("^(https?://[^/]+)/([^/]+)/?$").find(repository.baseUrl)?.let { true } == true ->
-                ReposiliteIndex(repository, fetcher)
-            else -> null
-        }
+        fun of(
+            repository: MavenRepository,
+            fetcher: Fetcher,
+        ): RepositoryIndex? =
+            when {
+                repository.baseUrl.startsWith(MavenRepository.MavenCentral.baseUrl) -> {
+                    MavenCentralIndex(fetcher)
+                }
+
+                // Reposilite serves /api/maven/details/<repo>/<path> beside /<repo>/<path>.
+                Regex("^(https?://[^/]+)/([^/]+)/?$").find(repository.baseUrl)?.let { true } == true -> {
+                    ReposiliteIndex(repository, fetcher)
+                }
+
+                else -> {
+                    null
+                }
+            }
     }
 }
 
@@ -43,47 +56,72 @@ private suspend fun advertisedVersions(
     val url = repository.url("${group.replace('.', '/')}/$artifact/maven-metadata.xml")
     val body = fetcher.fetch(url).body ?: return emptyList()
     return runCatching {
-        val document = DocumentBuilderFactory.newInstance()
-            .also { it.isNamespaceAware = false; it.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true) }
-            .newDocumentBuilder()
-            .parse(body.byteInputStream())
+        val document =
+            DocumentBuilderFactory
+                .newInstance()
+                .also {
+                    it.isNamespaceAware = false
+                    it.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+                }.newDocumentBuilder()
+                .parse(body.byteInputStream())
         val nodes = document.getElementsByTagName("version")
         (0 until nodes.length).map { nodes.item(it).textContent.trim() }
     }.getOrDefault(emptyList())
 }
 
-class ReposiliteIndex(private val repository: MavenRepository, private val fetcher: Fetcher) : RepositoryIndex {
-
-    private val details: String = Regex("^(https?://[^/]+)/([^/]+)/?$").find(repository.baseUrl)
-        ?.let { "${it.groupValues[1]}/api/maven/details/${it.groupValues[2]}" }
-        ?: error("not a reposilite base url: ${repository.baseUrl}")
+class ReposiliteIndex(
+    private val repository: MavenRepository,
+    private val fetcher: Fetcher,
+) : RepositoryIndex {
+    private val details: String =
+        Regex("^(https?://[^/]+)/([^/]+)/?$")
+            .find(repository.baseUrl)
+            ?.let { "${it.groupValues[1]}/api/maven/details/${it.groupValues[2]}" }
+            ?: error("not a reposilite base url: ${repository.baseUrl}")
 
     override suspend fun modules(group: String): List<String> {
         val body = fetcher.fetch("$details/${group.replace('.', '/')}").body ?: return emptyList()
         return runCatching {
-            Json.parseToJsonElement(body).jsonObject["files"]?.jsonArray.orEmpty()
+            Json
+                .parseToJsonElement(body)
+                .jsonObject["files"]
+                ?.jsonArray
+                .orEmpty()
                 .filter { it.jsonObject["type"]?.jsonPrimitive?.content == "DIRECTORY" }
                 .mapNotNull { it.jsonObject["name"]?.jsonPrimitive?.content }
         }.getOrDefault(emptyList())
     }
 
-    override suspend fun versions(group: String, artifact: String): List<String> =
-        advertisedVersions(repository, fetcher, group, artifact)
+    override suspend fun versions(
+        group: String,
+        artifact: String,
+    ): List<String> = advertisedVersions(repository, fetcher, group, artifact)
 }
 
-class MavenCentralIndex(private val fetcher: Fetcher) : RepositoryIndex {
-
+class MavenCentralIndex(
+    private val fetcher: Fetcher,
+) : RepositoryIndex {
     override suspend fun modules(group: String): List<String> {
-        val body = fetcher.fetch(
-            "https://search.maven.org/solrsearch/select?q=g:%22$group%22&rows=200&wt=json",
-        ).body ?: return emptyList()
+        val body =
+            fetcher
+                .fetch(
+                    "https://search.maven.org/solrsearch/select?q=g:%22$group%22&rows=200&wt=json",
+                ).body ?: return emptyList()
         return runCatching {
-            Json.parseToJsonElement(body).jsonObject["response"]?.jsonObject?.get("docs")?.jsonArray.orEmpty()
+            Json
+                .parseToJsonElement(body)
+                .jsonObject["response"]
+                ?.jsonObject
+                ?.get("docs")
+                ?.jsonArray
+                .orEmpty()
                 .mapNotNull { it.jsonObject["a"]?.jsonPrimitive?.content }
                 .distinct()
         }.getOrDefault(emptyList())
     }
 
-    override suspend fun versions(group: String, artifact: String): List<String> =
-        advertisedVersions(MavenRepository.MavenCentral, fetcher, group, artifact)
+    override suspend fun versions(
+        group: String,
+        artifact: String,
+    ): List<String> = advertisedVersions(MavenRepository.MavenCentral, fetcher, group, artifact)
 }
