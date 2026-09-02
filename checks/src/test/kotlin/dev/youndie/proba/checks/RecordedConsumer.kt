@@ -17,7 +17,6 @@ class RecordedConsumer(
     private val surface: Map<String, Set<String>>,
     private val present: Set<String>,
 ) : ConsumerView {
-
     override val runtimeClasspath: List<ResolvedArtifact> get() = compileClasspath
 
     override fun apiSurface(artifact: ResolvedArtifact): Set<String> = surface[artifact.file.name].orEmpty()
@@ -30,12 +29,13 @@ class RecordedConsumer(
         private const val TOKEN = "dev.youndie.proba.sample.support.Token"
 
         /** What the consumer build of the sample published with `implementation` actually reported. */
-        fun withoutSupport() = RecordedConsumer(
-            target = "jvm",
-            compileClasspath = listOf(ResolvedArtifact(Lib, File("lib-1.0.0.jar"))),
-            surface = mapOf("lib-1.0.0.jar" to setOf(TOKEN)),
-            present = setOf("dev.youndie.proba.sample.lib.Gate"),
-        )
+        fun withoutSupport() =
+            RecordedConsumer(
+                target = "jvm",
+                compileClasspath = listOf(ResolvedArtifact(Lib, File("lib-1.0.0.jar"))),
+                surface = mapOf("lib-1.0.0.jar" to setOf(TOKEN)),
+                present = setOf("dev.youndie.proba.sample.lib.Gate"),
+            )
 
         /**
          * A consumer build that reached everything the public API mentions.
@@ -43,7 +43,10 @@ class RecordedConsumer(
          * The target is named `jvm` because a suspicion is only resolved for the target the build
          * actually ran for; the others were not answered and keep it.
          */
-        fun reachingEverything(of: Coordinate, target: String = "jvm"): RecordedConsumer {
+        fun reachingEverything(
+            of: Coordinate,
+            target: String = "jvm",
+        ): RecordedConsumer {
             // The artefact has to be the publication under test: a consumer build that resolved
             // somebody else's library answers nothing about this one, and saying so is what
             // ApiUnreachable.reach does when they do not match.
@@ -57,14 +60,16 @@ class RecordedConsumer(
         }
 
         /** The same, from the version that declares the dependency `api`. */
-        fun withSupport() = RecordedConsumer(
-            target = "jvm",
-            compileClasspath = listOf(
-                ResolvedArtifact(Lib, File("lib-1.0.0.jar")),
-                ResolvedArtifact(Support, File("support-1.0.0.jar")),
-            ),
-            surface = mapOf("lib-1.0.0.jar" to setOf(TOKEN)),
-            present = setOf("dev.youndie.proba.sample.lib.Gate", TOKEN),
-        )
+        fun withSupport() =
+            RecordedConsumer(
+                target = "jvm",
+                compileClasspath =
+                    listOf(
+                        ResolvedArtifact(Lib, File("lib-1.0.0.jar")),
+                        ResolvedArtifact(Support, File("support-1.0.0.jar")),
+                    ),
+                surface = mapOf("lib-1.0.0.jar" to setOf(TOKEN)),
+                present = setOf("dev.youndie.proba.sample.lib.Gate", TOKEN),
+            )
     }
 }

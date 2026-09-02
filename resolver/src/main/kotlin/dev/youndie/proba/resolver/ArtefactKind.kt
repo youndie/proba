@@ -11,19 +11,25 @@ import java.util.jar.JarFile
  * are there precisely so a tool can find them.
  */
 object ArtefactKind {
-
-    private val services = mapOf(
-        "META-INF/services/com.google.devtools.ksp.processing.SymbolProcessorProvider" to "a KSP symbol processor",
-        "META-INF/services/javax.annotation.processing.Processor" to "an annotation processor",
-    )
+    private val services =
+        mapOf(
+            "META-INF/services/com.google.devtools.ksp.processing.SymbolProcessorProvider" to "a KSP symbol processor",
+            "META-INF/services/javax.annotation.processing.Processor" to "an annotation processor",
+        )
 
     fun of(jar: File): String? {
         if (!jar.isFile) return null
         return runCatching {
             JarFile(jar).use { archive ->
-                val names = archive.entries().asSequence().map { it.name }.toList()
+                val names =
+                    archive
+                        .entries()
+                        .asSequence()
+                        .map { it.name }
+                        .toList()
                 services.entries.firstOrNull { it.key in names }?.value
-                    ?: names.firstOrNull { it.startsWith("META-INF/gradle-plugins/") && it.endsWith(".properties") }
+                    ?: names
+                        .firstOrNull { it.startsWith("META-INF/gradle-plugins/") && it.endsWith(".properties") }
                         ?.let { "a Gradle plugin" }
             }
         }.getOrNull()

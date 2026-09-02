@@ -21,7 +21,6 @@ import java.util.zip.ZipInputStream
  * A publisher never sees it: their own toolchain is the one that produced the bytecode.
  */
 object BytecodeRequiresJava : Check {
-
     override val id = "bytecode-java-version"
     override val title = "the Java the published classes require is one a consumer can find out about"
 
@@ -41,10 +40,15 @@ object BytecodeRequiresJava : Check {
             .mapNotNull { target -> examine(target, context, artefacts) }
     }
 
-    private suspend fun examine(target: Target, context: CheckContext, artefacts: ArtefactSource): Finding? {
+    private suspend fun examine(
+        target: Target,
+        context: CheckContext,
+        artefacts: ArtefactSource,
+    ): Finding? {
         val variant = target.apiVariant ?: target.runtimeVariant ?: return null
-        val jar = variant.files.firstOrNull { it.declaredName.endsWith(".jar") && !it.declaredName.contains("-sources") }
-            ?: return null
+        val jar =
+            variant.files.firstOrNull { it.declaredName.endsWith(".jar") && !it.declaredName.contains("-sources") }
+                ?: return null
 
         val url = context.publication.repository.url("${target.coordinate.directory}/${jar.url}")
         val bytes = artefacts.bytes(url) ?: return undetermined(target, "the jar could not be fetched", url)
@@ -62,19 +66,25 @@ object BytecodeRequiresJava : Check {
             checkId = id,
             severity = Severity.Defect,
             subject = "${target.name}: ${jar.declaredName}",
-            message = "the classes require Java $required, and " +
-                (if (declared == null) "nothing in the metadata says so" else "the metadata says Java $declared") +
-                " — resolution and compilation both succeed for a consumer on anything older, and the " +
-                "refusal arrives as UnsupportedClassVersionError at class loading",
-            evidence = listOf(
-                "class file version $major.0 → Java $required",
-                declared?.let { "$JVM_VERSION = $it" } ?: "$JVM_VERSION is not declared",
-                url,
-            ),
+            message =
+                "the classes require Java $required, and " +
+                    (if (declared == null) "nothing in the metadata says so" else "the metadata says Java $declared") +
+                    " — resolution and compilation both succeed for a consumer on anything older, and the " +
+                    "refusal arrives as UnsupportedClassVersionError at class loading",
+            evidence =
+                listOf(
+                    "class file version $major.0 → Java $required",
+                    declared?.let { "$JVM_VERSION = $it" } ?: "$JVM_VERSION is not declared",
+                    url,
+                ),
         )
     }
 
-    private fun undetermined(target: Target, reason: String, url: String) = Finding(
+    private fun undetermined(
+        target: Target,
+        reason: String,
+        url: String,
+    ) = Finding(
         checkId = id,
         severity = Severity.Undetermined,
         subject = target.name,

@@ -26,150 +26,211 @@ class CheckCase(
 )
 
 object CheckCorpus {
-
     private const val GROUP = "io.github.youndie"
     private val SAMPLE = Coordinate("dev.youndie.proba.sample", "lib", "1.0.0")
     private val ANALYTICS = Coordinate(GROUP, "kompot-analytics-jvm", "0.10.0.17")
 
-    val cases: List<CheckCase> = listOf(
+    val cases: List<CheckCase> =
+        listOf(
+            CheckCase(
+                "version-in-declared-name",
+                Expectation.Fires,
+                "the archive keeps the build's version, not the coordinate's",
+            ) {
+                CheckContext(read(Fixtures.KompotCore, *Fixtures.KompotCoreDocuments))
+            },
+            CheckCase("version-in-declared-name", Expectation.Silent, "kotlinx-coroutines-core-jvm 1.11.0") {
+                CheckContext(
+                    read(
+                        Coordinate("org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.11.0"),
+                        "kotlinx-coroutines-core-jvm-1.11.0.module",
+                    ),
+                )
+            },
+            CheckCase("dangling-redirect", Expectation.Fires, "the root alone, every target it names unpublished") {
+                CheckContext(read(Fixtures.KompotCore, "kompot-core-0.27.0.46.module"))
+            },
+            CheckCase("dangling-redirect", Expectation.Silent, "kompot-core with every target published") {
+                CheckContext(read(Fixtures.KompotCore, *Fixtures.KompotCoreDocuments))
+            },
+            CheckCase(
+                "component-matches-path",
+                Expectation.Fires,
+                "a real document answering at a version it does not claim",
+            ) {
+                CheckContext(
+                    readFrom(
+                        Coordinate(GROUP, "kompot-core-jvm", "0.27.0.99"),
+                        Fixtures.servingAnything("kompot-core-jvm-0.27.0.46.module"),
+                    ),
+                )
+            },
+            CheckCase("component-matches-path", Expectation.Silent, "kompot-core-jvm at its own coordinate") {
+                CheckContext(
+                    read(Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"), "kompot-core-jvm-0.27.0.46.module"),
+                )
+            },
+            CheckCase(
+                "api-omits-sibling",
+                Expectation.Fires,
+                "kompot-analytics-jvm 0.10.0.17 advertises only the standard library",
+            ) {
+                CheckContext(
+                    read(
+                        Coordinate(GROUP, "kompot-analytics-jvm", "0.10.0.17"),
+                        "kompot-analytics-jvm-0.10.0.17.module",
+                    ),
+                )
+            },
+            CheckCase(
+                "api-omits-sibling",
+                Expectation.Silent,
+                "kompot-analytics-jvm 0.27.0.46 adds no sibling at run time",
+            ) {
+                CheckContext(
+                    read(
+                        Coordinate(GROUP, "kompot-analytics-jvm", "0.27.0.46"),
+                        "kompot-analytics-jvm-0.27.0.46.module",
+                    ),
+                )
+            },
+            CheckCase(
+                "api-omits-sibling",
+                Expectation.Silent,
+                "kompot-core arrives through kompot-client, which is advertised",
+            ) {
+                CheckContext(
+                    publication =
+                        read(
+                            Coordinate(GROUP, "kompot-ds-material-compose", "0.27.0.46"),
+                            "kompot-ds-material-compose-0.27.0.46.module",
+                            "kompot-ds-material-compose-desktop-0.27.0.46.module",
+                        ),
+                    lookup = lookup("kompot-client-0.27.0.46.module", "kompot-client-desktop-0.27.0.46.module"),
+                )
+            },
+            CheckCase(
+                "api-unreachable",
+                Expectation.Fires,
+                "the public API hands out a type the classpath does not carry",
+            ) {
+                CheckContext(
+                    publication = read(SAMPLE, "lib-1.0.0.module"),
+                    consumer = RecordedConsumer.withoutSupport(),
+                )
+            },
+            CheckCase("api-unreachable", Expectation.Silent, "the same API, with the type on the classpath") {
+                CheckContext(
+                    publication = read(SAMPLE, "lib-1.0.0.module"),
+                    consumer = RecordedConsumer.withSupport(),
+                )
+            },
+            CheckCase("api-unreachable", Expectation.Undetermined, "no consumer build was run") {
+                CheckContext(read(SAMPLE, "lib-1.0.0.module"))
+            },
+            CheckCase(
+                "bytecode-java-version",
+                Expectation.Fires,
+                "classes that need Java 25, and metadata that says nothing",
+            ) {
+                // Both halves real and from one publication. A multiplatform build declares no
+                // org.gradle.jvm.version, so nothing can refuse a consumer on an older runtime.
+                CheckContext(
+                    publication =
+                        read(
+                            Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"),
+                            "kompot-core-jvm-0.27.0.46.module",
+                        ),
+                    artefacts = artefacts("kompot-core-jvm-0.27.0.46.jar"),
+                )
+            },
+            CheckCase(
+                "bytecode-java-version",
+                Expectation.Silent,
+                "the same classes, with the metadata saying which Java",
+            ) {
+                // Also real and also a pair: a plain java-library publication, where the Java plugin sets
+                // the attribute by itself. Stated is enough — Gradle can then refuse at resolution.
+                CheckContext(publication = read(SAMPLE, "lib-1.0.0.module"), artefacts = artefacts("lib-1.0.0.jar"))
+            },
+            CheckCase(
+                "bytecode-java-version",
+                Expectation.Silent,
+                "a document that declares nothing, over classes that exclude nobody",
+            ) {
+                // The one case assembled rather than found: a real multiplatform document that declares no
+                // version, served a real Java 8 jar. It exists because this branch is what keeps the check
+                // off kotlinx-coroutines and ktor, which publish exactly this shape — and the untouched
+                // version of that pair is a 1.7 MB artefact nobody should commit to see one number.
+                // Verified un-assembled against the live coordinates by scripts/gate-jvm-version.sh.
+                CheckContext(
+                    publication =
+                        read(
+                            Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"),
+                            "kompot-core-jvm-0.27.0.46.module",
+                        ),
+                    artefacts = ArtefactSource { Fixtures.bytes("legacy-1.0.0.jar") },
+                )
+            },
+            CheckCase("bytecode-java-version", Expectation.Undetermined, "the jar could not be fetched") {
+                CheckContext(publication = read(SAMPLE, "lib-1.0.0.module"), artefacts = { null })
+            },
+            CheckCase(
+                "api-omits-sibling",
+                Expectation.Silent,
+                "the confirming tier already answered what the suspicion asks",
+            ) {
+                // The suspicion states its own condition — correct only if no public signature mentions
+                // them — and a consumer build that reached everything has measured exactly that. Left as a
+                // suspicion it teaches a reader that suspicions are noise, and the next one, on a
+                // publication nothing answered, reads the same.
+                CheckContext(
+                    publication = read(ANALYTICS, "kompot-analytics-jvm-0.10.0.17.module"),
+                    consumer = RecordedConsumer.reachingEverything(ANALYTICS),
+                )
+            },
+            CheckCase("api-omits-sibling", Expectation.Fires, "and stands for a target that build did not cover") {
+                // Same answer, different target: the consumer build ran for one, so the other is exactly
+                // the case the suspicion was written for.
+                CheckContext(
+                    publication = read(ANALYTICS, "kompot-analytics-jvm-0.10.0.17.module"),
+                    consumer = RecordedConsumer.reachingEverything(ANALYTICS, target = "iosArm64"),
+                )
+            },
+            CheckCase("api-omits-sibling", Expectation.Undetermined, "the same publication with nothing to look up") {
+                CheckContext(
+                    read(
+                        Coordinate(GROUP, "kompot-ds-material-compose", "0.27.0.46"),
+                        "kompot-ds-material-compose-0.27.0.46.module",
+                        "kompot-ds-material-compose-desktop-0.27.0.46.module",
+                    ),
+                )
+            },
+        )
 
-        CheckCase("version-in-declared-name", Expectation.Fires, "the archive keeps the build's version, not the coordinate's") {
-            CheckContext(read(Fixtures.KompotCore, *Fixtures.KompotCoreDocuments))
-        },
-        CheckCase("version-in-declared-name", Expectation.Silent, "kotlinx-coroutines-core-jvm 1.11.0") {
-            CheckContext(
-                read(
-                    Coordinate("org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.11.0"),
-                    "kotlinx-coroutines-core-jvm-1.11.0.module",
-                ),
-            )
-        },
+    private suspend fun read(
+        coordinate: Coordinate,
+        vararg documents: String,
+    ): Publication = readFrom(coordinate, Fixtures.serving(*documents))
 
-        CheckCase("dangling-redirect", Expectation.Fires, "the root alone, every target it names unpublished") {
-            CheckContext(read(Fixtures.KompotCore, "kompot-core-0.27.0.46.module"))
-        },
-        CheckCase("dangling-redirect", Expectation.Silent, "kompot-core with every target published") {
-            CheckContext(read(Fixtures.KompotCore, *Fixtures.KompotCoreDocuments))
-        },
-
-        CheckCase("component-matches-path", Expectation.Fires, "a real document answering at a version it does not claim") {
-            CheckContext(
-                readFrom(
-                    Coordinate(GROUP, "kompot-core-jvm", "0.27.0.99"),
-                    Fixtures.servingAnything("kompot-core-jvm-0.27.0.46.module"),
-                ),
-            )
-        },
-        CheckCase("component-matches-path", Expectation.Silent, "kompot-core-jvm at its own coordinate") {
-            CheckContext(read(Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"), "kompot-core-jvm-0.27.0.46.module"))
-        },
-
-        CheckCase("api-omits-sibling", Expectation.Fires, "kompot-analytics-jvm 0.10.0.17 advertises only the standard library") {
-            CheckContext(read(Coordinate(GROUP, "kompot-analytics-jvm", "0.10.0.17"), "kompot-analytics-jvm-0.10.0.17.module"))
-        },
-        CheckCase("api-omits-sibling", Expectation.Silent, "kompot-analytics-jvm 0.27.0.46 adds no sibling at run time") {
-            CheckContext(read(Coordinate(GROUP, "kompot-analytics-jvm", "0.27.0.46"), "kompot-analytics-jvm-0.27.0.46.module"))
-        },
-        CheckCase("api-omits-sibling", Expectation.Silent, "kompot-core arrives through kompot-client, which is advertised") {
-            CheckContext(
-                publication = read(
-                    Coordinate(GROUP, "kompot-ds-material-compose", "0.27.0.46"),
-                    "kompot-ds-material-compose-0.27.0.46.module",
-                    "kompot-ds-material-compose-desktop-0.27.0.46.module",
-                ),
-                lookup = lookup("kompot-client-0.27.0.46.module", "kompot-client-desktop-0.27.0.46.module"),
-            )
-        },
-        CheckCase("api-unreachable", Expectation.Fires, "the public API hands out a type the classpath does not carry") {
-            CheckContext(
-                publication = read(SAMPLE, "lib-1.0.0.module"),
-                consumer = RecordedConsumer.withoutSupport(),
-            )
-        },
-        CheckCase("api-unreachable", Expectation.Silent, "the same API, with the type on the classpath") {
-            CheckContext(
-                publication = read(SAMPLE, "lib-1.0.0.module"),
-                consumer = RecordedConsumer.withSupport(),
-            )
-        },
-        CheckCase("api-unreachable", Expectation.Undetermined, "no consumer build was run") {
-            CheckContext(read(SAMPLE, "lib-1.0.0.module"))
-        },
-
-        CheckCase("bytecode-java-version", Expectation.Fires, "classes that need Java 25, and metadata that says nothing") {
-            // Both halves real and from one publication. A multiplatform build declares no
-            // org.gradle.jvm.version, so nothing can refuse a consumer on an older runtime.
-            CheckContext(
-                publication = read(Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"), "kompot-core-jvm-0.27.0.46.module"),
-                artefacts = artefacts("kompot-core-jvm-0.27.0.46.jar"),
-            )
-        },
-        CheckCase("bytecode-java-version", Expectation.Silent, "the same classes, with the metadata saying which Java") {
-            // Also real and also a pair: a plain java-library publication, where the Java plugin sets
-            // the attribute by itself. Stated is enough — Gradle can then refuse at resolution.
-            CheckContext(publication = read(SAMPLE, "lib-1.0.0.module"), artefacts = artefacts("lib-1.0.0.jar"))
-        },
-        CheckCase("bytecode-java-version", Expectation.Silent, "a document that declares nothing, over classes that exclude nobody") {
-            // The one case assembled rather than found: a real multiplatform document that declares no
-            // version, served a real Java 8 jar. It exists because this branch is what keeps the check
-            // off kotlinx-coroutines and ktor, which publish exactly this shape — and the untouched
-            // version of that pair is a 1.7 MB artefact nobody should commit to see one number.
-            // Verified un-assembled against the live coordinates by scripts/gate-jvm-version.sh.
-            CheckContext(
-                publication = read(Coordinate(GROUP, "kompot-core-jvm", "0.27.0.46"), "kompot-core-jvm-0.27.0.46.module"),
-                artefacts = ArtefactSource { Fixtures.bytes("legacy-1.0.0.jar") },
-            )
-        },
-        CheckCase("bytecode-java-version", Expectation.Undetermined, "the jar could not be fetched") {
-            CheckContext(publication = read(SAMPLE, "lib-1.0.0.module"), artefacts = { null })
-        },
-
-        CheckCase("api-omits-sibling", Expectation.Silent, "the confirming tier already answered what the suspicion asks") {
-            // The suspicion states its own condition — correct only if no public signature mentions
-            // them — and a consumer build that reached everything has measured exactly that. Left as a
-            // suspicion it teaches a reader that suspicions are noise, and the next one, on a
-            // publication nothing answered, reads the same.
-            CheckContext(
-                publication = read(ANALYTICS, "kompot-analytics-jvm-0.10.0.17.module"),
-                consumer = RecordedConsumer.reachingEverything(ANALYTICS),
-            )
-        },
-        CheckCase("api-omits-sibling", Expectation.Fires, "and stands for a target that build did not cover") {
-            // Same answer, different target: the consumer build ran for one, so the other is exactly
-            // the case the suspicion was written for.
-            CheckContext(
-                publication = read(ANALYTICS, "kompot-analytics-jvm-0.10.0.17.module"),
-                consumer = RecordedConsumer.reachingEverything(ANALYTICS, target = "iosArm64"),
-            )
-        },
-
-        CheckCase("api-omits-sibling", Expectation.Undetermined, "the same publication with nothing to look up") {
-            CheckContext(
-                read(
-                    Coordinate(GROUP, "kompot-ds-material-compose", "0.27.0.46"),
-                    "kompot-ds-material-compose-0.27.0.46.module",
-                    "kompot-ds-material-compose-desktop-0.27.0.46.module",
-                ),
-            )
-        },
-    )
-
-    private suspend fun read(coordinate: Coordinate, vararg documents: String): Publication =
-        readFrom(coordinate, Fixtures.serving(*documents))
-
-    private suspend fun readFrom(coordinate: Coordinate, client: HttpClient): Publication {
+    private suspend fun readFrom(
+        coordinate: Coordinate,
+        client: HttpClient,
+    ): Publication {
         val outcome = PublicationReader(client).read(coordinate, Fixtures.Repository)
         return (outcome as? ReadOutcome.Read)?.publication
             ?: error("the case cannot be built: $coordinate read as $outcome")
     }
 
     /** Serves the named artefacts by the tail of the url, the way the repository would. */
-    private fun artefacts(vararg files: String) = ArtefactSource { url ->
-        files.firstOrNull { url.endsWith(it) }?.let { Fixtures.bytes(it) }
-    }
+    private fun artefacts(vararg files: String) =
+        ArtefactSource { url ->
+            files.firstOrNull { url.endsWith(it) }?.let { Fixtures.bytes(it) }
+        }
 
-    private fun lookup(vararg documents: String) = PublicationLookup { coordinate ->
-        (PublicationReader(Fixtures.serving(*documents)).read(coordinate, Fixtures.Repository) as? ReadOutcome.Read)
-            ?.publication
-    }
+    private fun lookup(vararg documents: String) =
+        PublicationLookup { coordinate ->
+            (PublicationReader(Fixtures.serving(*documents)).read(coordinate, Fixtures.Repository) as? ReadOutcome.Read)
+                ?.publication
+        }
 }

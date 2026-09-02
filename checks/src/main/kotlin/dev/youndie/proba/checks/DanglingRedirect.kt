@@ -6,7 +6,6 @@ package dev.youndie.proba.checks
  * halfway looks like, so it must not arrive as a smaller healthy picture.
  */
 object DanglingRedirect : Check {
-
     override val id = "dangling-redirect"
     override val title = "every target the root points at is published"
 
@@ -16,8 +15,9 @@ object DanglingRedirect : Check {
                 checkId = id,
                 severity = Severity.Defect,
                 subject = missing.coordinate.toString(),
-                message = "the root names this module as the home of a target, and the repository answered " +
-                    "${missing.status} for it — a consumer asking for that target gets nothing",
+                message =
+                    "the root names this module as the home of a target, and the repository answered " +
+                        "${missing.status} for it — a consumer asking for that target gets nothing",
                 evidence = listOf(missing.url, "status ${missing.status}"),
             )
         }

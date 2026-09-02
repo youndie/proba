@@ -15,15 +15,26 @@ import javax.xml.parsers.DocumentBuilderFactory
  * check downstream would call the first one healthy.
  */
 sealed interface ReadOutcome {
-
-    data class Read(val publication: Publication) : ReadOutcome
+    data class Read(
+        val publication: Publication,
+    ) : ReadOutcome
 
     /** The artefact is there, but publishes no Gradle module metadata. What variants it has is not knowable from here. */
-    data class WithoutModuleMetadata(val coordinate: Coordinate, val pomUrl: String) : ReadOutcome
+    data class WithoutModuleMetadata(
+        val coordinate: Coordinate,
+        val pomUrl: String,
+    ) : ReadOutcome
 
-    data class NotFound(val coordinate: Coordinate, val tried: List<Attempt>) : ReadOutcome
+    data class NotFound(
+        val coordinate: Coordinate,
+        val tried: List<Attempt>,
+    ) : ReadOutcome
 
-    data class Unreadable(val coordinate: Coordinate, val url: String, val reason: String) : ReadOutcome
+    data class Unreadable(
+        val coordinate: Coordinate,
+        val url: String,
+        val reason: String,
+    ) : ReadOutcome
 
     /**
      * The version is there and the reader cannot address its files.
@@ -33,16 +44,21 @@ sealed interface ReadOutcome {
      * is the only honest answer — "nothing is published here" about a version that is published is
      * exactly the confident wrongness this tool exists to catch.
      */
-    data class UnsupportedLayout(val coordinate: Coordinate, val reason: String) : ReadOutcome
+    data class UnsupportedLayout(
+        val coordinate: Coordinate,
+        val reason: String,
+    ) : ReadOutcome
 }
 
-data class Attempt(val url: String, val status: Int)
+data class Attempt(
+    val url: String,
+    val status: Int,
+)
 
 class PublicationReader(
     private val fetcher: Fetcher,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
-
     // One version-level metadata document serves every file of that snapshot, and a multiplatform
     // snapshot asks for one per target.
     private val snapshots = mutableMapOf<String, String?>()
@@ -53,60 +69,81 @@ class PublicationReader(
     constructor(client: HttpClient, json: Json = Json { ignoreUnknownKeys = true }) :
         this(RoutingFetcher(HttpFetcher(client)), json)
 
-    suspend fun read(coordinate: Coordinate, repository: MavenRepository): ReadOutcome {
+    suspend fun read(
+        coordinate: Coordinate,
+        repository: MavenRepository,
+    ): ReadOutcome {
         val tried = mutableListOf<Attempt>()
 
-        val moduleUrl = fileUrl(coordinate, "module", repository, tried)
-            ?: return absent(coordinate, repository, tried)
-        val moduleBody = fetch(moduleUrl, tried)
-            ?: return absent(coordinate, repository, tried)
+        val moduleUrl =
+            fileUrl(coordinate, "module", repository, tried)
+                ?: return absent(coordinate, repository, tried)
+        val moduleBody =
+            fetch(moduleUrl, tried)
+                ?: return absent(coordinate, repository, tried)
 
-        val root = try {
-            json.decodeFromString<GmmDocument>(moduleBody)
-        } catch (failure: Exception) {
-            return ReadOutcome.Unreadable(coordinate, moduleUrl, failure.message ?: "not module metadata")
-        }
+        val root =
+            try {
+                json.decodeFromString<GmmDocument>(moduleBody)
+            } catch (failure: Exception) {
+                return ReadOutcome.Unreadable(coordinate, moduleUrl, failure.message ?: "not module metadata")
+            }
 
         // The root of a multiplatform library is a redirector: its variants carry no dependencies and
         // point at one module per target. Several variants point at the same module, so fetch each once.
         val redirects = root.variants.mapNotNull { it.availableAt }.distinctBy { it.coordinate }
 
-        val fetched = coroutineScope {
-            redirects.map { redirect ->
-                async {
-                    val attempts = mutableListOf<Attempt>()
-                    // The targets of a snapshot are snapshots too, and each keeps its own timestamp.
-                    val url = fileUrl(redirect.coordinate, "module", repository, attempts)
-                    val body = url?.let { fetch(it, attempts) }
-                    redirect.coordinate to (body?.let { runCatching { json.decodeFromString<GmmDocument>(it) }.getOrNull() }
-                        to attempts.lastOrNull()?.status)
-                }
-            }.awaitAll()
-        }
-
-        val located = buildList {
-            // Variants the root keeps for itself — the common/metadata ones.
-            root.variants.filter { it.availableAt == null }.forEach { add(coordinate to it) }
-            fetched.forEach { (target, result) ->
-                result.first?.variants?.forEach { add(target to it) }
+        val fetched =
+            coroutineScope {
+                redirects
+                    .map { redirect ->
+                        async {
+                            val attempts = mutableListOf<Attempt>()
+                            // The targets of a snapshot are snapshots too, and each keeps its own timestamp.
+                            val url = fileUrl(redirect.coordinate, "module", repository, attempts)
+                            val body = url?.let { fetch(it, attempts) }
+                            redirect.coordinate to
+                                (
+                                    body?.let { runCatching { json.decodeFromString<GmmDocument>(it) }.getOrNull() }
+                                        to attempts.lastOrNull()?.status
+                                )
+                        }
+                    }.awaitAll()
             }
-        }
 
-        val unreachable = fetched.filter { it.second.first == null }.map { (target, result) ->
-            UnreachableTarget(target, repository.url(target.file("module")), result.second ?: 0)
-        }
+        val located =
+            buildList {
+                // Variants the root keeps for itself — the common/metadata ones.
+                root.variants.filter { it.availableAt == null }.forEach { add(coordinate to it) }
+                fetched.forEach { (target, result) ->
+                    result.first?.variants?.forEach { add(target to it) }
+                }
+            }
+
+        val unreachable =
+            fetched.filter { it.second.first == null }.map { (target, result) ->
+                UnreachableTarget(target, repository.url(target.file("module")), result.second ?: 0)
+            }
 
         return ReadOutcome.Read(
             Publication(
                 coordinate = coordinate,
                 repository = repository,
-                component = root.component.let { component ->
-                    val group = component.group
-                    val module = component.module
-                    val version = component.version
-                    if (group == null || module == null || version == null) null
-                    else ComponentDeclaration(Coordinate(group, module, version), isBackReference = component.url != null)
-                },
+                component =
+                    root.component.let { component ->
+                        val group = component.group
+                        val module = component.module
+                        val version = component.version
+                        if (group == null || module == null || version == null) {
+                            null
+                        } else {
+                            ComponentDeclaration(
+                                Coordinate(group, module, version),
+                                isBackReference =
+                                    component.url != null,
+                            )
+                        }
+                    },
                 targets = group(located),
                 documents = listOf(coordinate) + fetched.filter { it.second.first != null }.map { it.first },
                 unreachable = unreachable,
@@ -137,26 +174,34 @@ class PublicationReader(
     }
 
     /** The timestamped name for one extension, ignoring the classified entries beside it. */
-    private fun snapshotValue(metadata: String, extension: String): String? = runCatching {
-        val document = DocumentBuilderFactory.newInstance()
-            .also { it.isNamespaceAware = false; it.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true) }
-            .newDocumentBuilder()
-            .parse(metadata.byteInputStream())
-        val entries = document.getElementsByTagName("snapshotVersion")
-        (0 until entries.length)
-            .map { entries.item(it) }
-            .firstOrNull { entry ->
-                val children = (0 until entry.childNodes.length).map { entry.childNodes.item(it) }
-                children.none { it.nodeName == "classifier" } &&
-                    children.any { it.nodeName == "extension" && it.textContent.trim() == extension }
-            }
-            ?.let { entry ->
-                (0 until entry.childNodes.length)
-                    .map { entry.childNodes.item(it) }
-                    .firstOrNull { it.nodeName == "value" }
-                    ?.textContent?.trim()
-            }
-    }.getOrNull()
+    private fun snapshotValue(
+        metadata: String,
+        extension: String,
+    ): String? =
+        runCatching {
+            val document =
+                DocumentBuilderFactory
+                    .newInstance()
+                    .also {
+                        it.isNamespaceAware = false
+                        it.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+                    }.newDocumentBuilder()
+                    .parse(metadata.byteInputStream())
+            val entries = document.getElementsByTagName("snapshotVersion")
+            (0 until entries.length)
+                .map { entries.item(it) }
+                .firstOrNull { entry ->
+                    val children = (0 until entry.childNodes.length).map { entry.childNodes.item(it) }
+                    children.none { it.nodeName == "classifier" } &&
+                        children.any { it.nodeName == "extension" && it.textContent.trim() == extension }
+                }?.let { entry ->
+                    (0 until entry.childNodes.length)
+                        .map { entry.childNodes.item(it) }
+                        .firstOrNull { it.nodeName == "value" }
+                        ?.textContent
+                        ?.trim()
+                }
+        }.getOrNull()
 
     private suspend fun absent(
         coordinate: Coordinate,
@@ -183,7 +228,10 @@ class PublicationReader(
         }
     }
 
-    private suspend fun fetch(url: String, tried: MutableList<Attempt>): String? {
+    private suspend fun fetch(
+        url: String,
+        tried: MutableList<Attempt>,
+    ): String? {
         val result = fetcher.fetch(url)
         tried += Attempt(url, result.status)
         return result.body
@@ -205,46 +253,56 @@ class PublicationReader(
      */
     private fun group(located: List<Pair<Coordinate, GmmVariant>>): List<Target> {
         val (documentation, library) = located.partition { roleOf(it.second) != Role.Library }
-        val targets = library.groupBy({ keyOf(it.second) }, { it })
-            .map { (key, entries) ->
-                Target(
-                    key = key,
-                    coordinate = entries.first().first,
-                    variants = entries.map { variant(it.second, entries.first().first) },
-                )
+        val targets =
+            library
+                .groupBy({ keyOf(it.second) }, { it })
+                .map { (key, entries) ->
+                    Target(
+                        key = key,
+                        coordinate = entries.first().first,
+                        variants = entries.map { variant(it.second, entries.first().first) },
+                    )
+                }
+
+        val attached =
+            documentation.map { (coordinate, source) ->
+                val key = keyOf(source)
+                val home =
+                    targets.firstOrNull { it.key == key }
+                        ?: targets.singleOrNull()?.takeIf { key == TargetKey(null, null, null) }
+                (home?.key ?: key) to (coordinate to source)
             }
 
-        val attached = documentation.map { (coordinate, source) ->
-            val key = keyOf(source)
-            val home = targets.firstOrNull { it.key == key }
-                ?: targets.singleOrNull()?.takeIf { key == TargetKey(null, null, null) }
-            (home?.key ?: key) to (coordinate to source)
-        }
-
         val extra = attached.groupBy({ it.first }, { it.second })
-        return (targets.map { target ->
-            target.copy(
-                variants = target.variants + extra[target.key].orEmpty().map { variant(it.second, it.first) },
-            )
-        } + extra.filterKeys { key -> targets.none { it.key == key } }.map { (key, entries) ->
-            Target(
-                key = key,
-                coordinate = entries.first().first,
-                variants = entries.map { variant(it.second, it.first) },
-            )
-        }).sortedBy { it.name }
+        return (
+            targets.map { target ->
+                target.copy(
+                    variants = target.variants + extra[target.key].orEmpty().map { variant(it.second, it.first) },
+                )
+            } +
+                extra.filterKeys { key -> targets.none { it.key == key } }.map { (key, entries) ->
+                    Target(
+                        key = key,
+                        coordinate = entries.first().first,
+                        variants = entries.map { variant(it.second, it.first) },
+                    )
+                }
+        ).sortedBy { it.name }
     }
 
-    private fun roleOf(variant: GmmVariant): Role =
-        Role.of(variant.attribute(CATEGORY), variant.attribute(DOCS_TYPE))
+    private fun roleOf(variant: GmmVariant): Role = Role.of(variant.attribute(CATEGORY), variant.attribute(DOCS_TYPE))
 
-    private fun keyOf(variant: GmmVariant): TargetKey = TargetKey(
-        platform = variant.attribute(PLATFORM_TYPE),
-        nativeTarget = variant.attribute(NATIVE_TARGET),
-        wasmTarget = variant.attribute(WASM_TARGET),
-    )
+    private fun keyOf(variant: GmmVariant): TargetKey =
+        TargetKey(
+            platform = variant.attribute(PLATFORM_TYPE),
+            nativeTarget = variant.attribute(NATIVE_TARGET),
+            wasmTarget = variant.attribute(WASM_TARGET),
+        )
 
-    private fun variant(source: GmmVariant, coordinate: Coordinate): Variant {
+    private fun variant(
+        source: GmmVariant,
+        coordinate: Coordinate,
+    ): Variant {
         val attributes = source.attributes.mapValues { (_, value) -> value.content }
         return Variant(
             name = source.name,
@@ -264,7 +322,10 @@ class PublicationReader(
      * as an absent artefact — so the url is corrected here, once, rather than in every caller who
      * would have to know about snapshots to get it right.
      */
-    private fun resolved(url: String, coordinate: Coordinate): String {
+    private fun resolved(
+        url: String,
+        coordinate: Coordinate,
+    ): String {
         if (!coordinate.isSnapshot) return url
         val stamped = snapshotStamps[coordinate.directory] ?: return url
         return url.replace(coordinate.version, stamped)

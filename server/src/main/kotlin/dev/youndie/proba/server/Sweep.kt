@@ -23,10 +23,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.Json
 
 /**
@@ -59,15 +59,26 @@ class Sweep(
 
     suspend fun snapshot(): Map<String, ModuleResult> = mutex.withLock { LinkedHashMap(results) }
 
-    suspend fun record(module: String, result: ModuleResult) = mutex.withLock { results[module] = result }
+    suspend fun record(
+        module: String,
+        result: ModuleResult,
+    ) = mutex.withLock { results[module] = result }
 
     suspend fun countDelivery(subscribers: Int) = mutex.withLock { framesDelivered += subscribers }
 }
 
 sealed interface ModuleResult {
     data object Pending : ModuleResult
-    data class Checked(val coordinate: Coordinate, val findings: List<Finding>) : ModuleResult
-    data class Refused(val module: String, val reason: String) : ModuleResult
+
+    data class Checked(
+        val coordinate: Coordinate,
+        val findings: List<Finding>,
+    ) : ModuleResult
+
+    data class Refused(
+        val module: String,
+        val reason: String,
+    ) : ModuleResult
 
     /**
      * A per-target coordinate of another module, not a library of its own.
@@ -77,7 +88,9 @@ sealed interface ModuleResult {
      * document can: a target module's `component` block names the coordinate that owns it and carries
      * a url back to it. Checking it separately would report the same publication a dozen times.
      */
-    data class PartOf(val owner: Coordinate) : ModuleResult
+    data class PartOf(
+        val owner: Coordinate,
+    ) : ModuleResult
 }
 
 private const val CONCURRENCY = 8
@@ -121,23 +134,32 @@ class SweepRunner(
         // somebody else's repository.
         val gate = Semaphore(CONCURRENCY)
         scope.launch {
-            modules.mapIndexed { position, module ->
-                async {
-                    val result = gate.withPermit { check(group, module, repository, index) }
-                    sweep.record(module, result)
-                    push(sweep, SweepScreen.moduleId(position), SweepScreen.moduleCard(position, module, result))
-                    push(sweep, SweepScreen.STATUS_ID, SweepScreen.status(sweep.snapshot()))
-                }
-            }.awaitAll()
+            modules
+                .mapIndexed { position, module ->
+                    async {
+                        val result = gate.withPermit { check(group, module, repository, index) }
+                        sweep.record(module, result)
+                        push(sweep, SweepScreen.moduleId(position), SweepScreen.moduleCard(position, module, result))
+                        push(sweep, SweepScreen.STATUS_ID, SweepScreen.status(sweep.snapshot()))
+                    }
+                }.awaitAll()
         }
         return sweep
     }
 
-    private suspend fun push(sweep: Sweep, componentId: String, component: KompotComponent) {
+    private suspend fun push(
+        sweep: Sweep,
+        componentId: String,
+        component: KompotComponent,
+    ) {
         // Counted before the send and from this instance's own subscriber list: what matters for the
         // gate is whether anything was actually on the other end, not whether the call returned.
         sweep.countDelivery(broadcaster.localSubscriberCount(sweep.topic))
-        broadcaster.broadcast(sweep.topic, json, UpdateComponentMessage(componentId = componentId, component = component))
+        broadcaster.broadcast(
+            sweep.topic,
+            json,
+            UpdateComponentMessage(componentId = componentId, component = component),
+        )
     }
 
     private suspend fun check(
@@ -149,9 +171,10 @@ class SweepRunner(
         val advertised = index.versions(group, module)
         // The newest release, and a snapshot only when there is no release: a snapshot beside a
         // release is not a later version of it, whatever order the metadata happens to list them in.
-        val version = advertised.lastOrNull { !it.endsWith("-SNAPSHOT") }
-            ?: advertised.lastOrNull()
-            ?: return ModuleResult.Refused(module, "the repository advertises no version of it")
+        val version =
+            advertised.lastOrNull { !it.endsWith("-SNAPSHOT") }
+                ?: advertised.lastOrNull()
+                ?: return ModuleResult.Refused(module, "the repository advertises no version of it")
         val coordinate = Coordinate(group, module, version)
         return when (val outcome = reader.read(coordinate, repository)) {
             is ReadOutcome.Read -> {
@@ -162,45 +185,66 @@ class SweepRunner(
                     ModuleResult.Checked(coordinate, Checks.runAll(context(outcome.publication, repository)))
                 }
             }
-            is ReadOutcome.NotFound -> ModuleResult.Refused(module, "$version is advertised but nothing is published at it")
-            is ReadOutcome.WithoutModuleMetadata -> ModuleResult.Refused(module, "$version has no Gradle module metadata")
-            is ReadOutcome.Unreadable -> ModuleResult.Refused(module, "$version: ${outcome.reason}")
-            is ReadOutcome.UnsupportedLayout -> ModuleResult.Refused(module, outcome.reason)
+
+            is ReadOutcome.NotFound -> {
+                ModuleResult.Refused(module, "$version is advertised but nothing is published at it")
+            }
+
+            is ReadOutcome.WithoutModuleMetadata -> {
+                ModuleResult.Refused(module, "$version has no Gradle module metadata")
+            }
+
+            is ReadOutcome.Unreadable -> {
+                ModuleResult.Refused(module, "$version: ${outcome.reason}")
+            }
+
+            is ReadOutcome.UnsupportedLayout -> {
+                ModuleResult.Refused(module, outcome.reason)
+            }
         }
     }
 
-    private fun context(publication: Publication, repository: MavenRepository): CheckContext {
+    private fun context(
+        publication: Publication,
+        repository: MavenRepository,
+    ): CheckContext {
         val cache = mutableMapOf<Coordinate, Publication?>()
         return CheckContext(
             publication = publication,
-            lookup = { wanted -> cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication } },
+            lookup = { wanted ->
+                cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication }
+            },
         )
     }
 }
 
 /** The sweep screen: a status line and one card per module, each replaced by a frame as it finishes. */
 object SweepScreen {
-
     const val STATUS_ID = "sweep-status"
 
     fun moduleId(position: Int) = "m$position"
 
-    fun of(sweep: Sweep, results: Map<String, ModuleResult>): KompotComponent =
+    fun of(
+        sweep: Sweep,
+        results: Map<String, ModuleResult>,
+    ): KompotComponent =
         ColumnComponent(
             id = "sweep",
             spacing = 12,
-            modifiers = listOf(
-                KompotModifierNode.Size(width = SizeType.Fill),
-                KompotModifierNode.Background(Color.Surface),
-                KompotModifierNode.Padding(all = 32),
-            ),
-            children = buildList {
-                add(TextComponent(id = "sweep-title", text = sweep.group, style = Type.TitlePage))
-                add(status(results))
-                sweep.modules.forEachIndexed { position, module ->
-                    add(moduleCard(position, module, results[module] ?: ModuleResult.Pending))
-                }
-            },
+            modifiers =
+                listOf(
+                    KompotModifierNode.Size(width = SizeType.Fill),
+                    KompotModifierNode.Background(Color.Surface),
+                    KompotModifierNode.Padding(all = 32),
+                ),
+            children =
+                buildList {
+                    add(TextComponent(id = "sweep-title", text = sweep.group, style = Type.TitlePage))
+                    add(status(results))
+                    sweep.modules.forEachIndexed { position, module ->
+                        add(moduleCard(position, module, results[module] ?: ModuleResult.Pending))
+                    }
+                },
         )
 
     fun status(results: Map<String, ModuleResult>): KompotComponent {
@@ -209,42 +253,71 @@ object SweepScreen {
         val targets = results.values.count { it is ModuleResult.PartOf }
         return TextComponent(
             id = STATUS_ID,
-            text = "$done of ${results.size} read — $findings finding(s) so far; $targets of the modules are targets of another",
+            text =
+                "$done of ${results.size} read — $findings finding(s) so far; " +
+                    "$targets of the modules are targets of another",
             style = Type.BodySmall,
         )
     }
 
-    fun moduleCard(position: Int, module: String, result: ModuleResult): KompotComponent {
+    fun moduleCard(
+        position: Int,
+        module: String,
+        result: ModuleResult,
+    ): KompotComponent {
         val id = moduleId(position)
-        val body: List<KompotComponent> = when (result) {
-            is ModuleResult.Pending -> listOf(TextComponent(id = "$id-state", text = "waiting", style = Type.BodySmall))
+        val body: List<KompotComponent> =
+            when (result) {
+                is ModuleResult.Pending -> {
+                    listOf(TextComponent(id = "$id-state", text = "waiting", style = Type.BodySmall))
+                }
 
-            is ModuleResult.Refused -> listOf(TextComponent(id = "$id-state", text = result.reason, style = Type.BodySmall))
+                is ModuleResult.Refused -> {
+                    listOf(TextComponent(id = "$id-state", text = result.reason, style = Type.BodySmall))
+                }
 
-            is ModuleResult.PartOf -> listOf(
-                TextComponent(id = "$id-state", text = "a target of ${result.owner.artifact}", style = Type.BodySmall),
-            )
+                is ModuleResult.PartOf -> {
+                    listOf(
+                        TextComponent(
+                            id = "$id-state",
+                            text = "a target of ${result.owner.artifact}",
+                            style = Type.BodySmall,
+                        ),
+                    )
+                }
 
-            is ModuleResult.Checked -> listOf(
-                TextComponent(id = "$id-version", text = result.coordinate.version, style = Type.CodeSmall),
-                counts(id, result.findings),
-            )
-        }
+                is ModuleResult.Checked -> {
+                    listOf(
+                        TextComponent(id = "$id-version", text = result.coordinate.version, style = Type.CodeSmall),
+                        counts(id, result.findings),
+                    )
+                }
+            }
         return ColumnComponent(
             id = id,
             spacing = 6,
-            modifiers = listOf(
-                KompotModifierNode.Size(width = SizeType.Fill),
-                KompotModifierNode.Background(
-                    if (result is ModuleResult.Pending || result is ModuleResult.PartOf) Color.SurfaceSunken else Color.SurfaceRaised,
+            modifiers =
+                listOf(
+                    KompotModifierNode.Size(width = SizeType.Fill),
+                    KompotModifierNode.Background(
+                        if (result is ModuleResult.Pending ||
+                            result is ModuleResult.PartOf
+                        ) {
+                            Color.SurfaceSunken
+                        } else {
+                            Color.SurfaceRaised
+                        },
+                    ),
+                    KompotModifierNode.Padding(all = 16),
                 ),
-                KompotModifierNode.Padding(all = 16),
-            ),
             children = listOf(TextComponent(id = "$id-name", text = module, style = Type.TitleSection)) + body,
         )
     }
 
-    private fun counts(id: String, findings: List<Finding>): KompotComponent {
+    private fun counts(
+        id: String,
+        findings: List<Finding>,
+    ): KompotComponent {
         if (findings.isEmpty()) {
             return TextComponent(id = "$id-clean", text = "nothing to report", style = Type.BodySmall)
         }
@@ -252,27 +325,37 @@ object SweepScreen {
         return RowComponent(
             id = "$id-counts",
             spacing = 8,
-            children = Severity.entries.filter { countOf(bySeverity, it) > 0 }.map { severity ->
-                val look = when (severity) {
-                    Severity.Defect -> SeverityLook.Defect
-                    Severity.Suspicion -> SeverityLook.Suspicion
-                    Severity.Undetermined -> SeverityLook.Undetermined
-                }
-                RowComponent(
-                    id = "$id-${look.word}",
-                    spacing = 6,
-                    modifiers = listOf(KompotModifierNode.Background(look.surface), KompotModifierNode.Padding(all = 6)),
-                    children = listOf(
-                        TextComponent(
-                            id = "$id-${look.word}-text",
-                            text = "${countOf(bySeverity, severity)} ${look.word}",
-                            style = Type.Label,
-                        ),
-                    ),
-                )
-            },
+            children =
+                Severity.entries.filter { countOf(bySeverity, it) > 0 }.map { severity ->
+                    val look =
+                        when (severity) {
+                            Severity.Defect -> SeverityLook.Defect
+                            Severity.Suspicion -> SeverityLook.Suspicion
+                            Severity.Undetermined -> SeverityLook.Undetermined
+                        }
+                    RowComponent(
+                        id = "$id-${look.word}",
+                        spacing = 6,
+                        modifiers =
+                            listOf(
+                                KompotModifierNode.Background(look.surface),
+                                KompotModifierNode.Padding(all = 6),
+                            ),
+                        children =
+                            listOf(
+                                TextComponent(
+                                    id = "$id-${look.word}-text",
+                                    text = "${countOf(bySeverity, severity)} ${look.word}",
+                                    style = Type.Label,
+                                ),
+                            ),
+                    )
+                },
         )
     }
 
-    private fun countOf(bySeverity: Map<Severity, Int>, severity: Severity) = bySeverity[severity] ?: 0
+    private fun countOf(
+        bySeverity: Map<Severity, Int>,
+        severity: Severity,
+    ) = bySeverity[severity] ?: 0
 }

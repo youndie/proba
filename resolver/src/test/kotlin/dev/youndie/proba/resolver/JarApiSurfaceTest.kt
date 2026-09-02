@@ -17,7 +17,6 @@ import kotlin.test.assertTrue
  * as it was published.
  */
 class JarApiSurfaceTest {
-
     private fun fixture(name: String): File =
         File(checkNotNull(javaClass.getResource("/$name")) { "no fixture $name" }.toURI())
 
@@ -67,7 +66,6 @@ class JarApiSurfaceTest {
 }
 
 class ArtefactKindTest {
-
     private fun jarWith(vararg entries: String): File {
         val file = File(createTempDirectory("proba-kind").toFile(), "artefact.jar")
         JarOutputStream(file.outputStream()).use { out ->
@@ -86,7 +84,8 @@ class ArtefactKindTest {
         // such an artefact announces itself, and it is there so a tool can find it.
         assertTrue(
             jarWith("META-INF/services/com.google.devtools.ksp.processing.SymbolProcessorProvider")
-                .let(ArtefactKind::of)!!.contains("KSP"),
+                .let(ArtefactKind::of)!!
+                .contains("KSP"),
         )
         assertTrue(jarWith("META-INF/gradle-plugins/some.plugin.properties").let(ArtefactKind::of)!!.contains("Gradle"))
     }

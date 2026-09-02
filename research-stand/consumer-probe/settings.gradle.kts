@@ -1,2 +1,7 @@
 rootProject.name = "consumer-probe"
-dependencyResolutionManagement { repositories { mavenLocal(); mavenCentral() } }
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}

@@ -15,7 +15,6 @@ import io.ktor.http.headersOf
  * disagree with me, which is the only way a test here earns anything.
  */
 object Fixtures {
-
     val Repository = MavenRepository("fixtures", "https://repo.example/maven2")
 
     fun load(name: String): String = String(bytes(name))
@@ -50,14 +49,15 @@ object Fixtures {
 
     val KompotCore = Coordinate("io.github.youndie", "kompot-core", "0.27.0.46")
 
-    val KompotCoreDocuments = arrayOf(
-        "kompot-core-0.27.0.46.module",
-        "kompot-core-jvm-0.27.0.46.module",
-        "kompot-core-iosarm64-0.27.0.46.module",
-        "kompot-core-iossimulatorarm64-0.27.0.46.module",
-        "kompot-core-iosx64-0.27.0.46.module",
-        "kompot-core-wasm-js-0.27.0.46.module",
-    )
+    val KompotCoreDocuments =
+        arrayOf(
+            "kompot-core-0.27.0.46.module",
+            "kompot-core-jvm-0.27.0.46.module",
+            "kompot-core-iosarm64-0.27.0.46.module",
+            "kompot-core-iossimulatorarm64-0.27.0.46.module",
+            "kompot-core-iosx64-0.27.0.46.module",
+            "kompot-core-wasm-js-0.27.0.46.module",
+        )
 }
 
 /**

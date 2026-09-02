@@ -12,13 +12,14 @@ import java.net.URI
  * Both, because the first repository anyone wants to check is the one they just published into, and
  * a `file:` url is what that repository is addressed by.
  */
-fun httpArtefacts(client: HttpClient): ArtefactSource = ArtefactSource { url ->
-    if (url.startsWith("file:")) {
-        runCatching { File(URI(url)).takeIf { it.isFile }?.readBytes() }.getOrNull()
-    } else {
-        runCatching {
-            val response = client.get(url)
-            if (response.status.value == 200) response.readRawBytes() else null
-        }.getOrNull()
+fun httpArtefacts(client: HttpClient): ArtefactSource =
+    ArtefactSource { url ->
+        if (url.startsWith("file:")) {
+            runCatching { File(URI(url)).takeIf { it.isFile }?.readBytes() }.getOrNull()
+        } else {
+            runCatching {
+                val response = client.get(url)
+                if (response.status.value == 200) response.readRawBytes() else null
+            }.getOrNull()
+        }
     }
-}

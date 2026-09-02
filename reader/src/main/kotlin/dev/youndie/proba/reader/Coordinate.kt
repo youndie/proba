@@ -1,8 +1,11 @@
 package dev.youndie.proba.reader
 
 /** A Maven coordinate, and the paths a repository keeps its files under. */
-data class Coordinate(val group: String, val artifact: String, val version: String) {
-
+data class Coordinate(
+    val group: String,
+    val artifact: String,
+    val version: String,
+) {
     val directory: String get() = "${group.replace('.', '/')}/$artifact/$version"
 
     /** The file a publication of this coordinate is expected to carry, by extension. */
@@ -25,8 +28,10 @@ data class Coordinate(val group: String, val artifact: String, val version: Stri
 }
 
 /** A repository, addressed the way a consumer's build addresses it: a base URL and nothing else. */
-data class MavenRepository(val name: String, val baseUrl: String) {
-
+data class MavenRepository(
+    val name: String,
+    val baseUrl: String,
+) {
     fun url(path: String): String = "${baseUrl.trimEnd('/')}/$path"
 
     companion object {
@@ -36,4 +41,10 @@ data class MavenRepository(val name: String, val baseUrl: String) {
 
 /** The repository a build publishes into before anything leaves the machine. */
 fun mavenLocal(): MavenRepository =
-    MavenRepository("mavenLocal", java.io.File(System.getProperty("user.home"), ".m2/repository").toURI().toString())
+    MavenRepository(
+        "mavenLocal",
+        java.io
+            .File(System.getProperty("user.home"), ".m2/repository")
+            .toURI()
+            .toString(),
+    )

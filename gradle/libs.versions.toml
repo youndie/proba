@@ -1,4 +1,7 @@
 [versions]
+# The shared build conventions: the coordinate, the version, the toolchain, the style and the test
+# platform. Bumping this changes how every module is built.
+sborka = "0.1.0.20"
 kotlin = "2.4.10"
 ktor = "3.4.0"
 serialization = "1.11.0"
@@ -33,3 +36,5 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+sborkaJvm = { id = "ru.workinprogress.sborka.jvm", version.ref = "sborka" }
+sborkaLint = { id = "ru.workinprogress.sborka.lint", version.ref = "sborka" }

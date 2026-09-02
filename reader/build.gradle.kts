@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     application
     `java-test-fixtures`
+    id("ru.workinprogress.sborka.jvm")
+    id("ru.workinprogress.sborka.lint")
 }
 
 dependencies {
@@ -17,11 +19,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 }
 
-kotlin { jvmToolchain(21) }
-
 application { mainClass.set("dev.youndie.proba.reader.MainKt") }
-
-tasks.test { useJUnitPlatform() }
 
 // The CLI reports its own outcome and uses the exit code to say which one. Letting Gradle turn a
 // refusal into a build failure buries the report under a stack trace, which is the opposite of the

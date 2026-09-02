@@ -71,15 +71,15 @@ data class Finding(
 )
 
 object Checks {
-
-    val all: List<Check> = listOf(
-        VersionInDeclaredName,
-        DanglingRedirect,
-        ComponentMatchesPath,
-        ApiOmitsSibling,
-        ApiUnreachable,
-        BytecodeRequiresJava,
-    )
+    val all: List<Check> =
+        listOf(
+            VersionInDeclaredName,
+            DanglingRedirect,
+            ComponentMatchesPath,
+            ApiOmitsSibling,
+            ApiUnreachable,
+            BytecodeRequiresJava,
+        )
 
     fun byId(id: String): Check = all.single { it.id == id }
 

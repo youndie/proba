@@ -26,9 +26,16 @@ data class Publication(
  * multiplatform library. Reading a back-reference as a self-declaration makes every target module
  * look published under the wrong coordinate.
  */
-data class ComponentDeclaration(val coordinate: Coordinate, val isBackReference: Boolean)
+data class ComponentDeclaration(
+    val coordinate: Coordinate,
+    val isBackReference: Boolean,
+)
 
-data class UnreachableTarget(val coordinate: Coordinate, val url: String, val status: Int)
+data class UnreachableTarget(
+    val coordinate: Coordinate,
+    val url: String,
+    val status: Int,
+)
 
 /**
  * One platform of the publication. Its identity is the attribute tuple Gradle matches on, not the
@@ -67,15 +74,21 @@ data class TargetKey(
      * attributes above — never the other way round.
      */
     val name: String
-        get() = when (platform) {
-            null -> "jvm"                     // a plain java-library publication declares no platform type
-            "native" -> nativeTarget?.snakeToCamel() ?: "native"
-            "wasm" -> "wasm" + (wasmTarget?.replaceFirstChar(Char::uppercase) ?: "")
-            else -> platform                  // common, jvm, js
-        }
+        get() =
+            when (platform) {
+                null -> "jvm"
+
+                // a plain java-library publication declares no platform type
+                "native" -> nativeTarget?.snakeToCamel() ?: "native"
+
+                "wasm" -> "wasm" + (wasmTarget?.replaceFirstChar(Char::uppercase) ?: "")
+
+                else -> platform // common, jvm, js
+            }
 
     private fun String.snakeToCamel(): String =
-        split('_').mapIndexed { i, part -> if (i == 0) part else part.replaceFirstChar(Char::uppercase) }
+        split('_')
+            .mapIndexed { i, part -> if (i == 0) part else part.replaceFirstChar(Char::uppercase) }
             .joinToString("")
 }
 
@@ -90,33 +103,50 @@ data class Variant(
 
 /** What the variant is for, read from `org.gradle.usage`. */
 enum class Usage {
-    Api, Runtime, Metadata, Other;
+    Api,
+    Runtime,
+    Metadata,
+    Other,
+    ;
 
     companion object {
-        fun of(usage: String?): Usage = when (usage) {
-            "java-api", "kotlin-api" -> Api
-            "java-runtime", "kotlin-runtime" -> Runtime
-            "kotlin-metadata" -> Metadata
-            else -> Other
-        }
+        fun of(usage: String?): Usage =
+            when (usage) {
+                "java-api", "kotlin-api" -> Api
+                "java-runtime", "kotlin-runtime" -> Runtime
+                "kotlin-metadata" -> Metadata
+                else -> Other
+            }
     }
 }
 
 /** Whether the variant carries the library or something about it, read from `org.gradle.category`. */
 enum class Role {
-    Library, Sources, Documentation, Other;
+    Library,
+    Sources,
+    Documentation,
+    Other,
+    ;
 
     companion object {
-        fun of(category: String?, docsType: String?): Role = when {
-            category == "library" -> Library
-            docsType == "sources" -> Sources
-            category == "documentation" -> Documentation
-            else -> Other
-        }
+        fun of(
+            category: String?,
+            docsType: String?,
+        ): Role =
+            when {
+                category == "library" -> Library
+                docsType == "sources" -> Sources
+                category == "documentation" -> Documentation
+                else -> Other
+            }
     }
 }
 
-data class Dependency(val group: String, val module: String, val requires: String?) {
+data class Dependency(
+    val group: String,
+    val module: String,
+    val requires: String?,
+) {
     override fun toString(): String = "$group:$module" + (requires?.let { ":$it" } ?: "")
 }
 
@@ -124,4 +154,9 @@ data class Dependency(val group: String, val module: String, val requires: Strin
  * `declaredName` is the name the file arrives under on a consumer's classpath; `url` is where it was
  * fetched from. Keeping both is the point — a publication is free to disagree with itself here.
  */
-data class ArtefactFile(val declaredName: String, val url: String, val size: Long?, val sha1: String?)
+data class ArtefactFile(
+    val declaredName: String,
+    val url: String,
+    val size: Long?,
+    val sha1: String?,
+)

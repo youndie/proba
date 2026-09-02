@@ -1,44 +1,42 @@
 package dev.youndie.proba.server
 
-import dev.youndie.proba.checks.CheckContext
 import dev.youndie.proba.checks.Badge
+import dev.youndie.proba.checks.CheckContext
 import dev.youndie.proba.checks.Checks
 import dev.youndie.proba.checks.httpArtefacts
 import dev.youndie.proba.reader.Coordinate
+import dev.youndie.proba.reader.HttpFetcher
 import dev.youndie.proba.reader.MavenRepository
 import dev.youndie.proba.reader.Publication
 import dev.youndie.proba.reader.PublicationReader
-import dev.youndie.proba.reader.HttpFetcher
 import dev.youndie.proba.reader.ReadOutcome
 import dev.youndie.proba.reader.RepositoryIndex
 import dev.youndie.proba.reader.RoutingFetcher
+import io.github.youndie.kompot.form.FormSchema
+import io.github.youndie.kompot.forms.KompotFormResponse
 import io.github.youndie.kompot.generated.generatedStandardSerializersModule
 import io.github.youndie.kompot.kompotCoreSerializersModule
 import io.github.youndie.kompot.ktor.respondKompotComponent
+import io.github.youndie.kompot.realtime.server.KompotUpdateBroadcaster
 import io.github.youndie.kompot.standard.kompotStandardSerializersModule
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.request.uri
 import io.ktor.server.response.respondText
+import io.ktor.server.response.respondTextWriter
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import io.github.youndie.kompot.form.FormSchema
-import io.github.youndie.kompot.forms.KompotFormResponse
-import io.github.youndie.kompot.realtime.server.KompotUpdateBroadcaster
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.response.respondTextWriter
 import kotlinx.coroutines.channels.Channel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
-// A top-level extension, so `+` on two modules needs it by name: without the import the operator
-// falls back to string concatenation and the error talks about String rather than about serialisation.
 import kotlinx.serialization.modules.plus
 
 /**
@@ -47,15 +45,22 @@ import kotlinx.serialization.modules.plus
  * Three modules: the core's own, the standard components' hand-registered actions, and the
  * registration KSP generated inside kompot-standard itself — which is why no processor runs here. A
  * consumer of stock components never applies KSP.
+ *
+ * The `+` is a top-level extension and has to be imported by name
+ * (`kotlinx.serialization.modules.plus`): without the import the operator falls back to string
+ * concatenation, and the error then talks about String rather than about serialisation. The note is
+ * here rather than beside that import, because a comment inside the import list stops ktlint
+ * checking the list's order at all — it says so, and then checks nothing.
  */
 private val probaSerializers: SerializersModule =
     kompotCoreSerializersModule + kompotStandardSerializersModule + generatedStandardSerializersModule
 
-val kompotJson: Json = Json {
-    classDiscriminator = "type"
-    encodeDefaults = true
-    serializersModule = probaSerializers
-}
+val kompotJson: Json =
+    Json {
+        classDiscriminator = "type"
+        encodeDefaults = true
+        serializersModule = probaSerializers
+    }
 
 fun Application.proba(http: HttpClient = HttpClient(CIO)) {
     // The report page is public and rendered by a separate origin, so a browser has to be allowed to
@@ -76,17 +81,19 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
         // that is the only shape on the wire that can carry a topic — see the empty schema below.
         get("/sweep/{group}") {
             val group = call.parameters["group"].orEmpty()
-            val repository = call.request.queryParameters["repo"]
-                ?.let { MavenRepository(it, it) }
-                ?: MavenRepository.MavenCentral
+            val repository =
+                call.request.queryParameters["repo"]
+                    ?.let { MavenRepository(it, it) }
+                    ?: MavenRepository.MavenCentral
 
-            val sweep = sweeps.start(
-                scope = this@proba,
-                group = group,
-                repository = repository,
-                index = RepositoryIndex.of(repository, RoutingFetcher(HttpFetcher(http))),
-                fresh = call.request.queryParameters["fresh"] == "1",
-            )
+            val sweep =
+                sweeps.start(
+                    scope = this@proba,
+                    group = group,
+                    repository = repository,
+                    index = RepositoryIndex.of(repository, RoutingFetcher(HttpFetcher(http))),
+                    fresh = call.request.queryParameters["fresh"] == "1",
+                )
             if (sweep == null) {
                 call.respondText(
                     "this repository publishes no index, so its modules cannot be enumerated from here",
@@ -151,14 +158,16 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
         // A permanent address: everything the report is about is in the path, so the link somebody
         // pastes tomorrow asks the same question it asked today.
         get("/report/{group}/{artifact}/{version}") {
-            val coordinate = Coordinate(
-                group = call.parameters["group"].orEmpty(),
-                artifact = call.parameters["artifact"].orEmpty(),
-                version = call.parameters["version"].orEmpty(),
-            )
-            val repository = call.request.queryParameters["repo"]
-                ?.let { MavenRepository(it, it) }
-                ?: MavenRepository.MavenCentral
+            val coordinate =
+                Coordinate(
+                    group = call.parameters["group"].orEmpty(),
+                    artifact = call.parameters["artifact"].orEmpty(),
+                    version = call.parameters["version"].orEmpty(),
+                )
+            val repository =
+                call.request.queryParameters["repo"]
+                    ?.let { MavenRepository(it, it) }
+                    ?: MavenRepository.MavenCentral
 
             when (val outcome = reader.read(coordinate, repository)) {
                 is ReadOutcome.Read -> {
@@ -166,57 +175,89 @@ fun Application.proba(http: HttpClient = HttpClient(CIO)) {
                     call.respondKompotComponent(kompotJson, ReportScreen.of(coordinate, findings, deep = false))
                 }
 
-                is ReadOutcome.NotFound -> call.respondKompotComponent(
-                    kompotJson,
-                    ReportScreen.refusal(
-                        coordinate,
-                        "Nothing is published at this coordinate.",
-                        outcome.tried.map { "${it.url} → ${if (it.status == 0) "no answer" else it.status.toString()}" },
-                    ),
-                )
+                is ReadOutcome.NotFound -> {
+                    call.respondKompotComponent(
+                        kompotJson,
+                        ReportScreen.refusal(
+                            coordinate,
+                            "Nothing is published at this coordinate.",
+                            outcome.tried.map {
+                                "${it.url} → ${if (it.status == 0) "no answer" else it.status.toString()}"
+                            },
+                        ),
+                    )
+                }
 
-                is ReadOutcome.WithoutModuleMetadata -> call.respondKompotComponent(
-                    kompotJson,
-                    ReportScreen.refusal(
-                        coordinate,
-                        "Published, but without Gradle module metadata: what variants exist is not knowable from the repository alone.",
-                        listOf(outcome.pomUrl),
-                    ),
-                )
+                is ReadOutcome.WithoutModuleMetadata -> {
+                    call.respondKompotComponent(
+                        kompotJson,
+                        ReportScreen.refusal(
+                            coordinate,
+                            "Published, but without Gradle module metadata: what variants exist is not knowable from the repository alone.",
+                            listOf(outcome.pomUrl),
+                        ),
+                    )
+                }
 
-                is ReadOutcome.UnsupportedLayout -> call.respondKompotComponent(
-                    kompotJson,
-                    ReportScreen.refusal(coordinate, outcome.reason, listOf("no check was run")),
-                )
+                is ReadOutcome.UnsupportedLayout -> {
+                    call.respondKompotComponent(
+                        kompotJson,
+                        ReportScreen.refusal(coordinate, outcome.reason, listOf("no check was run")),
+                    )
+                }
 
-                is ReadOutcome.Unreadable -> call.respondKompotComponent(
-                    kompotJson,
-                    ReportScreen.refusal(coordinate, "The module metadata could not be read.", listOf(outcome.url, outcome.reason)),
-                )
+                is ReadOutcome.Unreadable -> {
+                    call.respondKompotComponent(
+                        kompotJson,
+                        ReportScreen.refusal(
+                            coordinate,
+                            "The module metadata could not be read.",
+                            listOf(outcome.url, outcome.reason),
+                        ),
+                    )
+                }
             }
         }
 
         // A badge for a README. Cached hard: it is fetched by every reader of every page it sits on,
         // and a publication that already went out does not change.
         get("/badge/{group}/{artifact}/{version}") {
-            val coordinate = Coordinate(
-                group = call.parameters["group"].orEmpty(),
-                artifact = call.parameters["artifact"].orEmpty(),
-                version = call.parameters["version"].orEmpty().removeSuffix(".svg"),
-            )
-            val repository = call.request.queryParameters["repo"]
-                ?.let { MavenRepository(it, it) }
-                ?: MavenRepository.MavenCentral
+            val coordinate =
+                Coordinate(
+                    group = call.parameters["group"].orEmpty(),
+                    artifact = call.parameters["artifact"].orEmpty(),
+                    version = call.parameters["version"].orEmpty().removeSuffix(".svg"),
+                )
+            val repository =
+                call.request.queryParameters["repo"]
+                    ?.let { MavenRepository(it, it) }
+                    ?: MavenRepository.MavenCentral
 
-            val svg = when (val outcome = reader.read(coordinate, repository)) {
-                is ReadOutcome.Read ->
-                    Badge.of(Checks.runAll(context(outcome.publication, reader, repository, http)), coordinate.artifact)
+            val svg =
+                when (val outcome = reader.read(coordinate, repository)) {
+                    is ReadOutcome.Read -> {
+                        Badge.of(
+                            Checks.runAll(context(outcome.publication, reader, repository, http)),
+                            coordinate.artifact,
+                        )
+                    }
 
-                is ReadOutcome.NotFound -> Badge.refusal("not published", coordinate.artifact)
-                is ReadOutcome.WithoutModuleMetadata -> Badge.refusal("no module metadata", coordinate.artifact)
-                is ReadOutcome.UnsupportedLayout -> Badge.refusal("snapshot", coordinate.artifact)
-                is ReadOutcome.Unreadable -> Badge.refusal("unreadable", coordinate.artifact)
-            }
+                    is ReadOutcome.NotFound -> {
+                        Badge.refusal("not published", coordinate.artifact)
+                    }
+
+                    is ReadOutcome.WithoutModuleMetadata -> {
+                        Badge.refusal("no module metadata", coordinate.artifact)
+                    }
+
+                    is ReadOutcome.UnsupportedLayout -> {
+                        Badge.refusal("snapshot", coordinate.artifact)
+                    }
+
+                    is ReadOutcome.Unreadable -> {
+                        Badge.refusal("unreadable", coordinate.artifact)
+                    }
+                }
             call.response.headers.append(HttpHeaders.CacheControl, "public, max-age=3600")
             call.respondText(svg, ContentType.Image.SVG)
         }
@@ -236,11 +277,12 @@ private fun context(
     val cache = mutableMapOf<Coordinate, Publication?>()
     return CheckContext(
         publication = publication,
-        lookup = { wanted -> cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication } },
+        lookup = { wanted ->
+            cache.getOrPut(wanted) { (reader.read(wanted, repository) as? ReadOutcome.Read)?.publication }
+        },
         artefacts = httpArtefacts(http),
     )
 }
-
 
 @Serializable
 private data class SweepState(
@@ -259,10 +301,11 @@ private data class SweepState(
  * it — so a form with no fields is invented to carry one string.
  */
 private suspend fun ApplicationCall.respondSweep(sweep: Sweep) {
-    val response = KompotFormResponse(
-        schema = FormSchema(formId = sweep.id, fields = emptyList()),
-        screen = SweepScreen.of(sweep, sweep.snapshot()),
-        realtimeTopic = sweep.topic,
-    )
+    val response =
+        KompotFormResponse(
+            schema = FormSchema(formId = sweep.id, fields = emptyList()),
+            screen = SweepScreen.of(sweep, sweep.snapshot()),
+            realtimeTopic = sweep.topic,
+        )
     respondText(kompotJson.encodeToString(KompotFormResponse.serializer(), response), ContentType.Application.Json)
 }
