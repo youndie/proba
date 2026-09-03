@@ -11,7 +11,7 @@ jobs:
   jvm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Java and Gradle in one step and at one version for the portfolio: the action installs 21 and
       # 25 and leaves 25 as the default. What the modules compile to is `sborka.jvmToolchain=21`,
       # fetched by the toolchain resolver — the comment that used to sit here said 25 and named a
@@ -22,14 +22,14 @@ jobs:
   web:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Exact, not "10": a resolve-to-latest turned a warning about skipped build scripts into an
       # error inside the same major, and main went red without a commit to blame. Renovate moves this
       # now, which makes such a change a pull request rather than a surprise.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
-          version: 10.16.1
-      - uses: actions/setup-node@v4
+          version: 11.25.0
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: pnpm
@@ -46,7 +46,7 @@ jobs:
   gates:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: youndie/sborka/.github/actions/setup-kotlin@main
       # Both stand on a library published with a defect on purpose, so a green run here means the
       # checks discriminated rather than stayed quiet.
