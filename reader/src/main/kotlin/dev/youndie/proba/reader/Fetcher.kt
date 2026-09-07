@@ -21,6 +21,12 @@ fun interface Fetcher {
 data class FetchResult(
     val status: Int,
     val body: String?,
+    /**
+     * What went wrong when [status] is 0, in the words the failure used. Kept because a fetch that
+     * never got an answer and a fetch that got an empty one look identical from [status] alone, and
+     * the reason is the only thing that tells a wrong url from an unreachable host.
+     */
+    val failure: String? = null,
 )
 
 class HttpFetcher(
@@ -31,7 +37,7 @@ class HttpFetcher(
             val response = client.get(url)
             FetchResult(response.status.value, if (response.status.value == 200) response.bodyAsText() else null)
         } catch (failure: Exception) {
-            FetchResult(0, null)
+            FetchResult(0, null, failure.message ?: failure::class.simpleName)
         }
 }
 
@@ -42,7 +48,7 @@ object FileFetcher : Fetcher {
             try {
                 File(URI(url))
             } catch (failure: Exception) {
-                return FetchResult(0, null)
+                return FetchResult(0, null, failure.message ?: failure::class.simpleName)
             }
         return if (file.isFile) FetchResult(200, file.readText()) else FetchResult(404, null)
     }
