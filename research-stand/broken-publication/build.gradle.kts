@@ -2,7 +2,7 @@
 // known to have to find. Without this, "the check reported nothing" and "the check does not work"
 // arrive in the same shape.
 plugins {
-    kotlin("jvm") version "2.4.10" apply false
+    kotlin("jvm") version "2.4.20" apply false
 }
 
 subprojects {
