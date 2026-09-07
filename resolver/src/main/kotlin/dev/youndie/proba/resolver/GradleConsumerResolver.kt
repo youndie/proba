@@ -36,14 +36,20 @@ class GradleConsumerResolver(
      * there — so without it this tier could never run on any of that family and answered
      * "undetermined" for a reason that was about the harness rather than about the library.
      *
+     * The Gradle plugin portal is here for the same reason, measured the same way. A published
+     * Gradle plugin depends on other plugins, and plugins are not on Central: `ktlint-gradle` 14.2.0
+     * returns 404 from `repo1.maven.org` and has no metadata there at all. Without the portal, every
+     * publication that applies one answers "undetermined" — which is what sborka's `conventions` and
+     * `settings` did on every publish, while `core` beside them was judged.
+     *
+     * IT IS ALSO WHAT THAT CONSUMER REALLY HAS. The portal is Gradle's own default in
+     * `pluginManagement`, so a consumer able to apply the plugin at all has it; modelling one
+     * without it models a consumer who cannot exist.
+     *
      * Each repository is an assumption about who the consumer is, which is why they are a parameter
-     * and not a literal: a caller checking a library whose consumers have neither can say so.
+     * and not a literal: a caller checking a library whose consumers have none of them can say so.
      */
-    private val consumerRepositories: List<String> =
-        listOf(
-            "https://repo1.maven.org/maven2",
-            "https://dl.google.com/dl/android/maven2",
-        ),
+    private val consumerRepositories: List<String> = DEFAULT_CONSUMER_REPOSITORIES,
 ) {
     fun resolve(
         coordinate: Coordinate,
@@ -104,6 +110,22 @@ class GradleConsumerResolver(
         return ResolutionOutcome.Resolved(ResolvedConsumerView("jvm", compile, runtime))
     }
 
+    companion object {
+        /**
+         * The repositories the modelled consumer declares besides the one under test.
+         *
+         * Named rather than inline so a test can pin it: each entry is here because without it the
+         * deep tier answered "undetermined" about the harness rather than about the library, and
+         * that is a reason easy to delete by accident while tidying.
+         */
+        val DEFAULT_CONSUMER_REPOSITORIES: List<String> =
+            listOf(
+                "https://repo1.maven.org/maven2",
+                "https://dl.google.com/dl/android/maven2",
+                "https://plugins.gradle.org/m2",
+            )
+    }
+
     private fun String.parse(tag: String): ResolvedArtifact? {
         val parts = split('\t')
         if (parts.size != 3 || parts[0] != tag) return null
@@ -116,7 +138,7 @@ class GradleConsumerResolver(
         File(wrapperSource, "gradle/wrapper").copyRecursively(File(project, "gradle/wrapper"), overwrite = true)
     }
 
-    private fun write(
+    internal fun write(
         project: File,
         coordinate: Coordinate,
         repository: MavenRepository,
