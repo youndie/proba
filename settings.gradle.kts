@@ -9,7 +9,14 @@ pluginManagement {
         // through it. Filtered, like the repository below and for the same reason.
         maven("https://reposilite.kotlin.website/snapshots") {
             name = "wip-snapshots"
-            content { includeGroupByRegex("ru\\.workinprogress.*") }
+            content {
+                // Both groups on purpose. The portfolio is moving to `io.github.youndie` and sborka
+                // is already there — the plugin marker and the jar behind it are under the new one.
+                // The old one is held by the library versions published before the move: they are
+                // still on the server and resolve as before.
+                includeGroupByRegex("io\\.github\\.youndie.*")
+                includeGroupByRegex("ru\\.workinprogress.*")
+            }
         }
     }
 }
@@ -21,7 +28,7 @@ plugins {
     //
     // It also brings the check that this repository's `.editorconfig` is the one the rest of the
     // portfolio uses, which is the other half of pinning the formatter's version.
-    id("ru.workinprogress.sborka.settings") version "0.1.0.20"
+    id("io.github.youndie.sborka.settings") version "0.3.0.41"
 }
 
 include(":reader")
