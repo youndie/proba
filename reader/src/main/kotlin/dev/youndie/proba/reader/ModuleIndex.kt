@@ -55,6 +55,10 @@ private suspend fun advertisedVersions(
 ): List<String> {
     val url = repository.url("${group.replace('.', '/')}/$artifact/maven-metadata.xml")
     val body = fetcher.fetch(url).body ?: return emptyList()
+    @Suppress(
+        "ktlint:kapkan:cancellation-swallowed",
+        "the body is already fetched above; parsing it is synchronous and suspends nowhere",
+    )
     return runCatching {
         val document =
             DocumentBuilderFactory
@@ -81,6 +85,10 @@ class ReposiliteIndex(
 
     override suspend fun modules(group: String): List<String> {
         val body = fetcher.fetch("$details/${group.replace('.', '/')}").body ?: return emptyList()
+        @Suppress(
+            "ktlint:kapkan:cancellation-swallowed",
+            "the body is already fetched above; parsing it is synchronous and suspends nowhere",
+        )
         return runCatching {
             Json
                 .parseToJsonElement(body)
@@ -107,6 +115,10 @@ class MavenCentralIndex(
                 .fetch(
                     "https://search.maven.org/solrsearch/select?q=g:%22$group%22&rows=200&wt=json",
                 ).body ?: return emptyList()
+        @Suppress(
+            "ktlint:kapkan:cancellation-swallowed",
+            "the body is already fetched above; parsing it is synchronous and suspends nowhere",
+        )
         return runCatching {
             Json
                 .parseToJsonElement(body)

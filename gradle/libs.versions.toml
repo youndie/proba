@@ -1,7 +1,7 @@
 [versions]
 # The shared build conventions: the coordinate, the version, the toolchain, the style and the test
 # platform. Bumping this changes how every module is built.
-sborka = "0.3.0.41"
+sborka = "0.4.0.43"
 kotlin = "2.4.10"
 ktor = "3.4.0"
 serialization = "1.11.0"
