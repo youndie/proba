@@ -82,6 +82,10 @@ class PublicationReader(
             fetch(moduleUrl, tried)
                 ?: return absent(coordinate, repository, tried)
 
+        @Suppress(
+            "ktlint:kapkan:cancellation-swallowed",
+            "moduleBody is already fetched; decoding it is synchronous and suspends nowhere",
+        )
         val root =
             try {
                 json.decodeFromString<GmmDocument>(moduleBody)
@@ -104,7 +108,13 @@ class PublicationReader(
                             val body = url?.let { fetch(it, attempts) }
                             redirect.coordinate to
                                 (
-                                    body?.let { runCatching { json.decodeFromString<GmmDocument>(it) }.getOrNull() }
+                                    body?.let {
+                                        @Suppress(
+                                            "ktlint:kapkan:cancellation-swallowed",
+                                            "the body is already fetched; decoding it suspends nowhere",
+                                        )
+                                        runCatching { json.decodeFromString<GmmDocument>(it) }.getOrNull()
+                                    }
                                         to attempts.lastOrNull()?.status
                                 )
                         }

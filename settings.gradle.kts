@@ -27,7 +27,7 @@ plugins {
     //
     // It also brings the check that this repository's `.editorconfig` is the one the rest of the
     // portfolio uses, which is the other half of pinning the formatter's version.
-    id("io.github.youndie.sborka.settings") version "0.3.0.41"
+    id("io.github.youndie.sborka.settings") version "0.4.0.43"
 }
 
 include(":reader")

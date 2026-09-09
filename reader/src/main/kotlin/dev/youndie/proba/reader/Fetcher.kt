@@ -5,6 +5,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import java.io.File
 import java.net.URI
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Where documents come from.
@@ -36,6 +37,11 @@ class HttpFetcher(
         try {
             val response = client.get(url)
             FetchResult(response.status.value, if (response.status.value == 200) response.bodyAsText() else null)
+        } catch (failure: CancellationException) {
+            // A cancelled run is not a repository that failed to answer. Reported as one it becomes
+            // `status = 0` with a reason, and proba's whole job is to say what a consumer would
+            // actually get -- an answer it invented is worse than no answer.
+            throw failure
         } catch (failure: Exception) {
             FetchResult(0, null, failure.message ?: failure::class.simpleName)
         }
@@ -43,6 +49,10 @@ class HttpFetcher(
 
 /** Reads `file:` urls, which is what a local repository such as `~/.m2/repository` is addressed by. */
 object FileFetcher : Fetcher {
+    @Suppress(
+        "ktlint:kapkan:cancellation-swallowed",
+        "building a File from a URI is synchronous: there is no suspension point to be cancelled at",
+    )
     override suspend fun fetch(url: String): FetchResult {
         val file =
             try {
