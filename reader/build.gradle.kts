@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
+    alias(wip.plugins.kotlinJvm)
+    alias(wip.plugins.kotlinSerialization)
     application
     `java-test-fixtures`
     id("io.github.youndie.sborka.jvm")

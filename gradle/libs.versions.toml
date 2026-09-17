@@ -1,8 +1,10 @@
 [versions]
 # The shared build conventions: the coordinate, the version, the toolchain, the style and the test
 # platform. Bumping this changes how every module is built.
-sborka = "0.4.0.43"
-kotlin = "2.4.10"
+# The shared build conventions, and the compiler with them: the `wip` catalog this release
+# publishes carries `kotlin`, so there is no Kotlin version in this file to drift from the rest
+# of the portfolio.
+sborka = "0.4.0.87"
 ktor = "3.4.0"
 serialization = "1.11.0"
 coroutines = "1.11.0"
@@ -25,7 +27,6 @@ ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 asm = { module = "org.ow2.asm:asm", version = "9.9" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version = "9.9" }
-kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
@@ -34,7 +35,5 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sborkaJvm = { id = "io.github.youndie.sborka.jvm", version.ref = "sborka" }
 sborkaLint = { id = "io.github.youndie.sborka.lint", version.ref = "sborka" }

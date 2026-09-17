@@ -1,8 +1,8 @@
 import org.gradle.api.tasks.Copy
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
+    alias(wip.plugins.kotlinJvm)
+    alias(wip.plugins.kotlinSerialization)
     application
     id("io.github.youndie.sborka.jvm")
     id("io.github.youndie.sborka.lint")
