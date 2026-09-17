@@ -5,7 +5,7 @@
 # publishes carries `kotlin`, so there is no Kotlin version in this file to drift from the rest
 # of the portfolio.
 sborka = "0.4.0.87"
-ktor = "3.4.0"
+ktor = "3.6.0"
 serialization = "1.11.0"
 coroutines = "1.11.0"
 

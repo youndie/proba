@@ -11,8 +11,10 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.server.engine.embeddedServer
 import io.ktor.server.testing.testApplication
 import io.ktor.utils.io.readLine
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -20,6 +22,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.ktor.client.engine.cio.CIO as ClientCIO
+import io.ktor.server.cio.CIO as ServerCIO
 
 private const val GROUP = "io.github.youndie"
 private const val REPO = "https://repo.example/snapshots"
@@ -66,15 +70,20 @@ private fun repositoryWithIndex(): HttpClient =
     )
 
 class SweepTest {
-    private suspend fun HttpClient.stateOf(id: String) =
-        Json.parseToJsonElement(get("/sweep/$id/state").bodyAsText()).jsonObject
+    // `base` is empty for the tests that run under `testApplication`, where the client already knows
+    // the host, and an absolute prefix for the one that talks to a real socket.
+    private suspend fun HttpClient.stateOf(
+        id: String,
+        base: String = "",
+    ) = Json.parseToJsonElement(get("$base/sweep/$id/state").bodyAsText()).jsonObject
 
     private suspend fun HttpClient.awaitRead(
         id: String,
         modules: Int,
+        base: String = "",
     ) = withTimeout(20_000) {
-        while (stateOf(id)["read"]!!.jsonPrimitive.int() != modules) { /* the run is a background job */ }
-        stateOf(id)
+        while (stateOf(id, base)["read"]!!.jsonPrimitive.int() != modules) { /* the run is a background job */ }
+        stateOf(id, base)
     }
 
     @Test
@@ -113,46 +122,69 @@ class SweepTest {
 
     @Test
     fun `with a subscriber the frames are delivered and the screen changes`() =
-        testApplication {
-            application { proba(repositoryWithIndex()) }
+        // A REAL SERVER ON A REAL SOCKET, not `testApplication`, and the reason is the stream.
+        //
+        // Ktor 3.6.0's test host does not hand a flushed frame to the client until the response body
+        // has finished — and an event stream's body never finishes, so this test hung for the full
+        // minute instead of reading its first frame. The same code against `embeddedServer(CIO)`
+        // delivers in under half a second, on 3.6.0 and on 3.5.2 alike; reduced to a forty-line
+        // reproduction before this was changed.
+        //
+        // Which is the honest transport for this test anyway: what proba promises is what a consumer
+        // actually receives, and a consumer arrives over a socket.
+        runBlocking {
             val id = GROUP.replace('.', '_')
+            val server = embeddedServer(ServerCIO, port = 0) { proba(repositoryWithIndex()) }
+            server.start(wait = false)
+            val port =
+                server.engine
+                    .resolvedConnectors()
+                    .first()
+                    .port
+            val base = "http://127.0.0.1:$port"
 
             val frames = mutableListOf<String>()
             // Two clients on purpose: the streaming request and the one that starts the run must not share
             // a connection, or starting the run cuts the stream it was supposed to feed.
-            val listener = createClient { }
-            val trigger = createClient { }
-            listener.prepareGet("/updates/sweep:$id").execute { response ->
-                val channel = response.bodyAsChannel()
-                // The stream opens with a frame of its own, so "subscribed" is distinguishable from
-                // "connected to something that will never speak".
-                withTimeout(20_000) {
-                    while (channel.readLine()?.startsWith("event: open") != true) {
-                        // Read on until the handshake frame arrives; the timeout above bounds it.
+            val listener = HttpClient(ClientCIO)
+            val trigger = HttpClient(ClientCIO)
+            try {
+                listener.prepareGet("$base/updates/sweep:$id").execute { response ->
+                    val channel = response.bodyAsChannel()
+                    // The stream opens with a frame of its own, so "subscribed" is distinguishable from
+                    // "connected to something that will never speak".
+                    withTimeout(20_000) {
+                        while (channel.readLine()?.startsWith("event: open") != true) {
+                            // Read on until the handshake frame arrives; the timeout above bounds it.
+                        }
+                    }
+
+                    trigger.get("$base/sweep/$GROUP?repo=$REPO")
+
+                    withTimeout(30_000) {
+                        while (frames.size < 2) {
+                            val line = channel.readLine() ?: break
+                            // The open frame carries the topic, not a component: it is the handshake, and
+                            // collecting it as an update would make the very first assertion below vacuous.
+                            val payload = line.removePrefix("data: ")
+                            if (line.startsWith("data: ") && payload.startsWith("{")) frames += payload
+                        }
                     }
                 }
 
-                trigger.get("/sweep/$GROUP?repo=$REPO")
+                assertTrue(frames.size >= 2, "expected frames, got ${frames.size}")
+                val first = Json.parseToJsonElement(frames.first()).jsonObject
+                assertTrue(first.containsKey("componentId"), "a frame names the component it replaces")
+                assertTrue(first.containsKey("component"))
+                assertTrue(frames.any { it.contains("of 2 read") }, "the status line is one of the things that changes")
 
-                withTimeout(30_000) {
-                    while (frames.size < 2) {
-                        val line = channel.readLine() ?: break
-                        // The open frame carries the topic, not a component: it is the handshake, and
-                        // collecting it as an update would make the very first assertion below vacuous.
-                        val payload = line.removePrefix("data: ")
-                        if (line.startsWith("data: ") && payload.startsWith("{")) frames += payload
-                    }
-                }
+                val state = trigger.awaitRead(id, modules = 2, base = base)
+                assertTrue(state["framesDelivered"]!!.jsonPrimitive.int() > 0, "delivered nothing while subscribed")
+            } finally {
+                listener.close()
+                trigger.close()
+                server.stop(0, 0)
             }
-
-            assertTrue(frames.size >= 2, "expected frames, got ${frames.size}")
-            val first = Json.parseToJsonElement(frames.first()).jsonObject
-            assertTrue(first.containsKey("componentId"), "a frame names the component it replaces")
-            assertTrue(first.containsKey("component"))
-            assertTrue(frames.any { it.contains("of 2 read") }, "the status line is one of the things that changes")
-
-            val state = trigger.awaitRead(id, modules = 2)
-            assertTrue(state["framesDelivered"]!!.jsonPrimitive.int() > 0, "delivered nothing while subscribed")
         }
 }
 
