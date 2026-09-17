@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.kotlin.serialization) apply false
+    alias(wip.plugins.kotlinJvm) apply false
+    alias(wip.plugins.kotlinSerialization) apply false
     // The build conventions, declared here and applied per module: the coordinate, the version, the
     // toolchain, the JUnit platform, the style, and the check that every declared @Test ran.
     alias(libs.plugins.sborkaJvm) apply false
