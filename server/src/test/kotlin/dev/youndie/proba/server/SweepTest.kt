@@ -2,6 +2,7 @@ package dev.youndie.proba.server
 
 import dev.youndie.proba.reader.Fixtures
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO as ClientCIO
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
@@ -11,8 +12,11 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.server.cio.CIO as ServerCIO
+import io.ktor.server.engine.embeddedServer
 import io.ktor.server.testing.testApplication
 import io.ktor.utils.io.readLine
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -66,15 +70,20 @@ private fun repositoryWithIndex(): HttpClient =
     )
 
 class SweepTest {
-    private suspend fun HttpClient.stateOf(id: String) =
-        Json.parseToJsonElement(get("/sweep/$id/state").bodyAsText()).jsonObject
+    // `base` is empty for the tests that run under `testApplication`, where the client already knows
+    // the host, and an absolute prefix for the one that talks to a real socket.
+    private suspend fun HttpClient.stateOf(
+        id: String,
+        base: String = "",
+    ) = Json.parseToJsonElement(get("$base/sweep/$id/state").bodyAsText()).jsonObject
 
     private suspend fun HttpClient.awaitRead(
         id: String,
         modules: Int,
+        base: String = "",
     ) = withTimeout(20_000) {
-        while (stateOf(id)["read"]!!.jsonPrimitive.int() != modules) { /* the run is a background job */ }
-        stateOf(id)
+        while (stateOf(id, base)["read"]!!.jsonPrimitive.int() != modules) { /* the run is a background job */ }
+        stateOf(id, base)
     }
 
     @Test
@@ -113,16 +122,30 @@ class SweepTest {
 
     @Test
     fun `with a subscriber the frames are delivered and the screen changes`() =
-        testApplication {
-            application { proba(repositoryWithIndex()) }
+        // A REAL SERVER ON A REAL SOCKET, not `testApplication`, and the reason is the stream.
+        //
+        // Ktor 3.6.0's test host does not hand a flushed frame to the client until the response body
+        // has finished — and an event stream's body never finishes, so this test hung for the full
+        // minute instead of reading its first frame. The same code against `embeddedServer(CIO)`
+        // delivers in under half a second, on 3.6.0 and on 3.5.2 alike; reduced to a forty-line
+        // reproduction before this was changed.
+        //
+        // Which is the honest transport for this test anyway: what proba promises is what a consumer
+        // actually receives, and a consumer arrives over a socket.
+        runBlocking {
             val id = GROUP.replace('.', '_')
+            val server = embeddedServer(ServerCIO, port = 0) { proba(repositoryWithIndex()) }
+            server.start(wait = false)
+            val port = server.engine.resolvedConnectors().first().port
+            val base = "http://127.0.0.1:$port"
 
             val frames = mutableListOf<String>()
             // Two clients on purpose: the streaming request and the one that starts the run must not share
             // a connection, or starting the run cuts the stream it was supposed to feed.
-            val listener = createClient { }
-            val trigger = createClient { }
-            listener.prepareGet("/updates/sweep:$id").execute { response ->
+            val listener = HttpClient(ClientCIO)
+            val trigger = HttpClient(ClientCIO)
+            try {
+            listener.prepareGet("$base/updates/sweep:$id").execute { response ->
                 val channel = response.bodyAsChannel()
                 // The stream opens with a frame of its own, so "subscribed" is distinguishable from
                 // "connected to something that will never speak".
@@ -132,7 +155,7 @@ class SweepTest {
                     }
                 }
 
-                trigger.get("/sweep/$GROUP?repo=$REPO")
+                trigger.get("$base/sweep/$GROUP?repo=$REPO")
 
                 withTimeout(30_000) {
                     while (frames.size < 2) {
@@ -151,8 +174,13 @@ class SweepTest {
             assertTrue(first.containsKey("component"))
             assertTrue(frames.any { it.contains("of 2 read") }, "the status line is one of the things that changes")
 
-            val state = trigger.awaitRead(id, modules = 2)
+            val state = trigger.awaitRead(id, modules = 2, base = base)
             assertTrue(state["framesDelivered"]!!.jsonPrimitive.int() > 0, "delivered nothing while subscribed")
+            } finally {
+                listener.close()
+                trigger.close()
+                server.stop(0, 0)
+            }
         }
 }
 
