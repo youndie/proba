@@ -2,7 +2,6 @@ package dev.youndie.proba.server
 
 import dev.youndie.proba.reader.Fixtures
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO as ClientCIO
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
@@ -12,7 +11,6 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.server.cio.CIO as ServerCIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.testing.testApplication
 import io.ktor.utils.io.readLine
@@ -24,6 +22,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.ktor.client.engine.cio.CIO as ClientCIO
+import io.ktor.server.cio.CIO as ServerCIO
 
 private const val GROUP = "io.github.youndie"
 private const val REPO = "https://repo.example/snapshots"
@@ -136,7 +136,11 @@ class SweepTest {
             val id = GROUP.replace('.', '_')
             val server = embeddedServer(ServerCIO, port = 0) { proba(repositoryWithIndex()) }
             server.start(wait = false)
-            val port = server.engine.resolvedConnectors().first().port
+            val port =
+                server.engine
+                    .resolvedConnectors()
+                    .first()
+                    .port
             val base = "http://127.0.0.1:$port"
 
             val frames = mutableListOf<String>()
@@ -145,37 +149,37 @@ class SweepTest {
             val listener = HttpClient(ClientCIO)
             val trigger = HttpClient(ClientCIO)
             try {
-            listener.prepareGet("$base/updates/sweep:$id").execute { response ->
-                val channel = response.bodyAsChannel()
-                // The stream opens with a frame of its own, so "subscribed" is distinguishable from
-                // "connected to something that will never speak".
-                withTimeout(20_000) {
-                    while (channel.readLine()?.startsWith("event: open") != true) {
-                        // Read on until the handshake frame arrives; the timeout above bounds it.
+                listener.prepareGet("$base/updates/sweep:$id").execute { response ->
+                    val channel = response.bodyAsChannel()
+                    // The stream opens with a frame of its own, so "subscribed" is distinguishable from
+                    // "connected to something that will never speak".
+                    withTimeout(20_000) {
+                        while (channel.readLine()?.startsWith("event: open") != true) {
+                            // Read on until the handshake frame arrives; the timeout above bounds it.
+                        }
+                    }
+
+                    trigger.get("$base/sweep/$GROUP?repo=$REPO")
+
+                    withTimeout(30_000) {
+                        while (frames.size < 2) {
+                            val line = channel.readLine() ?: break
+                            // The open frame carries the topic, not a component: it is the handshake, and
+                            // collecting it as an update would make the very first assertion below vacuous.
+                            val payload = line.removePrefix("data: ")
+                            if (line.startsWith("data: ") && payload.startsWith("{")) frames += payload
+                        }
                     }
                 }
 
-                trigger.get("$base/sweep/$GROUP?repo=$REPO")
+                assertTrue(frames.size >= 2, "expected frames, got ${frames.size}")
+                val first = Json.parseToJsonElement(frames.first()).jsonObject
+                assertTrue(first.containsKey("componentId"), "a frame names the component it replaces")
+                assertTrue(first.containsKey("component"))
+                assertTrue(frames.any { it.contains("of 2 read") }, "the status line is one of the things that changes")
 
-                withTimeout(30_000) {
-                    while (frames.size < 2) {
-                        val line = channel.readLine() ?: break
-                        // The open frame carries the topic, not a component: it is the handshake, and
-                        // collecting it as an update would make the very first assertion below vacuous.
-                        val payload = line.removePrefix("data: ")
-                        if (line.startsWith("data: ") && payload.startsWith("{")) frames += payload
-                    }
-                }
-            }
-
-            assertTrue(frames.size >= 2, "expected frames, got ${frames.size}")
-            val first = Json.parseToJsonElement(frames.first()).jsonObject
-            assertTrue(first.containsKey("componentId"), "a frame names the component it replaces")
-            assertTrue(first.containsKey("component"))
-            assertTrue(frames.any { it.contains("of 2 read") }, "the status line is one of the things that changes")
-
-            val state = trigger.awaitRead(id, modules = 2, base = base)
-            assertTrue(state["framesDelivered"]!!.jsonPrimitive.int() > 0, "delivered nothing while subscribed")
+                val state = trigger.awaitRead(id, modules = 2, base = base)
+                assertTrue(state["framesDelivered"]!!.jsonPrimitive.int() > 0, "delivered nothing while subscribed")
             } finally {
                 listener.close()
                 trigger.close()
