@@ -36,13 +36,17 @@ inputs:
 runs:
   using: composite
   steps:
-    # 21, deliberately low: a composite action that pins a newer JDK imposes its own floor on every
-    # repository that uses it. See docs/research/architecture.md §1.11 for the constraint this used
-    # to carry and how it went away.
+    # 21 as the default, deliberately low: a composite action that pins a newer JDK imposes its own
+    # floor on every repository that uses it. See docs/research/architecture.md §1.11 for the
+    # constraint this used to carry and how it went away. 25 is installed beside it and listed first,
+    # so it is not the JAVA_HOME the caller's later steps inherit: it is only the toolchain proba's
+    # own build compiles with (sborka's default), which Gradle finds without a resolver.
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: "21"
+        java-version: |
+          25
+          21
 
     # No build root is passed, because neither build here would take one from this step. proba's own
     # build is rooted with `-p` in scripts/run-action.sh, and the consumer build runs in a project

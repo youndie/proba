@@ -13,9 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Java and Gradle in one step and at one version for the portfolio: the action installs 21 and
-      # 25 and leaves 25 as the default. What the modules compile to is `sborka.jvmToolchain=21`,
-      # fetched by the toolchain resolver — the comment that used to sit here said 25 and named a
-      # kompot defect that has since been fixed upstream.
+      # 25 and leaves 25 as the default. 25 is also the toolchain the modules are compiled BY; what
+      # they are compiled TO is `sborka.jvmFloor=21` — the comment that used to sit here said 25 and
+      # named a kompot defect that has since been fixed upstream.
       - uses: youndie/sborka/.github/actions/setup-kotlin@main
       - run: ./gradlew check
 
