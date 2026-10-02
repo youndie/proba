@@ -41,7 +41,7 @@ runs:
     # constraint this used to carry and how it went away. 25 is installed beside it and listed first,
     # so it is not the JAVA_HOME the caller's later steps inherit: it is only the toolchain proba's
     # own build compiles with (sborka's default), which Gradle finds without a resolver.
-    - uses: actions/setup-java@v4
+    - uses: actions/setup-java@v6
       with:
         distribution: temurin
         java-version: |
@@ -53,7 +53,7 @@ runs:
     # the resolver writes under RUNNER_TEMP — never in the caller's checkout. What this step is here
     # for is the Gradle User Home cache, which GradleConsumerResolver deliberately does not replace
     # with a home of its own.
-    - uses: gradle/actions/setup-gradle@v4
+    - uses: gradle/actions/setup-gradle@v6
 
     - shell: bash
       env:
