@@ -105,7 +105,16 @@ function styleOf(node: ModifierNode, theme: Theme): CSSProperties {
     case "background":
       // The foreground travels with the background: nothing on the wire can set the colour of text,
       // so this is the only point at which a server's choice reaches it.
-      return { background: theme.color(node.color), color: theme.onColor(node.color) };
+    {
+      // A role brings the shape of that surface and clips to it (SPEC.md §5.5): a card whose fill is
+      // rounded and whose content is not has square corners under the first child to reach the edge.
+      const corner = node.role ? theme.shape(node.role) : undefined;
+      return {
+        background: theme.color(node.color),
+        color: theme.onColor(node.color),
+        ...(corner === undefined ? {} : { borderRadius: corner, overflow: "hidden" }),
+      };
+    }
 
     case "gradient": {
       const colors = node.colors.map((token) => theme.color(token)).filter((it): it is string => it !== undefined);
@@ -146,6 +155,10 @@ function size(node: Extract<ModifierNode, { type: "size" }>): CSSProperties {
   else if (node.width === "Fill") style.width = "100%";
   if (node.heightDp != null) style.height = dp(node.heightDp);
   else if (node.height === "Fill") style.height = "100%";
+  // A ceiling, not a size (SPEC.md §5.6): the extent stays what it was and stops growing past this.
+  // CSS applies max-width before the width it bounds, which is the order the spec asks for.
+  if (node.maxWidthDp != null) style.maxWidth = dp(node.maxWidthDp);
+  if (node.maxHeightDp != null) style.maxHeight = dp(node.maxHeightDp);
   return style;
 }
 

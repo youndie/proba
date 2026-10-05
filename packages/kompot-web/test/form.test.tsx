@@ -139,6 +139,50 @@ describe("a form on screen", () => {
     expect(sent).toEqual([{ formId: "p", fieldId: "code", values: { code: { type: "text_value", text: "ABC" } } }]);
     await waitFor(() => expect((container.querySelectorAll("input")[1] as HTMLInputElement).value).toBe("42"));
   });
+
+  describe("an amount's currency (§9.7.10–12)", () => {
+    const amountSchema = {
+      formId: "a",
+      fields: [{ type: "amount_field", fieldId: "sum", rules: [] }],
+    } as unknown as FormSchema;
+    const field = (extra: Record<string, unknown>, draft?: Record<string, unknown>) => {
+      const { container } = render(
+        <KompotProvider>
+          <KompotForm
+            schema={amountSchema}
+            draft={draft as never}
+            screen={{ type: "amount_input", id: "i", fieldId: "sum", label: "Sum", ...extra } as unknown as AnyComponent}
+          />
+        </KompotProvider>,
+      );
+      const wrapper = container.querySelector("input")!.parentElement!;
+      const symbol = wrapper.querySelector<HTMLElement>('[data-kompot="currency"]')!;
+      const before = wrapper.firstElementChild === symbol;
+      return { wrapper, symbol, before };
+    };
+
+    it("puts a prefix in front and a suffix behind", () => {
+      expect(field({ currencyPrefix: "$" }).before).toBe(true);
+      expect(field({ currencySuffix: "€" }).before).toBe(false);
+    });
+
+    it("draws a currency from the value on the side the component named", () => {
+      const drawn = field({ currencyPrefix: "$" }, { sum: { type: "amount_value", long: 5, currency: "¥" } });
+      expect(drawn.symbol.textContent).toBe("¥");
+      expect(drawn.before).toBe(true);
+    });
+
+    it("draws the suffix when a server named both, as an older client would", () => {
+      const drawn = field({ currencyPrefix: "$", currencySuffix: "€" });
+      expect(drawn.symbol.textContent).toBe("€");
+      expect(drawn.before).toBe(false);
+    });
+
+    it("closes the gap only when told to", () => {
+      expect(field({ currencyPrefix: "$" }).wrapper.style.gap).toBe("4px");
+      expect(field({ currencyPrefix: "$", currencySpaced: false }).wrapper.style.gap).toBe("0");
+    });
+  });
 });
 
 function Capture(props: { onRender: (value: unknown) => void }) {

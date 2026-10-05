@@ -67,6 +67,12 @@ is the only reason to have them.
 A rule the engine does not know is reported by `unenforcedRules()`, so that "no error" stays
 distinguishable from "never checked".
 
+An `amount_input` draws its currency on the side the component names — `currencyPrefix` in front,
+`currencySuffix` behind, the suffix if a server named both — whichever place the symbol came from, and
+closes the gap only on `currencySpaced: false` (§9.7.10–12). A `background` with a `role` takes the
+shape the theme gives that role and clips to it (`themeWith(…, shapes)`, §5.5); the Material theme,
+like kompot's, gives none.
+
 A field with `triggersPatch` makes one `FormPatchRequest` per change, carrying the whole form as it is
 at that moment (§9.6). The engine records them (`requests()`, which the corpus reads) and `KompotForm`
 hands each to the host's `requestPatch`, applying the patch it answers with. Without a `requestPatch`

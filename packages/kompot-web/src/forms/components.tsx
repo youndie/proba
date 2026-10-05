@@ -295,13 +295,27 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
   },
 
   amount_input: (raw) => {
-    const c = raw as unknown as { fieldId: string; label: string; currencySuffix?: string | null; currencyFromField?: string | null };
+    const c = raw as unknown as {
+      fieldId: string;
+      label: string;
+      currencySuffix?: string | null;
+      currencyPrefix?: string | null;
+      currencyFromField?: string | null;
+      currencySpaced?: boolean;
+    };
+    // The side is the component's to name, whichever place the symbol itself came from (§9.7.10); a
+    // component that names both draws the suffix, because a client older than the prefix does
+    // (§9.7.11); and the gap is a third thing the currency says, a space unless told otherwise
+    // (§9.7.12). Neither field named keeps the suffix side, which is where a value's currency was
+    // always drawn.
+    const before = c.currencySuffix == null && c.currencyPrefix != null;
+    const spaced = c.currencySpaced !== false;
     return (
       <Field fieldId={c.fieldId} label={c.label}>
         {(binding) => {
           const current = binding.client.value(c.fieldId);
           const amount = current?.type === "amount_value" ? (current as { long?: number }).long : undefined;
-          // The currency lives in the value; the component's suffix is the fallback, and there is no
+          // The currency lives in the value; the component's symbol is the fallback, and there is no
           // third place (§9.7).
           const fromField = c.currencyFromField ? binding.client.value(c.currencyFromField) : undefined;
           const carried =
@@ -312,9 +326,16 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
             (current?.type === "amount_value" ? (current as { currency?: string | null }).currency : null) ??
             carried ??
             c.currencySuffix ??
+            c.currencyPrefix ??
             "";
+          const symbol = (
+            <span data-kompot="currency" data-side={before ? "before" : "after"}>
+              {currency}
+            </span>
+          );
           return (
-            <span style={{ display: "inline-flex", gap: "4px", alignItems: "baseline" }}>
+            <span style={{ display: "inline-flex", gap: spaced ? "4px" : 0, alignItems: "baseline" }}>
+              {before && symbol}
               <input
                 inputMode="numeric"
                 value={amount == null ? "" : String(amount)}
@@ -327,7 +348,7 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
                   );
                 }}
               />
-              <span data-kompot="currency">{currency}</span>
+              {!before && symbol}
             </span>
           );
         }}

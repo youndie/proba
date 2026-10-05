@@ -23,6 +23,14 @@ export interface Theme {
    * same degradation an unknown token gets.
    */
   onColor(backgroundToken: string): string | undefined;
+
+  /**
+   * The corner of a surface role, as a CSS `border-radius`, when the design system gives the role a
+   * shape (SPEC.md §5.5, §6). A `background` naming a role takes this shape and clips its content to
+   * it; the colour stays the node's own token. An unknown role, or one this theme names no shape for,
+   * keeps the square corner — so does every role here, as in kompot's own Material design system.
+   */
+  shape(role: string): string | undefined;
 }
 
 const materialColors: Record<string, string> = {
@@ -64,12 +72,14 @@ export const materialTheme: Theme = {
   color: (token) => materialColors[token],
   typography: (token) => materialTypography[token],
   onColor: materialPairs,
+  shape: () => undefined,
 };
 
 export function themeWith(
   colors: Record<string, string>,
   typography: Record<string, CSSProperties> = {},
   pairs: Record<string, string> = {},
+  shapes: Record<string, string> = {},
 ): Theme {
   const theme: Theme = {
     color: (token) => colors[token] ?? materialTheme.color(token),
@@ -79,6 +89,7 @@ export function themeWith(
       if (paired) return theme.color(paired);
       return colors[`on_${token}`] ?? materialTheme.onColor(token);
     },
+    shape: (role) => shapes[role] ?? materialTheme.shape(role),
   };
   return theme;
 }

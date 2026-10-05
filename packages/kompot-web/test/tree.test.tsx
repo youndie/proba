@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { KompotScreen } from "../src";
+import { KompotScreen, materialTheme, themeWith } from "../src";
 import type { AnyComponent, Degradation } from "../src";
 
 /**
@@ -118,6 +118,47 @@ describe("size", () => {
     const element = modifier(root, "size")!;
     expect(element.style.width).toBe("");
     expect(element.style.height).toBe("");
+  });
+});
+
+describe("a background with a role takes the surface's shape (§5.5)", () => {
+  const card = (role: string | undefined) =>
+    ({ type: "text", id: "t", text: "ok", modifiers: [{ type: "background", color: "surface", role }] }) as unknown as AnyComponent;
+  const rounded = themeWith({}, {}, {}, { container: "12px" });
+  const drawWith = (theme: typeof materialTheme, component: AnyComponent) =>
+    render(<KompotScreen component={component} theme={theme} />).container;
+
+  it("rounds and clips when the design system gives the role a shape", () => {
+    const background = modifier(drawWith(rounded, card("container")), "background")!;
+    expect(background.style.borderRadius).toBe("12px");
+    expect(background.style.overflow).toBe("hidden");
+    expect(background.style.background).not.toBe("");
+  });
+
+  it("keeps the square corner without a role, for an unknown role, and for a role with no shape", () => {
+    for (const [theme, role] of [
+      [rounded, undefined],
+      [rounded, "hologram"],
+      [materialTheme, "container"],
+    ] as const) {
+      const background = modifier(drawWith(theme, card(role)), "background")!;
+      expect(background.style.borderRadius).toBe("");
+      expect(background.style.overflow).toBe("");
+    }
+  });
+});
+
+describe("a size can carry a ceiling (§5.6)", () => {
+  it("bounds the extent rather than replacing it", () => {
+    const root = draw({
+      type: "text",
+      id: "t",
+      text: "ok",
+      modifiers: [{ type: "size", width: "Fill", maxWidthDp: 800 }],
+    } as unknown as AnyComponent);
+    const size = modifier(root, "size")!;
+    expect(size.style.width).toBe("100%");
+    expect(size.style.maxWidth).toBe("800px");
   });
 });
 
