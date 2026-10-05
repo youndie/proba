@@ -188,7 +188,7 @@ private fun markdown(
         }
     }
 
-private fun report(
+internal fun report(
     coordinate: Coordinate,
     deep: Boolean,
     findings: List<Finding>,
@@ -211,8 +211,20 @@ private fun report(
     }
     // Undetermined never fails a build. It means the check could not run here, and turning "I do not
     // know" into a red build teaches people to pass --fail-on none, which switches off the answers too.
-    val failing = failOn?.let { level -> findings.count { it.severity == level } } ?: 0
-    if (failing > 0) println()
-    if (failing > 0) println("  $failing ${failOn!!.name.lowercase()}(s) — failing as asked by --fail-on")
-    return if (failing > 0) 1 else 0
+    // A threshold, not a match: Severity runs from worst to least, and `--fail-on suspicion` means a
+    // suspicion or anything worse. Counted by equality, the stricter setting let a defect through.
+    if (failOn == null) return 0
+    val failing =
+        findings
+            .filter { it.severity.ordinal <= failOn.ordinal }
+            .groupingBy { it.severity }
+            .eachCount()
+            .toSortedMap()
+    if (failing.isEmpty()) return 0
+    // What was counted, per severity — not the threshold's name, which under `suspicion` would call a
+    // defect a suspicion.
+    val counted = failing.entries.joinToString(", ") { (severity, count) -> "$count ${severity.name.lowercase()}(s)" }
+    println()
+    println("  $counted — failing as asked by --fail-on ${failOn.name.lowercase()}")
+    return 1
 }
