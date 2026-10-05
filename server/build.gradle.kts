@@ -166,7 +166,8 @@ fun renderKompotTypes(classpath: Set<File>): String {
 
     // An isolated loader: Gradle has a kotlinx-serialization of its own, and the generator must run
     // against the one kompot-spec was built with.
-    val loader = URLClassLoader(classpath.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getPlatformClassLoader())
+    val urls = classpath.map { it.toURI().toURL() }.toTypedArray()
+    val loader = URLClassLoader(urls, ClassLoader.getPlatformClassLoader())
     val body =
         loader.use {
             val json: Any = loader.loadClass("kotlinx.serialization.json.Json").getField("Default").get(null)
@@ -181,8 +182,10 @@ fun renderKompotTypes(classpath: Set<File>): String {
                 .getMethod("render", Map::class.java, Boolean::class.javaPrimitiveType)
                 .invoke(generator.getField("INSTANCE").get(null), documents, false) as String
         }
-    return "// kompot-spec $version, TypeScriptDeclarations over the schemas in its jar. Regenerate: ./gradlew :server:kompotTypes\n" +
-        body
+    val provenance =
+        "// kompot-spec $version, TypeScriptDeclarations over the schemas in its jar. " +
+            "Regenerate: ./gradlew :server:kompotTypes"
+    return "$provenance\n$body"
 }
 
 tasks.register("kompotTypes") {
@@ -202,7 +205,8 @@ val checkKompotTypes =
         inputs.file(kompotTypesFile)
         doLast {
             check(kompotTypesFile.readText() == renderKompotTypes(kompotSpec.files)) {
-                "${kompotTypesFile.relativeTo(rootDir)} is not what the pinned kompot-spec prints. Run ./gradlew :server:kompotTypes"
+                "${kompotTypesFile.relativeTo(rootDir)} is not what the pinned kompot-spec prints. " +
+                    "Run ./gradlew :server:kompotTypes"
             }
         }
     }
