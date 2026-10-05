@@ -6,7 +6,8 @@
   "type": "module",
   "main": "./src/index.ts",
   "kompot": {
-    "repository": "https://reposilite.kotlin.website/snapshots"
+    "releases": "https://repo1.maven.org/maven2",
+    "snapshots": "https://reposilite.kotlin.website/snapshots"
   },
   "scripts": {
     "schema": "cd ../.. && ./gradlew -q :server:kompotTypes",
