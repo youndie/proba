@@ -15,8 +15,10 @@ const root = join(here, "..");
 const check = process.argv.includes("--check");
 
 const { kompot } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-const { repository } = kompot;
 const version = kompotVersion(root);
+// A release (X.Y.Z) is on Central and never in the snapshot repository; a CI-numbered snapshot
+// (X.Y.Z.N) is only in the snapshot repository. The pin says which one it is.
+const repository = /^\d+\.\d+\.\d+$/.test(version) ? kompot.releases : kompot.snapshots;
 const jarUrl = `${repository}/io/github/youndie/kompot/kompot-client-tck/${version}/kompot-client-tck-${version}.jar`;
 
 const work = mkdtempSync(join(tmpdir(), "kompot-corpus-"));
