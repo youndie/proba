@@ -7,8 +7,8 @@
   "extends": ["github>youndie/sborka"],
   "packageRules": [
     {
-      "description": "kompot moves as one thing across all three pins, because they are one version wearing three hats: the server compiles against it, the client's types are generated from it, and the corpus is fetched from it. A pull request that moves one of them is a repository that no longer agrees with itself. Named down to `kompot-` rather than the whole `io.github.youndie` group: the portfolio is migrating into that group, and a pattern ending at the group would pull sborka into this rule and label its bumps `kompot`.",
-      "matchPackageNames": ["/^io\\.github\\.youndie:kompot-/"],
+      "description": "kompot moves as one thing across all three pins, because they are one version wearing three hats: the server compiles against it, the client's types are generated from it, and the corpus is fetched from it. A pull request that moves one of them is a repository that no longer agrees with itself. Matched by kompot's own group, `io.github.youndie.kompot` (since 0.38), and nothing wider: a pattern on `io.github.youndie` would pull sborka into this rule and label its bumps `kompot`.",
+      "matchPackageNames": ["/^io\\.github\\.youndie\\.kompot:/"],
       "groupName": "kompot",
       "automerge": false,
       "addLabels": ["needs-work"],
@@ -21,7 +21,7 @@
       "description": "The libraries proba itself is built from. Grouped by ecosystem so a red build points at one of them rather than at a pull request that moved nine. kompot is carved out by the rule above; the sborka plugins are carved out so they keep arriving in the preset's `sborka` group, which is what keeps the settings plugin and the conventions on one number.",
       "matchManagers": ["gradle"],
       "matchPackageNames": [
-        "!/^io\\.github\\.youndie:kompot-/",
+        "!/^io\\.github\\.youndie\\.kompot:/",
         "!/^io\\.github\\.youndie\\.sborka/",
         "!/^ru\\.workinprogress\\.sborka/"
       ],

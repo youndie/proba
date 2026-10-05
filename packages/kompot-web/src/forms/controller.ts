@@ -1,4 +1,22 @@
-import type { FieldValue, FormCondition, FormFieldDefinition, FormPatch, FormSchema } from "../generated/kompot";
+import type { FieldValue, FormCondition, FormPatch, FormPatchRequest, FormSchema, ValidationRule } from "../generated/kompot";
+
+/**
+ * What the engine reads off a field definition — every variant of the hierarchy carries it.
+ *
+ * The generated `FormFieldDefinition` is a union of the known variants plus a branch for a type this
+ * build does not know, whose properties are all `unknown`. That branch is the open file's honesty
+ * about the wire, but the field hierarchies do not degrade (SPEC.md §2.2): a field of an unknown type
+ * is a broken response, not a field to draw around. So the engine reads every field through the part
+ * the variants share.
+ */
+interface FieldDefinition {
+  type: string;
+  fieldId: string;
+  rules?: ValidationRule[];
+  visibleIf?: FormCondition | null;
+  triggersPatch?: boolean;
+  initialValue?: FieldValue | null;
+}
 
 /**
  * The form engine of SPEC §9, run entirely on the client.
@@ -25,6 +43,18 @@ export interface FormClient {
   applyPatch(patch: FormPatch): void;
 
   submit(): SubmitResult;
+
+  /**
+   * What the engine has asked to send, in order: one `FormPatchRequest` per change of a field with
+   * `triggersPatch` (§9.6). A patch is the one rule of §9 visible only as an outgoing call, so it is
+   * recorded rather than only handed to `onPatchRequest`.
+   */
+  requests(): FormPatchRequest[];
+}
+
+export interface FormClientOptions {
+  /** Called with each patch request as it is made; the host sends it and applies the answer. */
+  onPatchRequest?: (request: FormPatchRequest) => void;
 }
 
 export interface SubmitResult {
@@ -51,15 +81,17 @@ export function createFormClient(
   schema: FormSchema,
   /** The draft a caller already had. It beats the schema's initialValue: one is what was, the other is a suggestion (§9.7). */
   draft: Record<string, FieldValue> = {},
+  options: FormClientOptions = {},
 ): FormClient & { unenforcedRules(): UnenforcedRule[] } {
-  const fields = schema.fields ?? [];
+  const fields = (schema.fields ?? []) as FieldDefinition[];
   const values: Record<string, FieldValue> = {};
+  const sent: FormPatchRequest[] = [];
   const touched = new Set<string>();
   let submitted = false;
   let focusOn: string | undefined;
 
   for (const field of fields) {
-    const initial = (field as { initialValue?: FieldValue | null }).initialValue;
+    const initial = field.initialValue;
     const existing = draft[field.fieldId];
     if (existing !== undefined) values[field.fieldId] = existing;
     else if (initial != null) values[field.fieldId] = initial;
@@ -67,9 +99,9 @@ export function createFormClient(
 
   const byId = new Map(fields.map((field) => [field.fieldId, field]));
 
-  const visible = (): FormFieldDefinition[] => fields.filter((field) => holds(field.visibleIf, values));
+  const visible = (): FieldDefinition[] => fields.filter((field) => holds(field.visibleIf, values));
 
-  const failure = (field: FormFieldDefinition): string | undefined => {
+  const failure = (field: FieldDefinition): string | undefined => {
     // In order, and the first failure wins: `regex` lets an empty value through on purpose, so the
     // whole difference between a required field and an optional one is that `required` comes first.
     for (const rule of field.rules ?? []) {
@@ -106,6 +138,13 @@ export function createFormClient(
     setValue(fieldId, value) {
       if (value === undefined) delete values[fieldId];
       else values[fieldId] = value;
+      // One request per change, carrying the whole form as it is now — the server computes from the
+      // snapshot, so a request with only the changed field would be answered against stale neighbours.
+      if (byId.get(fieldId)?.triggersPatch === true) {
+        const request: FormPatchRequest = { formId: schema.formId, fieldId, values: { ...values } };
+        sent.push(request);
+        options.onPatchRequest?.(request);
+      }
     },
 
     blur(fieldId) {
@@ -133,6 +172,8 @@ export function createFormClient(
       return { blocked: Object.keys(errors).length > 0, payload, errors, focusOn };
     },
 
+    requests: () => [...sent],
+
     unenforcedRules: () =>
       fields.flatMap((field) =>
         (field.rules ?? [])
@@ -145,10 +186,12 @@ export function createFormClient(
 const enforced = new Set(["required", "regex", "required_if", "max_amount_from_field"]);
 
 function check(
-  rule: { type: string; [k: string]: unknown },
+  definition: ValidationRule,
   value: FieldValue | undefined,
   values: Record<string, FieldValue>,
 ): string | undefined {
+  // Read by name: the rule set is a plug-in one, and a rule this build does not know still arrives.
+  const rule = definition as unknown as { type: string; [k: string]: unknown };
   switch (rule.type) {
     case "required":
       return empty(value) ? String(rule.errorMessage) : undefined;

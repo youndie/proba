@@ -1,6 +1,9 @@
 {
   "id": "9.4-a-hidden-field-is-not-validated",
   "clause": "§9.4",
+  "holds": [
+    "9.4.2"
+  ],
   "title": "a hidden field does not block a submit, however required it is",
   "why": "a required field nobody can see stops a form for a reason that is invisible on screen — the worst kind of refusal",
   "form": {

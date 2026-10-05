@@ -1,6 +1,9 @@
 {
   "id": "9.6-a-patch-clears-what-it-names",
   "clause": "§9.6",
+  "holds": [
+    "9.6.3"
+  ],
   "title": "clearFields empties a field rather than setting it to something",
   "why": "a choice that invalidates a neighbour has to be able to say so; setting an empty string instead leaves a value that passes a required rule",
   "form": {

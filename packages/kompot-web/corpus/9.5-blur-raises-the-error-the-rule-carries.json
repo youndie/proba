@@ -1,6 +1,10 @@
 {
   "id": "9.5-blur-raises-the-error-the-rule-carries",
   "clause": "§9.5",
+  "holds": [
+    "9.5.4",
+    "9.5.5"
+  ],
   "title": "the message shown is the one the rule carries, ready to read",
   "why": "errorMessage is finished localised text (§14), not a key: a client that translates it has nothing to translate it from",
   "form": {

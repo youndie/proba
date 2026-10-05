@@ -1,6 +1,10 @@
 {
   "id": "9.5-required-before-regex-blocks-an-empty-value",
   "clause": "§9.5",
+  "holds": [
+    "9.5.3",
+    "9.5.6"
+  ],
   "title": "the order of rules is significant: required first is what makes an empty value fail",
   "why": "the same two rules in the other order accept an empty value silently, which is why the clause says required SHOULD come first",
   "form": {

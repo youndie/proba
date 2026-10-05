@@ -1,6 +1,10 @@
 {
   "id": "9.6-a-patch-replaces-a-value",
   "clause": "§9.6",
+  "holds": [
+    "9.6.3",
+    "9.7.1"
+  ],
   "title": "a patch's updates land on the fields already rendered",
   "why": "this is how a server auto-fills without reissuing the form, and a client that ignores it shows stale values with no sign of it",
   "form": {

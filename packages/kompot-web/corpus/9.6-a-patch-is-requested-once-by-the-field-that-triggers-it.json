@@ -1,0 +1,63 @@
+{
+  "id": "9.6-a-patch-is-requested-once-by-the-field-that-triggers-it",
+  "clause": "§9.6",
+  "holds": [
+    "9.6.1"
+  ],
+  "title": "changing a field with triggersPatch sends one patch carrying the whole current form",
+  "why": "the patch is the one rule of §9 that is only visible as an outgoing call: a client that never sends it, sends one per keystroke, or sends a stale snapshot holds state that looks perfect the whole time",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "selection_field",
+        "fieldId": "tariff",
+        "rules": [],
+        "triggersPatch": true
+      },
+      {
+        "type": "text_field",
+        "fieldId": "note",
+        "rules": []
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "note",
+      "value": {
+        "type": "text_value",
+        "text": "for the trip"
+      }
+    },
+    {
+      "step": "set",
+      "fieldId": "tariff",
+      "value": {
+        "type": "entity_value",
+        "id": "t-1",
+        "title": "Roaming 5 GB"
+      }
+    }
+  ],
+  "expect": {
+    "requests": [
+      {
+        "kind": "patch",
+        "fieldId": "tariff",
+        "values": {
+          "note": {
+            "type": "text_value",
+            "text": "for the trip"
+          },
+          "tariff": {
+            "type": "entity_value",
+            "id": "t-1",
+            "title": "Roaming 5 GB"
+          }
+        }
+      }
+    ]
+  }
+}

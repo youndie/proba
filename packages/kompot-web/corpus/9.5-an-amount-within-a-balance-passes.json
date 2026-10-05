@@ -1,6 +1,10 @@
 {
   "id": "9.5-an-amount-within-a-balance-passes",
   "clause": "§9.5",
+  "holds": [
+    "9.5.1",
+    "9.7.5"
+  ],
   "title": "the same rule stays out of the way while the amount fits",
   "why": "a cross-field rule that refuses everything is indistinguishable from one that works, until somebody tries to submit a valid form",
   "form": {
