@@ -3,7 +3,7 @@
 // React Server Components cannot hold a context or a hook, and this file has both. Without the
 // directive a framework that renders on the server refuses the whole import chain — which is every
 // consumer who wanted server-rendered kompot screens in the first place.
-import type { CSSProperties, ReactNode } from "react";
+import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { dp } from "./modifiers";
 import { KompotNode, type KompotEnvironment } from "./render";
 import type {
@@ -11,8 +11,10 @@ import type {
   AnyComponent,
   KompotComponentButton,
   KompotComponentColumn,
+  KompotComponentDivider,
   KompotComponentPaginatedList,
   KompotComponentRow,
+  KompotComponentSpacer,
   KompotComponentTable,
   KompotComponentText,
   TableRow,
@@ -55,6 +57,9 @@ const text: Renderer = (raw, environment) => {
   return (
     <span
       data-kompot="text"
+      // A heading for a screen reader to move between (SPEC.md §4.11). The protocol names no level.
+      role={component.heading ? "heading" : undefined}
+      aria-level={component.heading ? 2 : undefined}
       style={{ ...textStyle(component.style, environment), ...textColor(component.color, environment), ...clamp }}
     >
       {spans.length === 0 ? component.text : spans.map((span, index) => renderSpan(span, index, environment))}
@@ -95,11 +100,40 @@ const button: Renderer = (raw, environment) => {
       type="button"
       data-kompot="button"
       data-variant={component.variant ?? undefined}
+      aria-label={component.accessibilityLabel ?? undefined}
       onClick={() => environment.onAction(component.action as AnyAction)}
     >
       {component.text}
     </button>
   );
+};
+
+/** The axis of the nearest stack: what a `divider` is drawn across and a `spacer` along (SPEC.md §4.10). */
+const AxisContext = createContext<"row" | "column" | null>(null);
+
+/**
+ * `alignment` and `arrangement` are open words: an unfamiliar one means `start` (SPEC.md §4.7).
+ *
+ * Applied only when the server sent the field. Without it the stack keeps what it always drew here —
+ * CSS's own default stretches a column's children across, where the protocol's `start` would wrap
+ * them — so that a server not using the field sees no change from this release.
+ */
+const crossAxis: Record<string, string> = { start: "flex-start", center: "center", end: "flex-end" };
+
+/**
+ * `spacing` stays the smallest gap and the arrangement shares only what is left over it, and a stack
+ * that does not fit is laid out from the start (SPEC.md §4.7). CSS says the same with `gap` beside
+ * `justify-content` — the free space is what remains after the gaps — once `center` and `end` are
+ * `safe`, so that an overflowing stack does not push its first child off the leading edge. The
+ * `space-*` keywords fall back to the start by themselves.
+ */
+const mainAxis: Record<string, string> = {
+  start: "flex-start",
+  center: "safe center",
+  end: "safe flex-end",
+  space_between: "space-between",
+  space_around: "space-around",
+  space_evenly: "space-evenly",
 };
 
 /**
@@ -110,23 +144,83 @@ function stack(direction: "row" | "column"): Renderer {
   return (raw, environment) => {
     const component = raw as unknown as KompotComponentRow | KompotComponentColumn;
     const action = component.action as AnyAction | null | undefined;
+    const alignment = component.alignment == null ? undefined : (crossAxis[component.alignment] ?? crossAxis.start);
+    const arrangement =
+      component.arrangement == null ? undefined : (mainAxis[component.arrangement] ?? mainAxis.start);
     return (
       <div
         data-kompot={direction}
+        data-alignment={component.alignment ?? undefined}
+        data-arrangement={component.arrangement ?? undefined}
+        // A container that does something is a button to assistive technology, and reads the server's
+        // words instead of its children when it was given some (SPEC.md §4.11).
+        role={action ? "button" : undefined}
+        tabIndex={action ? 0 : undefined}
+        aria-label={action ? (component.accessibilityLabel ?? undefined) : undefined}
         style={{
           display: "flex",
           flexDirection: direction,
           gap: component.spacing ? dp(component.spacing) : undefined,
+          alignItems: alignment,
+          justifyContent: arrangement,
           cursor: action ? "pointer" : undefined,
         }}
         onClick={action ? () => environment.onAction(action) : undefined}
+        onKeyDown={
+          action
+            ? (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  environment.onAction(action);
+                }
+              }
+            : undefined
+        }
       >
-        {(component.children ?? []).map((child, index) => (
-          <KompotNode key={(child as { id?: string }).id ?? index} component={child as AnyComponent} />
-        ))}
+        <AxisContext.Provider value={direction}>
+          {(component.children ?? []).map((child, index) => (
+            <KompotNode key={(child as { id?: string }).id ?? index} component={child as AnyComponent} />
+          ))}
+        </AxisContext.Provider>
       </div>
     );
   };
+}
+
+/** A line across the stack's axis: horizontal in a column and outside any stack, vertical in a row. */
+function Divider(props: { component: KompotComponentDivider; environment: KompotEnvironment }): ReactNode {
+  const axis = useContext(AxisContext);
+  const { theme } = props.environment;
+  // The design system's line unless the server named a token, and an unknown token falls back to it
+  // as well: the token is open, so not knowing it costs the colour and not the line.
+  const colour = (props.component.color ? theme.color(props.component.color) : undefined) ?? theme.color("outline");
+  const vertical = axis === "row";
+  return (
+    <div
+      data-kompot="divider"
+      role="separator"
+      aria-orientation={vertical ? "vertical" : "horizontal"}
+      style={{
+        flexShrink: 0,
+        alignSelf: "stretch",
+        background: colour,
+        ...(vertical ? { width: "1px" } : { height: "1px" }),
+      }}
+    />
+  );
+}
+
+/** Room along the stack's axis; a `weight` on it takes a share instead, through the modifier chain. */
+function Spacer(props: { component: KompotComponentSpacer }): ReactNode {
+  const axis = useContext(AxisContext);
+  const size = dp(props.component.size ?? 0);
+  return (
+    <div
+      data-kompot="spacer"
+      aria-hidden
+      style={{ flexShrink: 0, ...(axis === "row" ? { width: size } : { height: size }) }}
+    />
+  );
 }
 
 const table: Renderer = (raw) => {
@@ -161,9 +255,12 @@ const paginatedList: Renderer = (raw) => {
   }
   return (
     <div data-kompot="paginated-list" data-has-more={component.loadMoreAction ? "true" : "false"}>
-      {items.map((item, index) => (
-        <KompotNode key={(item as { id?: string }).id ?? index} component={item as AnyComponent} />
-      ))}
+      {/* Items stack down, whatever the list itself stands in. */}
+      <AxisContext.Provider value="column">
+        {items.map((item, index) => (
+          <KompotNode key={(item as { id?: string }).id ?? index} component={item as AnyComponent} />
+        ))}
+      </AxisContext.Provider>
     </div>
   );
 };
@@ -176,6 +273,8 @@ export const renderers: Record<string, Renderer> = {
   button,
   row: stack("row"),
   column: stack("column"),
+  divider: (raw, environment) => <Divider component={raw as unknown as KompotComponentDivider} environment={environment} />,
+  spacer: (raw) => <Spacer component={raw as unknown as KompotComponentSpacer} />,
   table,
   paginated_list: paginatedList,
 };

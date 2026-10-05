@@ -1,4 +1,4 @@
-export { KompotScreen, KompotNode, KompotProvider, useKompot, type KompotEnvironment } from "./render";
+export { KompotScreen, KompotNode, KompotProvider, useKompot, type Degradation, type KompotEnvironment } from "./render";
 export { applyModifiers, dp } from "./modifiers";
 export { materialTheme, themeWith, type Theme } from "./theme";
 export { webActionHandler, type ActionHandler, type WebActionOptions } from "./actions";

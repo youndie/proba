@@ -30,8 +30,8 @@ that quietly stops being true.
 
 ### What it draws
 
-Six components — `text`, `button`, `row`, `column`, `table`, `paginated_list` — five modifier nodes,
-and the five standard actions.
+`text`, `button`, `row`, `column`, `table`, `paginated_list`, `divider` and `spacer`, five modifier
+nodes, and the five original standard actions.
 
 - **the modifier chain is ordered**, so it becomes one element per node with the first outermost:
   `padding` then `background` covers less than `background` then `padding`, and a single element's
@@ -39,9 +39,13 @@ and the five standard actions.
 - **a weighted child takes its whole share**, so a background on it paints the share rather than the
   text — which only looks wrong with short strings, and is why the tests use them;
 - **dp is a CSS pixel**, one to one, because a CSS pixel is already density-independent;
-- **an unknown component becomes a placeholder** and an unknown token loses its styling: the
-  hierarchy is open so a server can ship a component before its clients know it, and that is worth
-  nothing if the screen dies on arrival.
+- **`spacing` is the smallest gap an `arrangement` leaves** (§4.7) — `gap` beside `justify-content`,
+  with `safe` on `center` and `end` so that a stack too wide for its frame starts at its leading edge.
+  Both are measured in a browser, with the unsafe encoding beside them;
+- **an unknown component takes the server's equivalent** — its `fallback`, degrading again one level
+  down if that is unknown too — **and otherwise draws nothing** (§2.1). Either way it is reported to
+  `onDegradation` with what was drawn instead: `server_fallback`, `nothing`, or `placeholder` when the
+  host supplied `renderUnknown`. An unknown token loses its styling and nothing else.
 
 ### Forms
 
@@ -73,10 +77,13 @@ the keys a case may carry from `client-corpus.schema.json`, which travels with t
 
 ### What it does not draw yet
 
-Wizards, server-driven themes, and loading further pages of a `paginated_list` — the first page and
-the empty state are drawn, and no control is offered for the rest. A button that silently fails would
-be worse than one that is not there. An `autocomplete_input` without a host-supplied `suggest`
-renders disabled and says why, rather than vanishing and leaving a form nobody can complete.
+`box`, `tabs`, `expandable`, `image`, a scrolling `row`, and the actions kompot 0.38 added
+(`show_message`, `confirm`, `present`, `sequence`, `refresh`, …) — each degrades as §2.1 says, and the
+list is [#35](https://github.com/youndie/proba/issues/35). Also wizards, server-driven themes, and
+loading further pages of a `paginated_list` — the first page and the empty state are drawn, and no
+control is offered for the rest. A button that silently fails would be worse than one that is not
+there. An `autocomplete_input` without a host-supplied `suggest` renders disabled and says why, rather
+than vanishing and leaving a form nobody can complete.
 
 ### What the tests establish
 

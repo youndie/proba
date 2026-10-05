@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { KompotScreen } from "../src";
-import type { AnyComponent } from "../src";
+import type { AnyComponent, Degradation } from "../src";
 
 /**
  * What these tests hold, and what they do not.
@@ -148,6 +148,126 @@ describe("an open hierarchy degrades", () => {
 
     expect(root.textContent).toBe("still here");
     expect(modifier(root, "background")!.style.background).toBe("");
+  });
+});
+
+describe("an unknown type takes the server's equivalent", () => {
+  const reported = (component: AnyComponent, renderUnknown?: (c: AnyComponent) => null) => {
+    const seen: Degradation[] = [];
+    const { container } = render(
+      <KompotScreen component={component} renderUnknown={renderUnknown} onDegradation={(it) => seen.push(it)} />,
+    );
+    return { root: container, seen };
+  };
+
+  it("draws the fallback the node carries instead of nothing", () => {
+    const { root, seen } = reported({
+      type: "box",
+      id: "hero",
+      children: [],
+      fallback: { type: "text", id: "hero-plain", text: "the plain version" },
+    } as unknown as AnyComponent);
+
+    expect(root.textContent).toBe("the plain version");
+    expect(root.querySelector("[data-kompot-unknown]")).toBeNull();
+    expect(seen).toEqual([{ kind: "unknown_component", type: "box", id: "hero", outcome: "server_fallback" }]);
+  });
+
+  it("degrades again one level down when the fallback is unknown too", () => {
+    const { root, seen } = reported({
+      type: "carousel_v2",
+      id: "a",
+      fallback: { type: "carousel_v1", id: "b", fallback: { type: "text", id: "c", text: "last resort" } },
+    } as unknown as AnyComponent);
+
+    expect(root.textContent).toBe("last resort");
+    expect(seen.map((it) => [it.type, it.outcome])).toEqual([
+      ["carousel_v1", "server_fallback"],
+      ["carousel_v2", "server_fallback"],
+    ]);
+  });
+
+  it("reports a node it drew nothing for, and says whose placeholder it was", () => {
+    const quiet = reported({ type: "promo", id: "p" } as unknown as AnyComponent);
+    expect(quiet.seen).toEqual([{ kind: "unknown_component", type: "promo", id: "p", outcome: "nothing" }]);
+
+    const marked = reported({ type: "promo", id: "p" } as unknown as AnyComponent, () => null);
+    expect(marked.seen.map((it) => it.outcome)).toEqual(["placeholder"]);
+  });
+
+  it("reports nothing for the types it knows", () => {
+    const { seen } = reported({ type: "text", id: "t", text: "fine" } as unknown as AnyComponent);
+    expect(seen).toEqual([]);
+  });
+});
+
+describe("the 0.38 layout words", () => {
+  it("draws a divider across the axis of the stack it stands in", () => {
+    const root = draw({
+      type: "column",
+      id: "c",
+      children: [
+        { type: "divider", id: "across" },
+        { type: "row", id: "r", children: [{ type: "divider", id: "down", color: "error" }] },
+      ],
+    } as unknown as AnyComponent);
+
+    const [horizontal, vertical] = Array.from(root.querySelectorAll<HTMLElement>('[data-kompot="divider"]'));
+    expect(horizontal!.getAttribute("aria-orientation")).toBe("horizontal");
+    expect(horizontal!.style.height).toBe("1px");
+    expect(vertical!.getAttribute("aria-orientation")).toBe("vertical");
+    expect(vertical!.style.width).toBe("1px");
+    expect(vertical!.style.background).not.toBe(horizontal!.style.background);
+  });
+
+  it("gives a spacer its size along the axis", () => {
+    const root = draw({
+      type: "row",
+      id: "r",
+      children: [{ type: "spacer", id: "s", size: 24 }],
+    } as unknown as AnyComponent);
+
+    const spacer = root.querySelector<HTMLElement>('[data-kompot="spacer"]')!;
+    expect(spacer.style.width).toBe("24px");
+    expect(spacer.style.height).toBe("");
+  });
+
+  it("reads alignment and arrangement as open words, an unfamiliar one meaning start", () => {
+    const stackOf = (alignment: string, arrangement: string) =>
+      draw({ type: "row", id: "r", alignment, arrangement, children: [] } as unknown as AnyComponent).querySelector<HTMLElement>(
+        '[data-kompot="row"]',
+      )!;
+
+    const known = stackOf("center", "space_between");
+    expect(known.style.alignItems).toBe("center");
+    expect(known.style.justifyContent).toBe("space-between");
+
+    const unfamiliar = stackOf("baseline_ish", "spread_out");
+    expect(unfamiliar.style.alignItems).toBe("flex-start");
+    expect(unfamiliar.style.justifyContent).toBe("flex-start");
+  });
+
+  it("leaves a stack that does not send the fields as it always was", () => {
+    const row = draw({ type: "row", id: "r", children: [] } as unknown as AnyComponent).querySelector<HTMLElement>(
+      '[data-kompot="row"]',
+    )!;
+    expect(row.style.alignItems).toBe("");
+    expect(row.style.justifyContent).toBe("");
+  });
+
+  it("marks a heading and a container that acts as a button, for a screen reader", () => {
+    const root = draw({
+      type: "column",
+      id: "c",
+      action: { type: "navigate", deeplink: "app://card" },
+      accessibilityLabel: "Open the card",
+      children: [{ type: "text", id: "t", text: "Title", heading: true }],
+    } as unknown as AnyComponent);
+
+    const container = root.querySelector<HTMLElement>('[data-kompot="column"]')!;
+    expect(container.getAttribute("role")).toBe("button");
+    expect(container.getAttribute("aria-label")).toBe("Open the card");
+    expect(root.querySelector('[role="heading"]')!.textContent).toBe("Title");
   });
 });
 
