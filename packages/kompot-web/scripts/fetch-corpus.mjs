@@ -8,25 +8,18 @@ import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSyn
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { kompotVersion } from "./kompot-version.mjs";
+import { download, kompotJar } from "./kompot-version.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
 const check = process.argv.includes("--check");
 
-const { kompot } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-const version = kompotVersion(root);
-// A release (X.Y.Z) is on Central and never in the snapshot repository; a CI-numbered snapshot
-// (X.Y.Z.N) is only in the snapshot repository. The pin says which one it is.
-const repository = /^\d+\.\d+\.\d+$/.test(version) ? kompot.releases : kompot.snapshots;
-const jarUrl = `${repository}/io/github/youndie/kompot/kompot-client-tck/${version}/kompot-client-tck-${version}.jar`;
+const { version, url: jarUrl } = kompotJar(root, "kompot-client-tck");
 
 const work = mkdtempSync(join(tmpdir(), "kompot-corpus-"));
 try {
   const jar = join(work, "tck.jar");
-  const response = await fetch(jarUrl);
-  if (!response.ok) throw new Error(`${jarUrl} answered ${response.status}`);
-  writeFileSync(jar, Buffer.from(await response.arrayBuffer()));
+  await download(jarUrl, jar);
   execFileSync("unzip", ["-q", "-o", jar, "*.json", "-d", work]);
 
   const index = JSON.parse(readFileSync(join(work, "index.json"), "utf8"));

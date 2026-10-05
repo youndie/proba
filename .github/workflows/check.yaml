@@ -36,10 +36,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter kompot-web test
       - run: pnpm --filter kompot-web typecheck
-      # The corpus must still be what the pinned kompot version publishes. Without this it is a copy,
-      # and a copy nobody regenerates stops being true quietly. The generated types are held the same
-      # way, in the jvm job: kompot's own generator prints them, and it runs on the JVM
-      # (`:server:checkKompotTypes`, part of `check`).
+      # The types and the corpus must still be what the pinned kompot version publishes. Without this
+      # each is a copy, and a copy nobody regenerates stops being true quietly. Both come out of
+      # published jars (kompot-spec ships its own `.d.ts` since kompot#208), so neither needs a JVM.
+      - run: pnpm --filter kompot-web schema:check
       - run: pnpm --filter kompot-web corpus:check
       # Boxes, not styles. The runner has Chrome, so this costs no download.
       - run: ./scripts/gate-layout.sh

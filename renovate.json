@@ -7,7 +7,7 @@
   "extends": ["github>youndie/sborka"],
   "packageRules": [
     {
-      "description": "kompot moves as one thing across all three pins, because they are one version wearing three hats: the server compiles against it, the client's types are generated from it, and the corpus is fetched from it. A pull request that moves one of them is a repository that no longer agrees with itself. Matched by kompot's own group, `io.github.youndie.kompot` (since 0.38), and nothing wider: a pattern on `io.github.youndie` would pull sborka into this rule and label its bumps `kompot`.",
+      "description": "kompot moves as one thing across all three pins, because they are one version wearing three hats: the server compiles against it, the client's types and the corpus are both taken from its jars. A pull request that moves one of them is a repository that no longer agrees with itself. Matched by kompot's own group, `io.github.youndie.kompot` (since 0.38), and nothing wider: a pattern on `io.github.youndie` would pull sborka into this rule and label its bumps `kompot`.",
       "matchPackageNames": ["/^io\\.github\\.youndie\\.kompot:/"],
       "groupName": "kompot",
       "automerge": false,
