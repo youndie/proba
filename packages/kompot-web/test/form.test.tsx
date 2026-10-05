@@ -183,6 +183,39 @@ describe("a form on screen", () => {
       expect(field({ currencyPrefix: "$", currencySpaced: false }).wrapper.style.gap).toBe("0");
     });
   });
+
+  it("binds a read-only field that names a fieldId, and leaves one that does not alone (§9.2)", async () => {
+    const bound = {
+      formId: "r",
+      fields: [
+        { type: "text_field", fieldId: "code", rules: [], triggersPatch: true },
+        { type: "text_field", fieldId: "total", rules: [] },
+      ],
+    } as unknown as FormSchema;
+    const tree = {
+      type: "column",
+      id: "form",
+      children: [
+        { type: "text_input", id: "i1", fieldId: "code", label: "Code" },
+        { type: "read_only_field", id: "t", fieldId: "total", label: "Total", value: "—" },
+        { type: "read_only_field", id: "n", label: "Note", value: "server text" },
+      ],
+    } as unknown as AnyComponent;
+    const { container } = render(
+      <KompotProvider>
+        <KompotForm
+          schema={bound}
+          screen={tree}
+          requestPatch={async () => ({ updates: { total: { type: "text_value", text: "€42" } } })}
+        />
+      </KompotProvider>,
+    );
+    const shown = () => Array.from(container.querySelectorAll('[data-kompot="read-only-field"]')).map((it) => it.textContent);
+
+    expect(shown()).toEqual(["Total—", "Noteserver text"]);
+    fireEvent.change(container.querySelector("input")!, { target: { value: "A" } });
+    await waitFor(() => expect(shown()).toEqual(["Total€42", "Noteserver text"]));
+  });
 });
 
 function Capture(props: { onRender: (value: unknown) => void }) {

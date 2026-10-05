@@ -365,15 +365,56 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
     );
   },
 
-  read_only_field: (raw) => {
-    // No fieldId, not declared in the schema, and never part of a payload (§9.2).
-    const c = raw as unknown as { label: string; value: string; helperText?: string | null };
-    return (
-      <div data-kompot="read-only-field">
-        <span>{c.label}</span>
-        <span>{c.value}</span>
-        {c.helperText != null && <span>{c.helperText}</span>}
-      </div>
-    );
-  },
+  read_only_field: (raw) => <ReadOnlyField component={raw as unknown as ReadOnly} />,
 };
+
+interface ReadOnly {
+  label: string;
+  value: string;
+  helperText?: string | null;
+  fieldId?: string | null;
+}
+
+/**
+ * Without `fieldId` the server's text, never declared and never sent (§9.2). With one it is an
+ * ordinary bound field that cannot be typed into: it follows `visibleIf`, takes a patch, and goes out
+ * with the submit — the place a server-computed total lives (§9.6.5). Bound only when the server said
+ * so: reading the engine for an unbound one would turn "no value" into an empty box where the
+ * server's own text used to be.
+ */
+function ReadOnlyField(props: { component: ReadOnly }): ReactNode {
+  const { component } = props;
+  const binding = useForm();
+  const fieldId = component.fieldId ?? undefined;
+  if (fieldId !== undefined && binding && !binding.client.visibleFields().includes(fieldId)) return null;
+  const bound = fieldId !== undefined && binding ? plainValue(binding.client.value(fieldId)) : undefined;
+  return (
+    <div data-kompot="read-only-field" data-kompot-field={fieldId}>
+      <span>{component.label}</span>
+      <span>{bound ?? component.value}</span>
+      {component.helperText != null && <span>{component.helperText}</span>}
+    </div>
+  );
+}
+
+/**
+ * The string a value reads as — what the Kotlin values call `plainValue`, kept identical so that one
+ * response reads the same on both clients: an entity's id rather than its title, an amount without its
+ * currency (the server sends formatted text as a `text_value` when it wants one, §9.6).
+ */
+function plainValue(value: FieldValue | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  const v = value as { type: string; text?: unknown; id?: unknown; long?: unknown; value?: unknown };
+  switch (v.type) {
+    case "text_value":
+      return String(v.text ?? "");
+    case "entity_value":
+      return String(v.id ?? "");
+    case "amount_value":
+      return String(v.long ?? "");
+    case "boolean_value":
+      return String(v.value);
+    default:
+      return undefined;
+  }
+}
