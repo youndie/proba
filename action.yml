@@ -21,7 +21,9 @@ inputs:
     required: false
     default: "true"
   fail-on:
-    description: defect | suspicion | none
+    description: >
+      defect | suspicion | none — the least severe finding that fails the step. `suspicion` fails on
+      a suspicion or anything worse, a defect included; `undetermined` never fails it.
     required: false
     default: defect
   badge-dir:

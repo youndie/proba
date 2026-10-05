@@ -103,13 +103,14 @@ screen nobody watches.
       io.github.youndie:kompot-core:0.27.1.50
       io.github.youndie:kompot-standard:0.27.1.50
     deep: "true"        # run a real consumer build; the only way to confirm a suspicion
-    fail-on: defect     # defect | suspicion | none
+    fail-on: defect     # defect | suspicion (a suspicion or worse) | none
 ```
 
 It runs on the runner rather than behind an API, so a publication you have not released yet is never
 handed to somebody else's service to be looked at. The findings land in the step summary, and the
-step fails on a defect — never on an *undetermined*, which means a check could not run here: turning
-"I do not know" into a red build teaches people to switch the answers off along with the noise.
+step fails on a defect — with `fail-on: suspicion`, on a suspicion or a defect — never on an
+*undetermined*, which means a check could not run here: turning "I do not know" into a red build
+teaches people to switch the answers off along with the noise.
 
 ### 🏷 A badge
 
