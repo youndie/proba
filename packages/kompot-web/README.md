@@ -11,17 +11,17 @@ import { KompotScreen, webActionHandler } from "kompot-web";
 
 ### Where the types come from
 
-`src/generated/kompot.ts` is printed by **kompot's own generator** (`TypeScriptDeclarations` in the
-published `kompot-spec` jar) from the wire schemas inside that same jar — the version the Gradle
-catalogue pins, and nothing else. It is the open file kompot commits as `kompot-spec/types/kompot.d.ts`,
-byte for byte below its first line: one source for the types, not two generators that could disagree.
+`src/generated/kompot.ts` is **kompot's own file**: `kompot-spec/types/kompot.d.ts`, which kompot's
+generator (`TypeScriptDeclarations`) prints from the wire schemas and ships in the published
+`kompot-spec` jar beside them. It is taken from the jar at the version the Gradle catalogue pins, and
+nothing else — byte for byte below its first line, which names that version. One source for the types,
+not a second generator that could disagree.
 
 ```bash
-pnpm schema        # = ./gradlew :server:kompotTypes, regenerate from the pinned kompot-spec
-pnpm schema:check  # = ./gradlew :server:checkKompotTypes, part of ./gradlew check
+pnpm schema        # take it from the pinned kompot-spec
+pnpm schema:check  # fail if the committed copy is not what that jar carries
 ```
 
-The generator runs on the JVM, so the check lives in the Gradle build rather than in this package.
 `KompotComponent` and `KompotAction` are unions of the known variants **plus** a branch for a type this
 build has never seen (SPEC.md §2.1) — a `switch` on `type` that looks exhaustive is not.
 

@@ -84,7 +84,7 @@ export function KompotNode(props: { component: AnyComponent }): ReactNode {
   const environment = useKompot();
   const type = String(props.component.type);
   const renderer = renderers[type];
-  const fallback = renderer ? undefined : equivalentOf(props.component);
+  const fallback = renderer ? undefined : props.component.fallback;
   const outcome: Degradation["outcome"] | undefined = renderer
     ? undefined
     : fallback
@@ -104,15 +104,6 @@ export function KompotNode(props: { component: AnyComponent }): ReactNode {
   if (fallback) return <KompotNode component={fallback} />;
   const leaf = renderer ? renderer(props.component, environment) : environment.renderUnknown(props.component);
   return applyModifiers(modifiersOf(props.component), leaf, environment.theme);
-}
-
-// Structural, because the generated unknown branch types `fallback` as `unknown` — on the one path
-// a reader reads it from (kompot#207). Becomes a plain property read when that ships.
-function equivalentOf(component: AnyComponent): AnyComponent | undefined {
-  const fallback = (component as { fallback?: unknown }).fallback;
-  return fallback !== null && typeof fallback === "object" && typeof (fallback as { type?: unknown }).type === "string"
-    ? (fallback as AnyComponent)
-    : undefined;
 }
 
 /** Draws a whole screen. */

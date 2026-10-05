@@ -192,8 +192,9 @@ function Divider(props: { component: KompotComponentDivider; environment: Kompot
   const axis = useContext(AxisContext);
   const { theme } = props.environment;
   // The design system's line unless the server named a token, and an unknown token falls back to it
-  // as well: the token is open, so not knowing it costs the colour and not the line. `outline_variant`
-  // is what the Kotlin client draws (kompot#204 is about letting a design system choose).
+  // as well: the token is open, so not knowing it costs the colour and not the line. The Kotlin client
+  // asks its design system's `divider` role and draws Material's outlineVariant when the role is not
+  // answered (SPEC.md §4.10); here the design system is the theme, and its answer is `outline_variant`.
   const colour =
     (props.component.color ? theme.color(props.component.color) : undefined) ??
     theme.color("outline_variant") ??
