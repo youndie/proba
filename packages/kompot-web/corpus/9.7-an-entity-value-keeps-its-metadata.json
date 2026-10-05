@@ -1,6 +1,11 @@
 {
   "id": "9.7-an-entity-value-keeps-its-metadata",
   "clause": "§9.7",
+  "holds": [
+    "9.7.2",
+    "9.7.4",
+    "9.7.1"
+  ],
   "title": "a selection resolves to entity_value and carries rawMetadata to the server unchanged",
   "why": "rawMetadata is where the reserved keys travel — currency and balance are read by the mechanisms themselves, so a client that flattens a selection to a string breaks rules it never touched",
   "form": {

@@ -60,9 +60,16 @@ pnpm corpus:check  # fail if this copy is not that version's corpus
 Cases written here would agree with whatever this implementation believes. Those can disagree, which
 is the only reason to have them.
 
-`max_amount_from_field` is not enforced: it is in the reference rule set and no case covers it, and a
-rule implemented against nothing is a rule that passes for reasons nobody checked. It is reported by
-`unenforcedRules()` so that "no error" stays distinguishable from "never checked".
+A rule the engine does not know is reported by `unenforcedRules()`, so that "no error" stays
+distinguishable from "never checked".
+
+A field with `triggersPatch` makes one `FormPatchRequest` per change, carrying the whole form as it is
+at that moment (§9.6). The engine records them (`requests()`, which the corpus reads) and `KompotForm`
+hands each to the host's `requestPatch`, applying the patch it answers with. Without a `requestPatch`
+the value changes and nothing is sent: the endpoint is the application's, as with `suggest`.
+
+The runner stops on a key it does not know — in a case, in its steps, in its expectations — and reads
+the keys a case may carry from `client-corpus.schema.json`, which travels with the cases (SPEC.md §17).
 
 ### What it does not draw yet
 

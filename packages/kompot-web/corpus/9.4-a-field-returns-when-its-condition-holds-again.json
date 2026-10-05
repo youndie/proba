@@ -1,6 +1,9 @@
 {
   "id": "9.4-a-field-returns-when-its-condition-holds-again",
   "clause": "§9.4",
+  "holds": [
+    "9.4.4"
+  ],
   "title": "visibility is recomputed locally, in both directions",
   "why": "a condition evaluated once at render time looks identical until the first time somebody changes their mind",
   "form": {

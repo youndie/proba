@@ -1,8 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { KompotForm, KompotProvider, useForm } from "../src";
 import type { AnyComponent } from "../src";
-import type { FormSchema } from "../src/generated/kompot";
+import type { FormPatchRequest, FormSchema } from "../src/generated/kompot";
 
 /**
  * The engine is held by somebody else's corpus; these hold the wiring between it and the DOM — that a
@@ -102,6 +102,42 @@ describe("a form on screen", () => {
       title: "Current",
       rawMetadata: { currency: "EUR", balance: "1200" },
     });
+  });
+
+  it("sends a patch for a field that triggers one and draws what comes back", async () => {
+    const patched = {
+      formId: "p",
+      fields: [
+        { type: "text_field", fieldId: "code", rules: [], triggersPatch: true },
+        { type: "text_field", fieldId: "total", rules: [] },
+      ],
+    } as unknown as FormSchema;
+    const tree = {
+      type: "column",
+      id: "form",
+      children: [
+        { type: "text_input", id: "i1", fieldId: "code", label: "Code" },
+        { type: "text_input", id: "i2", fieldId: "total", label: "Total" },
+      ],
+    } as unknown as AnyComponent;
+    const sent: FormPatchRequest[] = [];
+    const { container } = render(
+      <KompotProvider>
+        <KompotForm
+          schema={patched}
+          screen={tree}
+          requestPatch={async (request) => {
+            sent.push(request);
+            return { updates: { total: { type: "text_value", text: "42" } } };
+          }}
+        />
+      </KompotProvider>,
+    );
+
+    fireEvent.change(container.querySelectorAll("input")[0]!, { target: { value: "ABC" } });
+
+    expect(sent).toEqual([{ formId: "p", fieldId: "code", values: { code: { type: "text_value", text: "ABC" } } }]);
+    await waitFor(() => expect((container.querySelectorAll("input")[1] as HTMLInputElement).value).toBe("42"));
   });
 });
 

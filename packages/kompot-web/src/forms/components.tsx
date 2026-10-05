@@ -3,10 +3,10 @@
 // React Server Components cannot hold a context or a hook, and this file has both. Without the
 // directive a framework that renders on the server refuses the whole import chain — which is every
 // consumer who wanted server-rendered kompot screens in the first place.
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { KompotNode, useKompot } from "../render";
 import type { AnyComponent } from "../types";
-import type { FieldValue, FormSchema, SelectOption } from "../generated/kompot";
+import type { FieldValue, FormPatch, FormPatchRequest, FormSchema, SelectOption } from "../generated/kompot";
 import { createFormClient, type FormClient } from "./controller";
 
 /**
@@ -27,6 +27,12 @@ interface FormBinding {
 
 export type Suggest = (dataSourceId: string, query: string) => Promise<SelectOption[]>;
 
+/**
+ * Sends a patch request and answers with the server's patch (§9.6). The host's, like `suggest`: the
+ * endpoint is the application's and this package has no HTTP in it.
+ */
+export type RequestPatch = (request: FormPatchRequest) => Promise<FormPatch | null | undefined>;
+
 const FormContext = createContext<FormBinding | null>(null);
 
 export function useForm(): FormBinding | null {
@@ -38,11 +44,29 @@ export function KompotForm(props: {
   screen: AnyComponent;
   draft?: Record<string, FieldValue>;
   suggest?: Suggest;
+  /** Without one, a field with `triggersPatch` changes its value and nothing else happens. */
+  requestPatch?: RequestPatch;
   onSubmit?: (payload: Record<string, FieldValue>) => void;
   children?: ReactNode;
 }): ReactNode {
-  const client = useMemo(() => createFormClient(props.schema, props.draft ?? {}), [props.schema, props.draft]);
   const [revision, setRevision] = useState(0);
+  // Read at the moment of the request, so a host passing a new function each render does not rebuild
+  // the engine and lose what was typed.
+  const requestPatch = useRef(props.requestPatch);
+  requestPatch.current = props.requestPatch;
+  const client = useMemo(
+    () =>
+      createFormClient(props.schema, props.draft ?? {}, {
+        onPatchRequest(request) {
+          void requestPatch.current?.(request).then((patch) => {
+            if (!patch) return;
+            client.applyPatch(patch);
+            setRevision((it) => it + 1);
+          });
+        },
+      }),
+    [props.schema, props.draft],
+  );
 
   const binding: FormBinding = {
     client,

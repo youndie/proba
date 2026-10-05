@@ -1,11 +1,11 @@
 {
-  "id": "9.4-a-hidden-field-leaves-the-payload",
+  "id": "9.4-an-error-on-a-field-that-then-hides",
   "clause": "§9.4",
   "holds": [
-    "9.4.2"
+    "9.4.3"
   ],
-  "title": "a field whose condition stops holding is neither shown nor submitted, even after a value was typed into it",
-  "why": "a value typed before the condition turned false is the one a person cannot see and cannot remove; sending it submits something nobody agreed to",
+  "title": "a rule that already failed stops mattering when its field goes away",
+  "why": "the state decides whether a submit can be blocked by a field nobody can see or correct — a screen that refuses to send and shows no error anywhere is a dead end",
   "form": {
     "formId": "f",
     "fields": [
@@ -16,8 +16,14 @@
       },
       {
         "type": "text_field",
-        "fieldId": "reason",
-        "rules": [],
+        "fieldId": "other_reason",
+        "rules": [
+          {
+            "type": "regex",
+            "pattern": "^[A-Z]{3}$",
+            "errorMessage": "Three capitals"
+          }
+        ],
         "visibleIf": {
           "type": "equals",
           "fieldId": "kind",
@@ -40,18 +46,22 @@
     },
     {
       "step": "set",
-      "fieldId": "reason",
+      "fieldId": "other_reason",
       "value": {
         "type": "text_value",
-        "text": "because"
+        "text": "a"
       }
+    },
+    {
+      "step": "blur",
+      "fieldId": "other_reason"
     },
     {
       "step": "set",
       "fieldId": "kind",
       "value": {
         "type": "text_value",
-        "text": "standard"
+        "text": "salary"
       }
     },
     {
@@ -62,10 +72,14 @@
     "visibleFields": [
       "kind"
     ],
+    "noErrors": [
+      "other_reason"
+    ],
+    "payloadBlocked": false,
     "payload": {
       "kind": {
         "type": "text_value",
-        "text": "standard"
+        "text": "salary"
       }
     }
   }

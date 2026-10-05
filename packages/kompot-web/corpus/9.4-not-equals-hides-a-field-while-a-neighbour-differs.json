@@ -1,6 +1,9 @@
 {
   "id": "9.4-not-equals-hides-a-field-while-a-neighbour-differs",
   "clause": "§9.4",
+  "holds": [
+    "9.4.1"
+  ],
   "title": "not_equals is the condition that holds until a neighbour becomes the named value",
   "why": "a client that treats an unknown condition as \"true\" shows a field the form meant to hide, and one that treats it as \"false\" hides a field nobody can reach",
   "form": {
