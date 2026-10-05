@@ -16,7 +16,7 @@ jobs:
       # 25 and leaves 25 as the default. 25 is also the toolchain the modules are compiled BY; what
       # they are compiled TO is `sborka.jvmFloor=21` — the comment that used to sit here said 25 and
       # named a kompot defect that has since been fixed upstream.
-      - uses: youndie/sborka/.github/actions/setup-kotlin@main
+      - uses: youndie/sborka/.github/actions/setup-kotlin@v0.5.0.130
       - run: ./gradlew check
 
   web:
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: youndie/sborka/.github/actions/setup-kotlin@main
+      - uses: youndie/sborka/.github/actions/setup-kotlin@v0.5.0.130
       # Both stand on a library published with a defect on purpose, so a green run here means the
       # checks discriminated rather than stayed quiet.
       # Cheap and first: a manifest that does not parse breaks every consumer of the action before
