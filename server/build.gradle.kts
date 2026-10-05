@@ -122,6 +122,10 @@ kotlin.sourceSets.main { kotlin.srcDir(generateTokens) }
  * published coordinate needs to print the same file: the output equals kompot's `types/kompot.d.ts`
  * at the commit that version was built from, byte for byte, below the first line.
  *
+ * Running the generator is the workaround for the files not being in the jar (kompot#208); once they
+ * are, the web package fetches `kompot-spec/types/kompot.d.ts` the way it fetches the corpus, and this
+ * goes.
+ *
  * It lives in this module because this is where the BOM is applied and where the Kotlin plugin picks
  * the JVM variant of a multiplatform dependency; nothing here is on the server's classpath.
  */

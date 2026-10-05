@@ -47,6 +47,7 @@ const materialColors: Record<string, string> = {
   error: "#b3261e",
   on_error: "#ffffff",
   outline: "#79747e",
+  outline_variant: "#cac4d0",
 };
 
 const materialTypography: Record<string, CSSProperties> = {

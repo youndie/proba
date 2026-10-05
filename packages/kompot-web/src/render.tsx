@@ -106,6 +106,8 @@ export function KompotNode(props: { component: AnyComponent }): ReactNode {
   return applyModifiers(modifiersOf(props.component), leaf, environment.theme);
 }
 
+// Structural, because the generated unknown branch types `fallback` as `unknown` — on the one path
+// a reader reads it from (kompot#207). Becomes a plain property read when that ships.
 function equivalentOf(component: AnyComponent): AnyComponent | undefined {
   const fallback = (component as { fallback?: unknown }).fallback;
   return fallback !== null && typeof fallback === "object" && typeof (fallback as { type?: unknown }).type === "string"
