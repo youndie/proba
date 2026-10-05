@@ -29,8 +29,9 @@ export interface Theme {
    * shape (SPEC.md §5.5, §6). A `background` naming a role takes this shape and clips its content to
    * it; the colour stays the node's own token. An unknown role, or one this theme names no shape for,
    * keeps the square corner — so does every role here, as in kompot's own Material design system.
+   * Optional, so that a theme written before roles had a shape still compiles and stays square.
    */
-  shape(role: string): string | undefined;
+  shape?(role: string): string | undefined;
 }
 
 const materialColors: Record<string, string> = {
@@ -90,7 +91,7 @@ export function themeWith(
       if (paired) return theme.color(paired);
       return colors[`on_${token}`] ?? materialTheme.onColor(token);
     },
-    shape: (role) => shapes[role] ?? materialTheme.shape(role),
+    shape: (role) => shapes[role],
   };
   return theme;
 }

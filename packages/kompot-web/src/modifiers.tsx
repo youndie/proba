@@ -108,7 +108,7 @@ function styleOf(node: ModifierNode, theme: Theme): CSSProperties {
     {
       // A role brings the shape of that surface and clips to it (SPEC.md §5.5): a card whose fill is
       // rounded and whose content is not has square corners under the first child to reach the edge.
-      const corner = node.role ? theme.shape(node.role) : undefined;
+      const corner = node.role ? theme.shape?.(node.role) : undefined;
       return {
         background: theme.color(node.color),
         color: theme.onColor(node.color),
