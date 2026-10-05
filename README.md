@@ -153,7 +153,7 @@ seen most and inspected least.
 | `resolver` | the confirming tier: a real consumer build, and the public API read out of the artefact |
 | `server` | Kotlin + Ktor: runs the checks and describes the report as a kompot screen |
 | `packages/proba-web` | Next.js: the report pages, server-rendered and shareable |
-| `packages/kompot-web` | a React renderer for [kompot](https://github.com/youndie/kompot) screens, typed from the published wire schemas |
+| `packages/kompot-web` | a React renderer for [kompot](https://github.com/youndie/kompot) screens, typed by kompot's own generator from the published wire schemas |
 | `design` | the token vocabulary: one file, read by the Kotlin server and by the browser |
 | `research-stand` | the stands behind the numbers, including a library published with a defect on purpose |
 | `scripts` | the gates — one per milestone, each runnable |
@@ -168,8 +168,8 @@ when it cannot run, when its subject never reaches it, and when nobody wired it 
 carries a case on each side, and a guard *per check* fails the build when one does not. A total over
 all checks would be satisfied by the ones that do have cases, on behalf of the one that does not.
 
-**One version, pinned once.** The server compiles against kompot, the renderer generates its types
-from kompot'''s schemas, and the corpus is fetched from it. All three read `gradle/libs.versions.toml`,
+**One version, pinned once.** The server compiles against kompot, the renderer's types are printed
+from kompot's schemas, and the corpus is fetched from it. All three read `gradle/libs.versions.toml`,
 because when each had its own pin a single dependency bump produced a repository at three different
 versions at once — and nothing noticed, since `schema:check` and `corpus:check` each compare a
 committed copy against *their own* pin. `scripts/check-kompot-pins.py` guards the thing that made

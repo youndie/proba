@@ -1,4 +1,7 @@
 import org.gradle.api.tasks.Copy
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import java.net.URLClassLoader
+import java.util.zip.ZipFile
 
 plugins {
     alias(wip.plugins.kotlinJvm)
@@ -105,3 +108,99 @@ val generateTokens by tasks.registering {
 }
 
 kotlin.sourceSets.main { kotlin.srcDir(generateTokens) }
+
+/**
+ * The renderer's TypeScript types, printed by kompot's own generator from the schemas in the
+ * published `kompot-spec` jar — the version the BOM above pins, so there is no second number to drift.
+ *
+ * Until kompot 0.38 proba generated them itself with json-schema-to-typescript. Then kompot started
+ * printing declarations of its own (kompot#172) — open hierarchies as a union of the known variants
+ * plus a branch for a type the reader has never seen (SPEC.md §2.1) — and two generators for one
+ * contract is two sources, whose disagreement nobody is placed to notice. So this runs kompot's. The
+ * `.d.ts` files are not in the jar, only in kompot's repository; the generator is
+ * (`TypeScriptDeclarations`, public API), and so are the schemas it reads, which is everything a
+ * published coordinate needs to print the same file: the output equals kompot's `types/kompot.d.ts`
+ * at the commit that version was built from, byte for byte, below the first line.
+ *
+ * It lives in this module because this is where the BOM is applied and where the Kotlin plugin picks
+ * the JVM variant of a multiplatform dependency; nothing here is on the server's classpath.
+ */
+val kompotSpec: Configuration =
+    configurations.create("kompotSpec") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+            attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
+        }
+    }
+
+dependencies {
+    kompotSpec(platform(libs.kompot.bom))
+    kompotSpec(libs.kompot.spec)
+}
+
+val kompotTypesFile = rootProject.file("packages/kompot-web/src/generated/kompot.ts")
+
+/** Renders the open declarations (the reading side's file) out of the resolved kompot-spec jar. */
+fun renderKompotTypes(classpath: Set<File>): String {
+    val specJar =
+        classpath.singleOrNull { it.name.startsWith("kompot-spec-") }
+            ?: error("kompot-spec is not on its own classpath: ${classpath.map { it.name }}")
+    val version = specJar.name.removePrefix("kompot-spec-").removeSuffix(".jar")
+    val schemaNames =
+        ZipFile(specJar).use { zip ->
+            zip
+                .entries()
+                .asSequence()
+                .map { it.name }
+                .filter { it.startsWith("kompot-spec/schema/") && it.endsWith(".schema.json") }
+                .map { it.removePrefix("kompot-spec/schema/") }
+                .toList()
+        }
+    check(schemaNames.isNotEmpty()) { "${specJar.name} carries no schemas" }
+
+    // An isolated loader: Gradle has a kotlinx-serialization of its own, and the generator must run
+    // against the one kompot-spec was built with.
+    val loader = URLClassLoader(classpath.map { it.toURI().toURL() }.toTypedArray(), ClassLoader.getPlatformClassLoader())
+    val body =
+        loader.use {
+            val json: Any = loader.loadClass("kotlinx.serialization.json.Json").getField("Default").get(null)
+            val parse = json::class.java.getMethod("parseToJsonElement", String::class.java)
+            val documents: Map<String, Any> =
+                schemaNames.associateWith { name: String ->
+                    val text = loader.getResource("kompot-spec/schema/$name")!!.readText()
+                    parse.invoke(json, text)
+                }
+            val generator = loader.loadClass("io.github.youndie.kompot.spec.TypeScriptDeclarations")
+            generator
+                .getMethod("render", Map::class.java, Boolean::class.javaPrimitiveType)
+                .invoke(generator.getField("INSTANCE").get(null), documents, false) as String
+        }
+    return "// kompot-spec $version, TypeScriptDeclarations over the schemas in its jar. Regenerate: ./gradlew :server:kompotTypes\n" +
+        body
+}
+
+tasks.register("kompotTypes") {
+    group = "kompot"
+    description = "Writes packages/kompot-web/src/generated/kompot.ts from the pinned kompot-spec"
+    inputs.files(kompotSpec)
+    outputs.file(kompotTypesFile)
+    doLast { kompotTypesFile.writeText(renderKompotTypes(kompotSpec.files)) }
+}
+
+// In `check`, so the jvm job holds it: the web job has no JVM, and the types are the JVM's output.
+val checkKompotTypes =
+    tasks.register("checkKompotTypes") {
+        group = "verification"
+        description = "Fails if packages/kompot-web/src/generated/kompot.ts is not what the pinned kompot-spec prints"
+        inputs.files(kompotSpec)
+        inputs.file(kompotTypesFile)
+        doLast {
+            check(kompotTypesFile.readText() == renderKompotTypes(kompotSpec.files)) {
+                "${kompotTypesFile.relativeTo(rootDir)} is not what the pinned kompot-spec prints. Run ./gradlew :server:kompotTypes"
+            }
+        }
+    }
+
+tasks.named("check") { dependsOn(checkKompotTypes) }

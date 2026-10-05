@@ -11,13 +11,19 @@ import { KompotScreen, webActionHandler } from "kompot-web";
 
 ### Where the types come from
 
-`src/generated/kompot.ts` is generated from the wire schemas **inside the published `kompot-spec`
-artefact** — not from a copy kept here. The coordinate is in `package.json`:
+`src/generated/kompot.ts` is printed by **kompot's own generator** (`TypeScriptDeclarations` in the
+published `kompot-spec` jar) from the wire schemas inside that same jar — the version the Gradle
+catalogue pins, and nothing else. It is the open file kompot commits as `kompot-spec/types/kompot.d.ts`,
+byte for byte below its first line: one source for the types, not two generators that could disagree.
 
 ```bash
-pnpm schema        # regenerate from the pinned kompot-spec version
-pnpm schema:check  # fail if the committed types are not what that version generates
+pnpm schema        # = ./gradlew :server:kompotTypes, regenerate from the pinned kompot-spec
+pnpm schema:check  # = ./gradlew :server:checkKompotTypes, part of ./gradlew check
 ```
+
+The generator runs on the JVM, so the check lives in the Gradle build rather than in this package.
+`KompotComponent` and `KompotAction` are unions of the known variants **plus** a branch for a type this
+build has never seen (SPEC.md §2.1) — a `switch` on `type` that looks exhaustive is not.
 
 A second copy of a contract is a second source of truth, and the one nobody regenerates is the one
 that quietly stops being true.
