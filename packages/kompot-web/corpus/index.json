@@ -15,6 +15,9 @@
     "9.7-an-entity-value-keeps-its-metadata.json",
     "9.4-not-equals-hides-a-field-while-a-neighbour-differs.json",
     "9.5-an-amount-over-a-balance-is-refused.json",
-    "9.5-an-amount-within-a-balance-passes.json"
+    "9.5-an-amount-within-a-balance-passes.json",
+    "9.4-an-error-on-a-field-that-then-hides.json",
+    "9.6-a-patch-is-requested-once-by-the-field-that-triggers-it.json",
+    "9.6-a-field-that-triggers-no-patch-sends-nothing.json"
   ]
 }

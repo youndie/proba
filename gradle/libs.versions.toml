@@ -9,17 +9,18 @@ ktor = "3.6.0"
 serialization = "1.11.0"
 coroutines = "1.11.0"
 
-kompot = "0.29.0.56"
+kompot = "0.39.0.201"
 
 [libraries]
-kompot-bom = { module = "io.github.youndie:kompot-bom", version.ref = "kompot" }
-kompot-core = { module = "io.github.youndie:kompot-core" }
-kompot-standard = { module = "io.github.youndie:kompot-standard" }
-kompot-ktor = { module = "io.github.youndie:kompot-ktor" }
-kompot-forms = { module = "io.github.youndie:kompot-forms" }
-form-core = { module = "io.github.youndie:form-core" }
-kompot-realtime = { module = "io.github.youndie:kompot-realtime" }
-kompot-realtime-server = { module = "io.github.youndie:kompot-realtime-server" }
+kompot-bom = { module = "io.github.youndie.kompot:kompot-bom", version.ref = "kompot" }
+kompot-core = { module = "io.github.youndie.kompot:kompot-core" }
+kompot-standard = { module = "io.github.youndie.kompot:kompot-standard" }
+kompot-ktor = { module = "io.github.youndie.kompot:kompot-ktor" }
+kompot-forms = { module = "io.github.youndie.kompot:kompot-forms" }
+form-core = { module = "io.github.youndie.kompot:form-core" }
+kompot-realtime = { module = "io.github.youndie.kompot:kompot-realtime" }
+kompot-realtime-server = { module = "io.github.youndie.kompot:kompot-realtime-server" }
+kompot-spec = { module = "io.github.youndie.kompot:kompot-spec" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }

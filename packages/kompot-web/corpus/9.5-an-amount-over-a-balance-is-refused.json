@@ -1,6 +1,10 @@
 {
   "id": "9.5-an-amount-over-a-balance-is-refused",
   "clause": "§9.5",
+  "holds": [
+    "9.5.6",
+    "9.7.3"
+  ],
   "title": "max_amount_from_field reads the balance out of a neighbour's metadata and blocks the submit",
   "why": "the rule is cross-field and local — it holds a person back before the request leaves — and a client that ignores it sends an amount the backend will refuse, after the wait",
   "form": {

@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kompot.kotlin.website/schema/client-corpus.schema.json",
+  "title": "client-corpus",
+  "description": "The format of a client conformance case: a form, the steps somebody takes on it, and what must be true afterwards. Not part of the wire — a client never sends or receives one of these.",
+  "x-kompot-generated-by": "KompotSchemaGenerator — this file is generated, do not edit by hand",
+  "$defs": {
+    "ClientCase": {
+      "x-kompot-kind": "object",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "clause": {
+          "type": "string"
+        },
+        "holds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string"
+        },
+        "why": {
+          "type": "string"
+        },
+        "form": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonElement"
+          }
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ClientStep"
+          }
+        },
+        "expect": {
+          "$ref": "#/$defs/ClientExpectation"
+        }
+      },
+      "required": [
+        "id",
+        "clause",
+        "title",
+        "why",
+        "form",
+        "expect"
+      ],
+      "additionalProperties": false
+    },
+    "ClientCorpusIndex": {
+      "x-kompot-kind": "object",
+      "type": "object",
+      "properties": {
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "additionalProperties": false
+    },
+    "ClientExpectation": {
+      "x-kompot-kind": "object",
+      "type": "object",
+      "properties": {
+        "visibleFields": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "payload": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonElement"
+          }
+        },
+        "payloadBlocked": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "errors": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "noErrors": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "requests": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonElement"
+            }
+          }
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "ClientStep": {
+      "x-kompot-kind": "hierarchy",
+      "x-kompot-open": false,
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ClientStepBlur"
+        },
+        {
+          "$ref": "#/$defs/ClientStepPatch"
+        },
+        {
+          "$ref": "#/$defs/ClientStepSet"
+        },
+        {
+          "$ref": "#/$defs/ClientStepSubmit"
+        }
+      ],
+      "discriminator": {
+        "propertyName": "step",
+        "mapping": {
+          "blur": "#/$defs/ClientStepBlur",
+          "patch": "#/$defs/ClientStepPatch",
+          "set": "#/$defs/ClientStepSet",
+          "submit": "#/$defs/ClientStepSubmit"
+        }
+      }
+    },
+    "ClientStepBlur": {
+      "x-kompot-kind": "variant",
+      "x-kompot-wire-type": "blur",
+      "type": "object",
+      "properties": {
+        "step": {
+          "const": "blur"
+        },
+        "fieldId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "step",
+        "fieldId"
+      ],
+      "additionalProperties": false
+    },
+    "ClientStepPatch": {
+      "x-kompot-kind": "variant",
+      "x-kompot-wire-type": "patch",
+      "type": "object",
+      "properties": {
+        "step": {
+          "const": "patch"
+        },
+        "patch": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonElement"
+          }
+        }
+      },
+      "required": [
+        "step",
+        "patch"
+      ],
+      "additionalProperties": false
+    },
+    "ClientStepSet": {
+      "x-kompot-kind": "variant",
+      "x-kompot-wire-type": "set",
+      "type": "object",
+      "properties": {
+        "step": {
+          "const": "set"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "value": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonElement"
+          }
+        }
+      },
+      "required": [
+        "step",
+        "fieldId",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "ClientStepSubmit": {
+      "x-kompot-kind": "variant",
+      "x-kompot-wire-type": "submit",
+      "type": "object",
+      "properties": {
+        "step": {
+          "const": "submit"
+        }
+      },
+      "required": [
+        "step"
+      ],
+      "additionalProperties": false
+    },
+    "JsonElement": {
+      "x-kompot-kind": "hierarchy",
+      "x-kompot-open": false,
+      "oneOf": [],
+      "discriminator": {
+        "propertyName": "step",
+        "mapping": {}
+      }
+    }
+  }
+}

@@ -61,6 +61,50 @@ async function measure(browser: Browser, tree: AnyComponent, breakFill: boolean)
   return result;
 }
 
+/** Where each child of the stack starts and ends along the row, relative to the row. */
+async function edges(browser: Browser, tree: AnyComponent, rewrite: (markup: string) => string = (it) => it) {
+  const context = await browser.newContext({ viewport: { width: 900, height: 600 } });
+  const sheet = await context.newPage();
+  await sheet.setContent(rewrite(page(tree, false)));
+  const result = await sheet.evaluate(() => {
+    const row = document.querySelector('[data-kompot="row"]')!;
+    const origin = row.getBoundingClientRect().left;
+    return Array.from(row.children).map((child) => {
+      const rect = child.getBoundingClientRect();
+      return { left: Math.round(rect.left - origin), right: Math.round(rect.right - origin) };
+    });
+  });
+  await context.close();
+  return result;
+}
+
+const arranged = (arrangement: string, childWidth: number): AnyComponent =>
+  ({
+    type: "row",
+    id: "s",
+    spacing: 16,
+    arrangement,
+    modifiers: [{ type: "size", width: "Fill" }],
+    children: [0, 1, 2].map((at) => ({
+      type: "text",
+      id: `c${at}`,
+      text: "ok",
+      modifiers: [{ type: "size", widthDp: childWidth }],
+    })),
+  }) as unknown as AnyComponent;
+
+// Content that cannot shrink: a fixed width does (a flex item gives way), one unbroken word does not.
+// And no modifier on the row: the fill wrapper is a grid, whose item grows to its content, so a row
+// inside one never overflows — the frame's own width is what holds this one.
+const overflowing = (arrangement: string): AnyComponent =>
+  ({
+    type: "row",
+    id: "s",
+    spacing: 16,
+    arrangement,
+    children: [0, 1, 2].map((at) => ({ type: "text", id: `c${at}`, text: "W".repeat(40) })),
+  }) as unknown as AnyComponent;
+
 const problems: string[] = [];
 const say = (ok: boolean, message: string) => {
   console.log(`  ${ok ? "ok  " : "FAIL"}  ${message}`);
@@ -129,6 +173,20 @@ try {
     broken.painted!.height < painted.painted!.height / 2,
     `without filling, the same box paints its content — ${broken.painted!.height}px against ${painted.painted!.height}`,
   );
+
+  console.log("arrangement shares what is left over spacing, and an overflow starts at the start (SPEC §4.7)");
+  const between = await edges(browser, arranged("space_between", 100));
+  say(between[0]!.left === 0 && between[2]!.right === WIDTH, `space_between reaches both ends — ${between[0]!.left}..${between[2]!.right}`);
+  const roomy = between[1]!.left - between[0]!.right;
+  say(roomy > 16, `and shares the rest between neighbours — a ${roomy}px gap`);
+  const tight = await edges(browser, arranged("space_between", 196));
+  const squeezed = Math.min(tight[1]!.left - tight[0]!.right, tight[2]!.left - tight[1]!.right);
+  say(squeezed === 16, `with almost no room left, spacing is still the gap — ${squeezed}px`);
+  const overflow = await edges(browser, overflowing("center"));
+  say(overflow[0]!.left === 0, `a centred row wider than its frame starts at its leading edge — first child at ${overflow[0]!.left}px`);
+  // The negative control: plain `center`, which is what the encoding would be without `safe`.
+  const unsafe = await edges(browser, overflowing("center"), (markup) => markup.replaceAll("safe center", "center"));
+  say(unsafe[0]!.left < 0, `and without "safe" it would not — first child at ${unsafe[0]!.left}px`);
 } finally {
   await browser.close();
 }
@@ -137,4 +195,4 @@ if (problems.length > 0) {
   console.error(`\nGATE FAILED: ${problems.length} of the measurements did not hold`);
   process.exit(1);
 }
-console.log("\nGATE PASSED — the share is what gets painted, and short text does not change that");
+console.log("\nGATE PASSED — the share is what gets painted, and spacing is the smallest gap an arrangement leaves");

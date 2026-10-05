@@ -3,10 +3,10 @@
 // React Server Components cannot hold a context or a hook, and this file has both. Without the
 // directive a framework that renders on the server refuses the whole import chain — which is every
 // consumer who wanted server-rendered kompot screens in the first place.
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { KompotNode, useKompot } from "../render";
 import type { AnyComponent } from "../types";
-import type { FieldValue, FormSchema, SelectOption } from "../generated/kompot";
+import type { FieldValue, FormPatch, FormPatchRequest, FormSchema, SelectOption } from "../generated/kompot";
 import { createFormClient, type FormClient } from "./controller";
 
 /**
@@ -27,6 +27,12 @@ interface FormBinding {
 
 export type Suggest = (dataSourceId: string, query: string) => Promise<SelectOption[]>;
 
+/**
+ * Sends a patch request and answers with the server's patch (§9.6). The host's, like `suggest`: the
+ * endpoint is the application's and this package has no HTTP in it.
+ */
+export type RequestPatch = (request: FormPatchRequest) => Promise<FormPatch | null | undefined>;
+
 const FormContext = createContext<FormBinding | null>(null);
 
 export function useForm(): FormBinding | null {
@@ -38,11 +44,29 @@ export function KompotForm(props: {
   screen: AnyComponent;
   draft?: Record<string, FieldValue>;
   suggest?: Suggest;
+  /** Without one, a field with `triggersPatch` changes its value and nothing else happens. */
+  requestPatch?: RequestPatch;
   onSubmit?: (payload: Record<string, FieldValue>) => void;
   children?: ReactNode;
 }): ReactNode {
-  const client = useMemo(() => createFormClient(props.schema, props.draft ?? {}), [props.schema, props.draft]);
   const [revision, setRevision] = useState(0);
+  // Read at the moment of the request, so a host passing a new function each render does not rebuild
+  // the engine and lose what was typed.
+  const requestPatch = useRef(props.requestPatch);
+  requestPatch.current = props.requestPatch;
+  const client = useMemo(
+    () =>
+      createFormClient(props.schema, props.draft ?? {}, {
+        onPatchRequest(request) {
+          void requestPatch.current?.(request).then((patch) => {
+            if (!patch) return;
+            client.applyPatch(patch);
+            setRevision((it) => it + 1);
+          });
+        },
+      }),
+    [props.schema, props.draft],
+  );
 
   const binding: FormBinding = {
     client,
@@ -271,13 +295,27 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
   },
 
   amount_input: (raw) => {
-    const c = raw as unknown as { fieldId: string; label: string; currencySuffix?: string | null; currencyFromField?: string | null };
+    const c = raw as unknown as {
+      fieldId: string;
+      label: string;
+      currencySuffix?: string | null;
+      currencyPrefix?: string | null;
+      currencyFromField?: string | null;
+      currencySpaced?: boolean;
+    };
+    // The side is the component's to name, whichever place the symbol itself came from (§9.7.10); a
+    // component that names both draws the suffix, because a client older than the prefix does
+    // (§9.7.11); and the gap is a third thing the currency says, a space unless told otherwise
+    // (§9.7.12). Neither field named keeps the suffix side, which is where a value's currency was
+    // always drawn.
+    const before = c.currencySuffix == null && c.currencyPrefix != null;
+    const spaced = c.currencySpaced !== false;
     return (
       <Field fieldId={c.fieldId} label={c.label}>
         {(binding) => {
           const current = binding.client.value(c.fieldId);
           const amount = current?.type === "amount_value" ? (current as { long?: number }).long : undefined;
-          // The currency lives in the value; the component's suffix is the fallback, and there is no
+          // The currency lives in the value; the component's symbol is the fallback, and there is no
           // third place (§9.7).
           const fromField = c.currencyFromField ? binding.client.value(c.currencyFromField) : undefined;
           const carried =
@@ -288,9 +326,16 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
             (current?.type === "amount_value" ? (current as { currency?: string | null }).currency : null) ??
             carried ??
             c.currencySuffix ??
+            c.currencyPrefix ??
             "";
+          const symbol = (
+            <span data-kompot="currency" data-side={before ? "before" : "after"}>
+              {currency}
+            </span>
+          );
           return (
-            <span style={{ display: "inline-flex", gap: "4px", alignItems: "baseline" }}>
+            <span style={{ display: "inline-flex", gap: spaced ? "4px" : 0, alignItems: "baseline" }}>
+              {before && symbol}
               <input
                 inputMode="numeric"
                 value={amount == null ? "" : String(amount)}
@@ -303,7 +348,7 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
                   );
                 }}
               />
-              <span data-kompot="currency">{currency}</span>
+              {!before && symbol}
             </span>
           );
         }}
@@ -320,15 +365,56 @@ export const formRenderers: Record<string, (component: AnyComponent) => ReactNod
     );
   },
 
-  read_only_field: (raw) => {
-    // No fieldId, not declared in the schema, and never part of a payload (§9.2).
-    const c = raw as unknown as { label: string; value: string; helperText?: string | null };
-    return (
-      <div data-kompot="read-only-field">
-        <span>{c.label}</span>
-        <span>{c.value}</span>
-        {c.helperText != null && <span>{c.helperText}</span>}
-      </div>
-    );
-  },
+  read_only_field: (raw) => <ReadOnlyField component={raw as unknown as ReadOnly} />,
 };
+
+interface ReadOnly {
+  label: string;
+  value: string;
+  helperText?: string | null;
+  fieldId?: string | null;
+}
+
+/**
+ * Without `fieldId` the server's text, never declared and never sent (§9.2). With one it is an
+ * ordinary bound field that cannot be typed into: it follows `visibleIf`, takes a patch, and goes out
+ * with the submit — the place a server-computed total lives (§9.6.5). Bound only when the server said
+ * so: reading the engine for an unbound one would turn "no value" into an empty box where the
+ * server's own text used to be.
+ */
+function ReadOnlyField(props: { component: ReadOnly }): ReactNode {
+  const { component } = props;
+  const binding = useForm();
+  const fieldId = component.fieldId ?? undefined;
+  if (fieldId !== undefined && binding && !binding.client.visibleFields().includes(fieldId)) return null;
+  const bound = fieldId !== undefined && binding ? plainValue(binding.client.value(fieldId)) : undefined;
+  return (
+    <div data-kompot="read-only-field" data-kompot-field={fieldId}>
+      <span>{component.label}</span>
+      <span>{bound ?? component.value}</span>
+      {component.helperText != null && <span>{component.helperText}</span>}
+    </div>
+  );
+}
+
+/**
+ * The string a value reads as — what the Kotlin values call `plainValue`, kept identical so that one
+ * response reads the same on both clients: an entity's id rather than its title, an amount without its
+ * currency (the server sends formatted text as a `text_value` when it wants one, §9.6).
+ */
+function plainValue(value: FieldValue | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  const v = value as { type: string; text?: unknown; id?: unknown; long?: unknown; value?: unknown };
+  switch (v.type) {
+    case "text_value":
+      return String(v.text ?? "");
+    case "entity_value":
+      return String(v.id ?? "");
+    case "amount_value":
+      return String(v.long ?? "");
+    case "boolean_value":
+      return String(v.value);
+    default:
+      return undefined;
+  }
+}

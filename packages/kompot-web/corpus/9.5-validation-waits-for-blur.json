@@ -1,6 +1,9 @@
 {
   "id": "9.5-validation-waits-for-blur",
   "clause": "§9.5",
+  "holds": [
+    "9.5.5"
+  ],
   "title": "a rule runs when focus leaves a field, not on every keystroke",
   "why": "validating as somebody types marks a field wrong before they have finished being right",
   "form": {

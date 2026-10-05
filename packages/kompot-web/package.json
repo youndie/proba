@@ -9,8 +9,8 @@
     "repository": "https://reposilite.kotlin.website/snapshots"
   },
   "scripts": {
-    "schema": "node scripts/fetch-schema.mjs",
-    "schema:check": "node scripts/fetch-schema.mjs --check",
+    "schema": "cd ../.. && ./gradlew -q :server:kompotTypes",
+    "schema:check": "cd ../.. && ./gradlew -q :server:checkKompotTypes",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "corpus": "node scripts/fetch-corpus.mjs",
@@ -28,7 +28,6 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "jsdom": "^25.0.1",
-    "json-schema-to-typescript": "^15.0.3",
     "playwright": "^1.49.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

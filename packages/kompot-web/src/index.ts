@@ -1,10 +1,10 @@
-export { KompotScreen, KompotNode, KompotProvider, useKompot, type KompotEnvironment } from "./render";
+export { KompotScreen, KompotNode, KompotProvider, useKompot, type Degradation, type KompotEnvironment } from "./render";
 export { applyModifiers, dp } from "./modifiers";
 export { materialTheme, themeWith, type Theme } from "./theme";
 export { webActionHandler, type ActionHandler, type WebActionOptions } from "./actions";
 export { renderers } from "./components";
-export { createFormClient, type FormClient, type SubmitResult } from "./forms/controller";
-export { KompotForm, useForm, formRenderers, type Suggest } from "./forms/components";
+export { createFormClient, type FormClient, type FormClientOptions, type SubmitResult } from "./forms/controller";
+export { KompotForm, useForm, formRenderers, type RequestPatch, type Suggest } from "./forms/components";
 export { applyUpdate, updatesAnything, type UpdateComponentMessage } from "./realtime/updates";
 export { useLiveScreen, sseSubscribe, type Subscribe } from "./realtime/useLiveScreen";
 export * from "./types";

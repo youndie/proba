@@ -17,18 +17,31 @@ const corpus = join(dirname(fileURLToPath(import.meta.url)), "..", "corpus");
 interface Case {
   id: string;
   clause: string;
+  holds?: string[];
   title: string;
   why?: string;
   form: FormSchema;
-  initialValues?: Record<string, FieldValue>;
-  steps: Array<Record<string, unknown>>;
+  steps?: Array<Record<string, unknown>>;
   expect: Record<string, unknown>;
 }
 
-const index = JSON.parse(readFileSync(join(corpus, "index.json"), "utf8")) as { cases: string[] };
+const index = JSON.parse(readFileSync(join(corpus, "index.json"), "utf8")) as { schema?: string; cases: string[] };
 const cases = index.cases.map((name) => JSON.parse(readFileSync(join(corpus, name), "utf8")) as Case);
 
+// The keys a case may carry, read from the format that travels with the corpus rather than typed here.
+// SPEC.md §17: a runner stops on a key it does not know, because in a corpus an unfamiliar key is a
+// rule nobody checked — the opposite of the wire, where it is a newer sender.
+const format = JSON.parse(readFileSync(join(corpus, index.schema ?? "client-corpus.schema.json"), "utf8")) as {
+  $defs: Record<string, { properties?: Record<string, unknown> }>;
+};
+const caseKeys = Object.keys(format.$defs.ClientCase?.properties ?? {});
+
 describe("the client conformance corpus", () => {
+  it("reads the format the cases are written in", () => {
+    // Without it every case would pass the key check below by having nothing to compare against.
+    expect(caseKeys).toContain("expect");
+  });
+
   it("has cases to run", () => {
     // A corpus that failed to arrive passes every case it contains. Nothing else here would say so.
     expect(cases.length).toBeGreaterThan(0);
@@ -37,10 +50,13 @@ describe("the client conformance corpus", () => {
 
   for (const item of cases) {
     it(`${item.clause} ${item.title}`, () => {
-      const client = createFormClient(item.form, item.initialValues ?? {});
+      for (const key of Object.keys(item)) {
+        if (!caseKeys.includes(key)) throw new Error(`the runner does not know the case key "${key}" (case ${item.id})`);
+      }
+      const client = createFormClient(item.form);
       let submission: ReturnType<typeof client.submit> | undefined;
 
-      for (const step of item.steps) {
+      for (const step of item.steps ?? []) {
         switch (step.step) {
           case "set":
             client.setValue(String(step.fieldId), step.value as FieldValue);
@@ -98,6 +114,16 @@ describe("the client conformance corpus", () => {
             expect(submission, `${item.id} expects a submit step`).toBeDefined();
             expect(submission!.payload).toEqual(wanted);
             expect(submission!.blocked).toBe(false);
+            asserted += 1;
+            break;
+
+          case "requests":
+            // What the client sent, in the corpus's own shape: the kind, the field that changed, and
+            // the form as it was at that moment (§9.6). An empty list is an assertion too — that a
+            // field without triggersPatch sent nothing.
+            expect(
+              client.requests().map((request) => ({ kind: "patch", fieldId: request.fieldId, values: request.values })),
+            ).toEqual(wanted);
             asserted += 1;
             break;
 

@@ -1,0 +1,36 @@
+{
+  "id": "9.6-a-field-that-triggers-no-patch-sends-nothing",
+  "clause": "§9.6",
+  "holds": [
+    "9.6.2"
+  ],
+  "title": "a field without triggersPatch causes no request at all",
+  "why": "a client that patches on every change turns each keystroke into a round trip, and nothing about its state says so",
+  "form": {
+    "formId": "f",
+    "fields": [
+      {
+        "type": "text_field",
+        "fieldId": "note",
+        "rules": []
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "set",
+      "fieldId": "note",
+      "value": {
+        "type": "text_value",
+        "text": "for the trip"
+      }
+    },
+    {
+      "step": "blur",
+      "fieldId": "note"
+    }
+  ],
+  "expect": {
+    "requests": []
+  }
+}

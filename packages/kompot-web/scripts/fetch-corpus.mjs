@@ -17,7 +17,7 @@ const check = process.argv.includes("--check");
 const { kompot } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 const { repository } = kompot;
 const version = kompotVersion(root);
-const jarUrl = `${repository}/io/github/youndie/kompot-client-tck/${version}/kompot-client-tck-${version}.jar`;
+const jarUrl = `${repository}/io/github/youndie/kompot/kompot-client-tck/${version}/kompot-client-tck-${version}.jar`;
 
 const work = mkdtempSync(join(tmpdir(), "kompot-corpus-"));
 try {
@@ -31,7 +31,9 @@ try {
   const out = join(root, "corpus");
   mkdirSync(out, { recursive: true });
 
-  const wanted = ["index.json", ...index.cases];
+  // The format travels with the cases (`index.json` names it), and the runner reads the keys a case
+  // may carry from it: a key the runner does not know is a rule it is not being held to.
+  const wanted = ["index.json", ...(index.schema ? [index.schema] : []), ...index.cases];
   let differences = 0;
   for (const name of wanted) {
     const incoming = readFileSync(join(work, name), "utf8");
