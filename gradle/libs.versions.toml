@@ -9,7 +9,7 @@ ktor = "3.6.0"
 serialization = "1.11.0"
 coroutines = "1.11.0"
 
-kompot = "0.40.0.208"
+kompot = "0.40.0.210"
 
 [libraries]
 kompot-bom = { module = "io.github.youndie.kompot:kompot-bom", version.ref = "kompot" }
