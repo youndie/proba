@@ -5,6 +5,14 @@ export { webActionHandler, type ActionHandler, type WebActionOptions } from "./a
 export { renderers } from "./components";
 export { createFormClient, type FormClient, type FormClientOptions, type SubmitResult } from "./forms/controller";
 export { KompotForm, useForm, formRenderers, type RequestPatch, type Suggest } from "./forms/components";
-export { applyUpdate, updatesAnything, type UpdateComponentMessage } from "./realtime/updates";
+export {
+  applyUpdate,
+  applyUpdateAction,
+  findNode,
+  updatesAnything,
+  type UpdateAction,
+  type UpdateAddress,
+  type UpdateComponentMessage,
+} from "./realtime/updates";
 export { useLiveScreen, sseSubscribe, type Subscribe } from "./realtime/useLiveScreen";
 export * from "./types";

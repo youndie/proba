@@ -1,0 +1,113 @@
+{
+  "id": "16.4-an-unknown-history-word-means-push",
+  "clause": "§16.4",
+  "holds": [
+    "16.4.4"
+  ],
+  "title": "the address of an update reaches the application with push by default, replace when named, and push for a word the client does not know",
+  "why": "history is an open string so that a newer server can say more; a client that drops the address on an unfamiliar word, or treats it as replace, breaks back and reload for every person on it, and one that hands over an address the update did not name moves the history on its own",
+  "screen": {
+    "type": "column",
+    "id": "catalog",
+    "children": [
+      {
+        "type": "text",
+        "id": "results",
+        "text": "all brands"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "answer",
+      "action": {
+        "type": "update",
+        "updates": [
+          {
+            "componentId": "results",
+            "component": {
+              "type": "text",
+              "id": "results",
+              "text": "acme"
+            }
+          }
+        ],
+        "deeplink": "app://catalog?brand=acme"
+      }
+    },
+    {
+      "step": "answer",
+      "action": {
+        "type": "update",
+        "updates": [
+          {
+            "componentId": "results",
+            "component": {
+              "type": "text",
+              "id": "results",
+              "text": "zeta"
+            }
+          }
+        ],
+        "deeplink": "app://catalog?brand=zeta",
+        "history": "replace"
+      }
+    },
+    {
+      "step": "answer",
+      "action": {
+        "type": "update",
+        "updates": [
+          {
+            "componentId": "results",
+            "component": {
+              "type": "text",
+              "id": "results",
+              "text": "omega"
+            }
+          }
+        ],
+        "deeplink": "app://catalog?brand=omega",
+        "history": "sideways"
+      }
+    },
+    {
+      "step": "answer",
+      "action": {
+        "type": "update",
+        "updates": [
+          {
+            "componentId": "results",
+            "component": {
+              "type": "text",
+              "id": "results",
+              "text": "omega, sorted"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "nodes": {
+      "results": {
+        "type": "text",
+        "text": "omega, sorted"
+      }
+    },
+    "addresses": [
+      {
+        "deeplink": "app://catalog?brand=acme",
+        "history": "push"
+      },
+      {
+        "deeplink": "app://catalog?brand=zeta",
+        "history": "replace"
+      },
+      {
+        "deeplink": "app://catalog?brand=omega",
+        "history": "push"
+      }
+    ]
+  }
+}

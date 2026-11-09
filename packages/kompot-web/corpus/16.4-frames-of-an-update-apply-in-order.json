@@ -1,0 +1,91 @@
+{
+  "id": "16.4-frames-of-an-update-apply-in-order",
+  "clause": "§16.4",
+  "holds": [
+    "16.4.1"
+  ],
+  "title": "the frames of one update apply in order: of two frames for one id the later wins, and a node written into a replaced one after it stays",
+  "why": "a client that applies frames as a set, or in any order of its own, ends on whichever frame it happened to apply last, and the screen shows a state the server never computed",
+  "screen": {
+    "type": "column",
+    "id": "catalog",
+    "children": [
+      {
+        "type": "text",
+        "id": "title",
+        "text": "Catalog"
+      },
+      {
+        "type": "column",
+        "id": "card",
+        "children": [
+          {
+            "type": "text",
+            "id": "price",
+            "text": "10 EUR"
+          }
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "answer",
+      "action": {
+        "type": "update",
+        "updates": [
+          {
+            "componentId": "title",
+            "component": {
+              "type": "text",
+              "id": "title",
+              "text": "first"
+            }
+          },
+          {
+            "componentId": "card",
+            "component": {
+              "type": "column",
+              "id": "card",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "price",
+                  "text": "12 EUR"
+                }
+              ]
+            }
+          },
+          {
+            "componentId": "price",
+            "component": {
+              "type": "text",
+              "id": "price",
+              "text": "9 EUR"
+            }
+          },
+          {
+            "componentId": "title",
+            "component": {
+              "type": "text",
+              "id": "title",
+              "text": "second"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "nodes": {
+      "title": {
+        "type": "text",
+        "text": "second"
+      },
+      "price": {
+        "type": "text",
+        "text": "9 EUR"
+      }
+    }
+  }
+}

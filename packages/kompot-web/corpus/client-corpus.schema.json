@@ -28,7 +28,19 @@
           "type": "string"
         },
         "form": {
-          "type": "object",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonElement"
+          }
+        },
+        "screen": {
+          "type": [
+            "object",
+            "null"
+          ],
           "additionalProperties": {
             "$ref": "#/$defs/JsonElement"
           }
@@ -48,7 +60,6 @@
         "clause",
         "title",
         "why",
-        "form",
         "expect"
       ],
       "additionalProperties": false
@@ -129,6 +140,39 @@
               "$ref": "#/$defs/JsonElement"
             }
           }
+        },
+        "nodes": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonElement"
+            }
+          }
+        },
+        "absent": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "addresses": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonElement"
+            }
+          }
         }
       },
       "required": [],
@@ -138,6 +182,9 @@
       "x-kompot-kind": "hierarchy",
       "x-kompot-open": false,
       "oneOf": [
+        {
+          "$ref": "#/$defs/ClientStepAnswer"
+        },
         {
           "$ref": "#/$defs/ClientStepBlur"
         },
@@ -154,12 +201,34 @@
       "discriminator": {
         "propertyName": "step",
         "mapping": {
+          "answer": "#/$defs/ClientStepAnswer",
           "blur": "#/$defs/ClientStepBlur",
           "patch": "#/$defs/ClientStepPatch",
           "set": "#/$defs/ClientStepSet",
           "submit": "#/$defs/ClientStepSubmit"
         }
       }
+    },
+    "ClientStepAnswer": {
+      "x-kompot-kind": "variant",
+      "x-kompot-wire-type": "answer",
+      "type": "object",
+      "properties": {
+        "step": {
+          "const": "answer"
+        },
+        "action": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonElement"
+          }
+        }
+      },
+      "required": [
+        "step",
+        "action"
+      ],
+      "additionalProperties": false
     },
     "ClientStepBlur": {
       "x-kompot-kind": "variant",
