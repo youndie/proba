@@ -3,6 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { createFormClient } from "../src/forms/controller";
+import { applyUpdateAction, findNode, type UpdateAction, type UpdateAddress } from "../src/realtime/updates";
+import type { AnyComponent } from "../src/types";
 import type { FieldValue, FormPatch, FormSchema } from "../src/generated/kompot";
 
 /**
@@ -20,7 +22,8 @@ interface Case {
   holds?: string[];
   title: string;
   why?: string;
-  form: FormSchema;
+  form?: FormSchema;
+  screen?: AnyComponent;
   steps?: Array<Record<string, unknown>>;
   expect: Record<string, unknown>;
 }
@@ -53,22 +56,41 @@ describe("the client conformance corpus", () => {
       for (const key of Object.keys(item)) {
         if (!caseKeys.includes(key)) throw new Error(`the runner does not know the case key "${key}" (case ${item.id})`);
       }
-      const client = createFormClient(item.form);
-      let submission: ReturnType<typeof client.submit> | undefined;
+      // A case is about a form or about a screen (§16.4 answers), and a form expectation on a case
+      // without a form is the runner misreading it, not a pass.
+      const formClient = item.form ? createFormClient(item.form) : undefined;
+      const form = () => {
+        if (!formClient) throw new Error(`case ${item.id} has no form for a form step or expectation`);
+        return formClient;
+      };
+      let screen = item.screen;
+      const addresses: UpdateAddress[] = [];
+      let submission: ReturnType<ReturnType<typeof createFormClient>["submit"]> | undefined;
 
       for (const step of item.steps ?? []) {
         switch (step.step) {
+          case "answer": {
+            // The answer of a perform or a load, run as an action. `update` is the only one with a
+            // clause in the corpus; another type here would be one this runner has not been held to.
+            const action = step.action as { type?: unknown };
+            if (action.type !== "update") throw new Error(`the runner does not know the answer "${String(action.type)}" (case ${item.id})`);
+            if (!screen) throw new Error(`case ${item.id} answers an update without a screen`);
+            const applied = applyUpdateAction(screen, action as UpdateAction);
+            screen = applied.tree;
+            if (applied.address) addresses.push(applied.address);
+            break;
+          }
           case "set":
-            client.setValue(String(step.fieldId), step.value as FieldValue);
+            form().setValue(String(step.fieldId), step.value as FieldValue);
             break;
           case "blur":
-            client.blur(String(step.fieldId));
+            form().blur(String(step.fieldId));
             break;
           case "patch":
-            client.applyPatch(step.patch as FormPatch);
+            form().applyPatch(step.patch as FormPatch);
             break;
           case "submit":
-            submission = client.submit();
+            submission = form().submit();
             break;
           default:
             // Skipping it would let a clause this engine has never been held to pass quietly.
@@ -85,7 +107,7 @@ describe("the client conformance corpus", () => {
       for (const [key, wanted] of Object.entries(item.expect)) {
         switch (key) {
           case "visibleFields":
-            expect([...client.visibleFields()].sort()).toEqual([...(wanted as string[])].sort());
+            expect([...form().visibleFields()].sort()).toEqual([...(wanted as string[])].sort());
             asserted += 1;
             break;
 
@@ -93,14 +115,14 @@ describe("the client conformance corpus", () => {
             // A list of the fields that must be clean, not a flag over the whole form.
             const clean = wanted as string[];
             expect(Array.isArray(clean), `noErrors is a list of field ids, got ${JSON.stringify(wanted)}`).toBe(true);
-            const errors = client.errors();
+            const errors = form().errors();
             for (const fieldId of clean) expect(errors[fieldId], `${fieldId} must have no error`).toBeUndefined();
             asserted += 1;
             break;
           }
 
           case "errors":
-            expect(client.errors()).toEqual(wanted);
+            expect(form().errors()).toEqual(wanted);
             asserted += 1;
             break;
 
@@ -122,8 +144,32 @@ describe("the client conformance corpus", () => {
             // the form as it was at that moment (§9.6). An empty list is an assertion too — that a
             // field without triggersPatch sent nothing.
             expect(
-              client.requests().map((request) => ({ kind: "patch", fieldId: request.fieldId, values: request.values })),
+              form().requests().map((request) => ({ kind: "patch", fieldId: request.fieldId, values: request.values })),
             ).toEqual(wanted);
+            asserted += 1;
+            break;
+
+          case "nodes":
+            // Each named node is on the screen and says at least this. The rest of the node — its
+            // id, fields the case does not mention — is not what the clause is about.
+            for (const [componentId, node] of Object.entries(wanted as Record<string, Record<string, unknown>>)) {
+              const found = screen && findNode(screen, componentId);
+              expect(found, `${componentId} must be on the screen`).toBeDefined();
+              expect(found).toMatchObject(node);
+            }
+            asserted += 1;
+            break;
+
+          case "absent":
+            for (const componentId of wanted as string[]) {
+              expect(screen && findNode(screen, componentId), `${componentId} must not be on the screen`).toBeUndefined();
+            }
+            asserted += 1;
+            break;
+
+          case "addresses":
+            // An empty list is an assertion too: an update without a deeplink hands over no address.
+            expect(addresses).toEqual(wanted);
             asserted += 1;
             break;
 

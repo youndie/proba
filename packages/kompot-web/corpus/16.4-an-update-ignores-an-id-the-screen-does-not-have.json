@@ -1,0 +1,77 @@
+{
+  "id": "16.4-an-update-ignores-an-id-the-screen-does-not-have",
+  "clause": "§16.4",
+  "holds": [
+    "16.4.2",
+    "16.4.3"
+  ],
+  "title": "a frame for an id the screen does not have is ignored, and the other frames of the update still apply",
+  "why": "an update is a list, and a client that stops at the frame it cannot place leaves the rest of the answer unapplied — or one that draws the stray node puts something on the screen its tree never had",
+  "screen": {
+    "type": "column",
+    "id": "catalog",
+    "children": [
+      {
+        "type": "text",
+        "id": "title",
+        "text": "Catalog"
+      },
+      {
+        "type": "text",
+        "id": "results",
+        "text": "all brands"
+      },
+      {
+        "type": "text",
+        "id": "cart",
+        "text": "cart: 0"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "answer",
+      "action": {
+        "type": "update",
+        "updates": [
+          {
+            "componentId": "ghost",
+            "component": {
+              "type": "text",
+              "id": "ghost",
+              "text": "from nowhere"
+            }
+          },
+          {
+            "componentId": "results",
+            "component": {
+              "type": "text",
+              "id": "results",
+              "text": "acme only"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "nodes": {
+      "results": {
+        "type": "text",
+        "text": "acme only"
+      },
+      "title": {
+        "type": "text",
+        "text": "Catalog"
+      },
+      "cart": {
+        "type": "text",
+        "text": "cart: 0"
+      }
+    },
+    "absent": [
+      "ghost"
+    ],
+    "addresses": []
+  }
+}

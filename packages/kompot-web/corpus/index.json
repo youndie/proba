@@ -18,6 +18,9 @@
     "9.5-an-amount-within-a-balance-passes.json",
     "9.4-an-error-on-a-field-that-then-hides.json",
     "9.6-a-patch-is-requested-once-by-the-field-that-triggers-it.json",
-    "9.6-a-field-that-triggers-no-patch-sends-nothing.json"
+    "9.6-a-field-that-triggers-no-patch-sends-nothing.json",
+    "16.4-an-update-ignores-an-id-the-screen-does-not-have.json",
+    "16.4-frames-of-an-update-apply-in-order.json",
+    "16.4-an-unknown-history-word-means-push.json"
   ]
 }

@@ -81,6 +81,14 @@ the value changes and nothing is sent: the endpoint is the application's, as wit
 The runner stops on a key it does not know — in a case, in its steps, in its expectations — and reads
 the keys a case may carry from `client-corpus.schema.json`, which travels with the cases (SPEC.md §17).
 
+### Answers
+
+The `update` an endpoint answers with (§16.4) is applied by `applyUpdateAction(tree, action)`: its
+frames in order, through the same `applyUpdate` a live frame takes, so the later of two frames for one
+id wins and a frame for an id the screen does not have is dropped. It returns the address instead of
+following it — the history is the application's — and reads any `history` but `replace` as `push`.
+The corpus holds it with the §16.4 cases.
+
 ### What it does not draw yet
 
 `box`, `tabs`, `expandable`, `image`, a scrolling `row`, and the actions kompot 0.38 added
