@@ -2,9 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": [
     "The portfolio's shared configuration, extended by name: the Monday batch, the limits, the labels, the kotlin/kotlinx/sborka groups, `ci actions` and majors going to a human.",
-    "Automerge is a separate preset (`github>youndie/sborka:automerge-harness`) and is not extended: nothing merges itself here today. Its precondition holds — check.yaml runs on `pull_request` — so it can be added as its own change."
+    "sborka's `automerge-harness` is extended second, so `github-actions` updates merge themselves on green. Its precondition holds, re-checked 2026-11-25: `check.yaml` is the only workflow and runs on every `pull_request` (`gates`, `jvm`, `web`)."
   ],
-  "extends": ["github>youndie/sborka"],
+  "extends": ["github>youndie/sborka", "github>youndie/sborka:automerge-harness"],
   "packageRules": [
     {
       "description": "kompot moves as one thing across all three pins, because they are one version wearing three hats: the server compiles against it, the client's types and the corpus are both taken from its jars. A pull request that moves one of them is a repository that no longer agrees with itself. Matched by kompot's own group, `io.github.youndie.kompot` (since 0.38), and nothing wider: a pattern on `io.github.youndie` would pull sborka into this rule and label its bumps `kompot`.",
